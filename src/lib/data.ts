@@ -1,4 +1,3 @@
-
 import type { Space, User, Post, Idea } from './types';
 import { subDays, addDays } from 'date-fns';
 
@@ -80,7 +79,7 @@ const techPosts: Post[] = [
 ];
 
 
-export const spaces: Space[] = [
+export let spaces: Space[] = [
   {
     id: 'space-1',
     name: 'متجر أزياء أزور',

@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { spaces, users } from '@/lib/data';
 
 interface CreateSpaceDialogProps {
   children: ReactNode;
@@ -26,6 +27,16 @@ export function CreateSpaceDialog({ children }: CreateSpaceDialogProps) {
 
   const handleCreateSpace = () => {
     if (spaceName.trim()) {
+      const newSpace = {
+        id: `space-${Date.now()}`,
+        name: spaceName,
+        team: [users[0]], // Add current user as the owner
+        posts: [],
+        ideas: [],
+        inviteToken: `${spaceName.slice(0,4).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
+      };
+      spaces.push(newSpace);
+
       toast({
         title: "تم إنشاء المساحة!",
         description: `تم إنشاء مساحة العمل "${spaceName}" بنجاح.`,

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from 'next/link';
 import { PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -5,8 +7,17 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { SpaceCard } from '@/components/dashboard/SpaceCard';
 import { CreateSpaceDialog } from '@/components/dashboard/CreateSpaceDialog';
 import { spaces } from '@/lib/data';
+import { useState, useEffect } from 'react';
 
 export default function DashboardPage() {
+  // We use state to re-render the component when spaces array is updated.
+  const [spaceList, setSpaceList] = useState(spaces);
+
+  useEffect(() => {
+    // This effect can be used to listen to changes in the spaces data
+    // In a real app, this would be where you fetch data or subscribe to a store
+  }, [spaceList]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <DashboardHeader />
