@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { notFound, useRouter } from 'next/navigation';
+import { notFound, useRouter, useParams } from 'next/navigation';
 import { getSpaceById, addPost, updatePost, addIdea, deleteIdea } from '@/lib/services';
 import type { Space, Post, Platform, PostStatus, Idea, User } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,7 +16,10 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 
-export default function SpacePage({ params: { spaceId } }: { params: { spaceId: string } }) {
+export default function SpacePage() {
+  const params = useParams();
+  const spaceId = params.spaceId as string;
+  
   const [space, setSpace] = useState<Space | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,8 +60,10 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    fetchSpace();
-  }, [fetchSpace]);
+    if (spaceId) {
+        fetchSpace();
+    }
+  }, [fetchSpace, spaceId]);
 
   const handleOpenCreatePostDialog = (content?: string) => {
     setInitialPostContent(content);

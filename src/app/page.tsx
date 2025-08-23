@@ -105,10 +105,8 @@ export default function DashboardPage() {
           ) : spaces.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {spaces.map((space) => (
-                <Link href={`/spaces/${space.id}`} key={space.id} legacyBehavior>
-                  <a className="block transition-transform transform hover:-translate-y-1">
-                    <SpaceCard space={space} />
-                  </a>
+                <Link href={`/spaces/${space.id}`} key={space.id} className="block transition-transform transform hover:-translate-y-1">
+                  <SpaceCard space={space} />
                 </Link>
               ))}
             </div>
