@@ -1,6 +1,6 @@
 import { db } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, serverTimestamp, Timestamp } from "firebase/firestore";
-import type { Space, Post, Idea, User } from './types';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp } from "firebase/firestore";
+import type { Space, Post, Idea, User, PostStatus } from './types';
 
 // Helper to convert Firestore timestamp to Date
 const convertTimestamp = (data: any) => {
@@ -27,6 +27,8 @@ export const getSpaces = async (): Promise<Space[]> => {
         const spaceData = d.data();
         const spaceId = d.id;
 
+        // For the dashboard, we might not need all posts/ideas, just counts.
+        // But for simplicity in this stage, we fetch them. This can be optimized later.
         const postsCol = collection(db, 'spaces', spaceId, 'posts');
         const ideasCol = collection(db, 'spaces', spaceId, 'ideas');
         const postsSnapshot = await getDocs(postsCol);
@@ -64,7 +66,7 @@ export const getSpaceById = async (spaceId: string): Promise<Space | null> => {
     const ideasSnapshot = await getDocs(ideasCol);
 
     const posts = postsSnapshot.docs.map(d => convertTimestamp({ id: d.id, ...d.data() })) as Post[];
-    const ideas = ideasSnapshot.docs.map(d => ({ id: d.id, ...d.data() })) as Idea[];
+    const ideas = ideasSnapshot.docs.map(d => ({ id: d.id, ...d.data() }) as Idea[];
 
     return {
         id: spaceSnap.id,
@@ -96,4 +98,36 @@ export const addSpace = async (spaceData: { name: string; team: User[] }): Promi
         ideas: [],
         inviteToken: newSpaceData?.inviteToken,
     } as Space;
+};
+
+// Add a new Post to a space
+export const addPost = async (spaceId: string, postData: Omit<Post, 'id'>): Promise<Post> => {
+    const postsCol = collection(db, 'spaces', spaceId, 'posts');
+    const docRef = await addDoc(postsCol, postData);
+    return {
+        id: docRef.id,
+        ...postData
+    }
+}
+
+// Update an existing Post
+export const updatePost = async (spaceId: string, postId: string, postData: Partial<Post>): Promise<void> => {
+    const postRef = doc(db, 'spaces', spaceId, 'posts', postId);
+    await updateDoc(postRef, postData);
+}
+
+// Add a new Idea to a space
+export const addIdea = async (spaceId: string, ideaData: Omit<Idea, 'id'>): Promise<Idea> => {
+    const ideasCol = collection(db, 'spaces', spaceId, 'ideas');
+    const docRef = await addDoc(ideasCol, ideaData);
+    return {
+        id: docRef.id,
+        ...ideaData
+    }
+}
+
+// Delete an idea from a space
+export const deleteIdea = async (spaceId: string, ideaId: string): Promise<void> => {
+    const ideaRef = doc(db, 'spaces', spaceId, 'ideas', ideaId);
+    await deleteDoc(ideaRef);
 }

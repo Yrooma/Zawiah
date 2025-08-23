@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useToast } from "@/hooks/use-toast";
 import type { Platform, Post } from '@/lib/types';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -25,7 +25,7 @@ import { cn } from '@/lib/utils';
 interface CreatePostDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSavePost: (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }, id?: string) => void;
+  onSavePost: (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }, id?: string) => Promise<void>;
   initialContent?: string;
   postToEdit?: Post;
   children?: ReactNode;
@@ -38,6 +38,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
   const [content, setContent] = useState("");
   const [platform, setPlatform] = useState<Platform | undefined>(undefined);
   const [scheduledAt, setScheduledAt] = useState<Date | undefined>(new Date());
+  const [isLoading, setIsLoading] = useState(false);
   
   const isEditing = !!postToEdit;
   
@@ -66,7 +67,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
     }
   }, [postToEdit, initialContent, open]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim() || !content.trim() || !platform || !scheduledAt) {
         toast({
             variant: "destructive",
@@ -76,13 +77,24 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
         return;
     }
     
-    onSavePost({ title, content, platform, scheduledAt }, postToEdit?.id);
+    setIsLoading(true);
+    try {
+      await onSavePost({ title, content, platform, scheduledAt }, postToEdit?.id);
 
-    toast({
-      title: isEditing ? "Post updated!" : "Post created!",
-      description: isEditing ? "Your changes to the post have been saved." : "Your draft post has been added to the calendar.",
-    });
-    onOpenChange(false);
+      toast({
+        title: isEditing ? "Post updated!" : "Post created!",
+        description: isEditing ? "Your changes to the post have been saved." : "Your draft post has been added to the calendar.",
+      });
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not save the post. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const handleOpenChange = (isOpen: boolean) => {
@@ -113,6 +125,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. 'Spring Collection Launch'"
               className="col-span-3"
+              disabled={isLoading}
             />
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
@@ -125,13 +138,14 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write your post content here..."
               className="col-span-3 min-h-[120px]"
+              disabled={isLoading}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="platform" className="text-right">
               Platform
             </Label>
-            <Select value={platform} onValueChange={(value: Platform) => setPlatform(value)}>
+            <Select value={platform} onValueChange={(value: Platform) => setPlatform(value)} disabled={isLoading}>
                 <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select a platform" />
                 </SelectTrigger>
@@ -156,6 +170,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
                     "col-span-3 justify-start text-left font-normal",
                     !scheduledAt && "text-muted-foreground"
                   )}
+                  disabled={isLoading}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {scheduledAt ? format(scheduledAt, 'PPP') : <span>Pick a date</span>}
@@ -173,8 +188,10 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit" onClick={handleSave}>
-            {isEditing ? 'Save Changes' : 'Create Draft Post'}
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>Cancel</Button>
+          <Button type="submit" onClick={handleSave} disabled={isLoading}>
+             {isLoading && <Loader2 className="animate-spin" />}
+            {isLoading ? 'Saving...' : (isEditing ? 'Save Changes' : 'Create Draft Post')}
           </Button>
         </DialogFooter>
       </DialogContent>

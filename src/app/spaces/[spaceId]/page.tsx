@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
-import { getSpaceById } from '@/lib/services';
-import type { Space, Post, Platform, PostStatus } from '@/lib/types';
+import { getSpaceById, addPost, updatePost, addIdea, deleteIdea } from '@/lib/services';
+import type { Space, Post, Platform, PostStatus, Idea } from '@/lib/types';
 import { users } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
@@ -13,6 +13,7 @@ import { CreatePostDialog } from '@/components/space/CreatePostDialog';
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 export default function SpacePage({ params: { spaceId } }: { params: { spaceId: string } }) {
   const [space, setSpace] = useState<Space | null>(null);
@@ -22,6 +23,7 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
   const [isCreatePostOpen, setCreatePostOpen] = useState(false);
   const [initialPostContent, setInitialPostContent] = useState<string | undefined>(undefined);
   const [postToEdit, setPostToEdit] = useState<Post | undefined>(undefined);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchSpace = async () => {
@@ -55,59 +57,100 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
     setCreatePostOpen(true);
   }
   
-  const handleAddOrUpdatePost = (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }, id?: string) => {
+  const handleAddOrUpdatePost = async (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }, id?: string) => {
     if (!space) return;
 
-    if (id) {
+    try {
+      if (id) {
         // Update existing post
-        const updatedPosts = space.posts.map(p => {
-            if (p.id === id) {
-                const updatedPost = {
-                    ...p,
-                    ...postDetails,
-                    lastModifiedBy: users[0],
-                    activityLog: [...p.activityLog, { user: users[0], action: 'updated the post', date: 'Just now' }]
-                };
-                return updatedPost;
-            }
-            return p;
-        });
+        const updatedPostData = {
+          ...postDetails,
+          lastModifiedBy: users[0],
+          activityLog: [...(space.posts.find(p => p.id === id)?.activityLog || []), { user: users[0], action: 'updated the post', date: 'Just now' }]
+        };
+        await updatePost(space.id, id, updatedPostData);
+        
+        // Update local state
+        const updatedPosts = space.posts.map(p => p.id === id ? { ...p, ...updatedPostData } : p);
         setSpace({...space, posts: updatedPosts});
-    } else {
+      } else {
         // Add new post
-        const newPost: Post = {
-            id: `post-${Date.now()}`,
+        const newPostData: Omit<Post, 'id'> = {
             ...postDetails,
             status: 'draft',
             createdBy: users[0], 
             lastModifiedBy: users[0],
             activityLog: [{ user: users[0], action: 'created', date: 'Just now' }],
         };
+        const newPost = await addPost(space.id, newPostData);
+        
+        // Update local state
         const updatedPosts = [...space.posts, newPost];
         setSpace({...space, posts: updatedPosts});
+      }
+    } catch (e) {
+        console.error("Failed to save post", e);
+        toast({ title: "Error saving post", variant: "destructive" });
     }
   };
 
-  const handleUpdatePostStatus = (postId: string, newStatus: PostStatus) => {
+  const handleUpdatePostStatus = async (postId: string, newStatus: PostStatus) => {
     if (!space) return;
-    const statusMessages = {
-      draft: 'Draft',
-      ready: 'Ready to Publish',
-      published: 'Published',
-    };
-    const updatedPosts = space.posts.map(p => {
-      if (p.id === postId) {
-        return { 
-          ...p, 
-          status: newStatus,
-          lastModifiedBy: users[0],
-          activityLog: [...p.activityLog, { user: users[0], action: `changed status to "${statusMessages[newStatus]}"`, date: 'Just now' }]
+    try {
+        const postToUpdate = space.posts.find(p => p.id === postId);
+        if (!postToUpdate) return;
+        
+        const statusMessages = {
+            draft: 'Draft',
+            ready: 'Ready to Publish',
+            published: 'Published',
         };
-      }
-      return p;
-    });
-    setSpace({...space, posts: updatedPosts});
+
+        const updatedPostData = {
+            status: newStatus,
+            lastModifiedBy: users[0],
+            activityLog: [...postToUpdate.activityLog, { user: users[0], action: `changed status to "${statusMessages[newStatus]}"`, date: 'Just now' }]
+        };
+
+        await updatePost(space.id, postId, updatedPostData);
+
+        const updatedPosts = space.posts.map(p => p.id === postId ? { ...p, ...updatedPostData } : p);
+        setSpace({...space, posts: updatedPosts});
+    } catch(e) {
+        console.error("Failed to update status", e);
+        toast({ title: "Error updating status", variant: "destructive" });
+    }
   };
+  
+  const handleAddIdea = async (content: string) => {
+    if (!space) return;
+    try {
+      const newIdeaData: Omit<Idea, 'id'> = {
+        content,
+        createdBy: users[0],
+        createdAt: new Date().toISOString(),
+      };
+      const newIdea = await addIdea(space.id, newIdeaData);
+      const updatedIdeas = [...space.ideas, newIdea];
+      setSpace({ ...space, ideas: updatedIdeas });
+    } catch (e) {
+      console.error("Failed to add idea", e);
+      toast({ title: "Error adding idea", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteIdea = async (ideaId: string) => {
+    if (!space) return;
+    try {
+      await deleteIdea(space.id, ideaId);
+      const updatedIdeas = space.ideas.filter(idea => idea.id !== ideaId);
+      setSpace({ ...space, ideas: updatedIdeas });
+    } catch (e) {
+      console.error("Failed to delete idea", e);
+      toast({ title: "Error deleting idea", variant: "destructive" });
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -133,6 +176,7 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
       <SpaceHeader 
         spaceName={space.name} 
         onNewPostClick={() => handleOpenCreatePostDialog()}
+        space={space}
       />
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
@@ -145,7 +189,12 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
               <CalendarTab posts={space.posts} onUpdatePostStatus={handleUpdatePostStatus} onEditPost={handleOpenEditPostDialog} />
             </TabsContent>
             <TabsContent value="ideas" className="mt-6">
-              <IdeasTab space={space} onConvertToPost={handleOpenCreatePostDialog} />
+              <IdeasTab 
+                space={space} 
+                onConvertToPost={handleOpenCreatePostDialog}
+                onAddIdea={handleAddIdea}
+                onDeleteIdea={handleDeleteIdea}
+              />
             </TabsContent>
           </Tabs>
         </div>

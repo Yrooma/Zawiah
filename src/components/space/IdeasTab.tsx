@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import type { Idea, Space } from '@/lib/types';
-import { users } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Lightbulb, PlusCircle, Sparkles, Trash2 } from 'lucide-react';
@@ -15,12 +14,20 @@ import { expandOnIdea } from '@/ai/flows/idea-generation-flow';
 interface IdeasTabProps {
   space: Space;
   onConvertToPost: (content: string) => void;
+  onAddIdea: (content: string) => Promise<void>;
+  onDeleteIdea: (ideaId: string) => Promise<void>;
 }
 
-export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
+export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea }: IdeasTabProps) {
     const { toast } = useToast();
+    // We get ideas from the space prop, but manage a local copy for AI updates
     const [ideas, setIdeas] = useState<Idea[]>(space.ideas);
     const [isExpanding, setIsExpanding] = useState<string | null>(null);
+
+    // Sync with parent when space prop changes
+    useState(() => {
+        setIdeas(space.ideas);
+    });
 
     const handleConvertToPost = (ideaContent: string) => {
         onConvertToPost(ideaContent);
@@ -30,22 +37,8 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
         });
     }
 
-    const handleAddIdea = (content: string) => {
-        const newIdea: Idea = {
-            id: `idea-${Date.now()}`,
-            content: content,
-            createdBy: users[0], // Assuming current user is users[0]
-            createdAt: new Date().toISOString().split('T')[0],
-        };
-        const updatedIdeas = [...ideas, newIdea];
-        setIdeas(updatedIdeas);
-        space.ideas = updatedIdeas; // Also update the source data
-    }
-    
-    const handleDeleteIdea = (ideaId: string) => {
-      const updatedIdeas = ideas.filter(idea => idea.id !== ideaId);
-      setIdeas(updatedIdeas);
-      space.ideas = updatedIdeas; // Also update the source data
+    const handleDeleteIdea = async (ideaId: string) => {
+      await onDeleteIdea(ideaId);
       toast({
         title: "Idea Deleted!",
         variant: "destructive"
@@ -61,7 +54,8 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
             i.id === idea.id ? { ...i, content: result.expandedPost } : i
           );
           setIdeas(updatedIdeas);
-          space.ideas = updatedIdeas;
+          // Note: This AI expansion is a client-side visual change only.
+          // To persist, we would need to call an updateIdea service function here.
           toast({
             title: "Idea Expanded!",
             description: "The AI has expanded your idea into a post.",
@@ -84,7 +78,7 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-headline font-bold">Content Ideas</h2>
-        <CreateIdeaDialog onAddIdea={handleAddIdea}>
+        <CreateIdeaDialog onAddIdea={onAddIdea}>
           <Button>
             <PlusCircle />
             Add Idea
@@ -127,7 +121,7 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
                 <p className="mt-1 text-sm text-muted-foreground">
                     This is your space for brainstorming. Add your first idea!
                 </p>
-                <CreateIdeaDialog onAddIdea={handleAddIdea}>
+                <CreateIdeaDialog onAddIdea={onAddIdea}>
                     <Button className="mt-4">
                         <PlusCircle />
                         Add your first idea

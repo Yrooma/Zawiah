@@ -14,26 +14,40 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from 'lucide-react';
 
 interface CreateIdeaDialogProps {
   children: ReactNode;
-  onAddIdea: (content: string) => void;
+  onAddIdea: (content: string) => Promise<void>;
 }
 
 export function CreateIdeaDialog({ children, onAddIdea }: CreateIdeaDialogProps) {
   const [open, setOpen] = useState(false);
   const [ideaContent, setIdeaContent] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleCreateIdea = () => {
+  const handleCreateIdea = async () => {
     if (ideaContent.trim()) {
-      onAddIdea(ideaContent);
-      toast({
-        title: "Idea added!",
-        description: `Your idea has been successfully added.`,
-      });
-      setIdeaContent("");
-      setOpen(false);
+      setIsLoading(true);
+      try {
+        await onAddIdea(ideaContent);
+        toast({
+          title: "Idea added!",
+          description: `Your idea has been successfully added.`,
+        });
+        setIdeaContent("");
+        setOpen(false);
+      } catch (error) {
+        console.error("Failed to add idea:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not add the new idea. Please try again."
+        });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -56,12 +70,15 @@ export function CreateIdeaDialog({ children, onAddIdea }: CreateIdeaDialogProps)
               onChange={(e) => setIdeaContent(e.target.value)}
               placeholder="e.g. 'Run an Instagram contest next week...'"
               className="min-h-[100px]"
+              disabled={isLoading}
             />
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit" onClick={handleCreateIdea} disabled={!ideaContent.trim()}>
-            Add Idea
+           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>Cancel</Button>
+          <Button type="submit" onClick={handleCreateIdea} disabled={!ideaContent.trim() || isLoading}>
+            {isLoading && <Loader2 className="animate-spin" />}
+            {isLoading ? 'Adding...' : 'Add Idea'}
           </Button>
         </DialogFooter>
       </DialogContent>
