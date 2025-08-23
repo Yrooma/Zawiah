@@ -1,9 +1,9 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, use } from 'react';
 import { notFound, useRouter, useParams } from 'next/navigation';
-import { getSpaceById, addPost, updatePost, addIdea, deleteIdea } from '@/lib/services';
+import { getSpaceById, addPost, updatePost, addIdea, deleteIdea, updateIdea } from '@/lib/services';
 import type { Space, Post, Platform, PostStatus, Idea, User } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
@@ -165,6 +165,20 @@ export default function SpacePage() {
     }
   };
 
+  const handleUpdateIdea = async (ideaId: string, content: string) => {
+    if (!space) return;
+    try {
+      await updateIdea(space.id, ideaId, content);
+      const updatedIdeas = space.ideas.map(idea => 
+        idea.id === ideaId ? { ...idea, content } : idea
+      );
+      setSpace({ ...space, ideas: updatedIdeas });
+    } catch (e) {
+      console.error("Failed to update idea", e);
+      toast({ title: "Error updating idea", variant: "destructive" });
+    }
+  };
+
   const handleDeleteIdea = async (ideaId: string) => {
     if (!space) return;
     try {
@@ -221,6 +235,7 @@ export default function SpacePage() {
                 onConvertToPost={handleOpenCreatePostDialog}
                 onAddIdea={handleAddIdea}
                 onDeleteIdea={handleDeleteIdea}
+                onUpdateIdea={handleUpdateIdea}
               />
             </TabsContent>
           </Tabs>

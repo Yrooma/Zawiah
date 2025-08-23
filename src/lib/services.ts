@@ -135,7 +135,6 @@ export const joinSpaceWithToken = async (userId: string, token: string): Promise
     const updatedTeam = [...spaceData.team, user];
     const updatedMemberIds = [...spaceData.memberIds, userId];
 
-    // Regenerate a new token if there's still room, otherwise nullify it.
     const newInviteToken = updatedMemberIds.length < 3
         ? `${spaceData.name.slice(0,4).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
         : null;
@@ -197,6 +196,13 @@ export const addIdea = async (spaceId: string, ideaData: Omit<Idea, 'id'>): Prom
         ...ideaData
     }
 }
+
+// Update an existing Idea
+export const updateIdea = async (spaceId: string, ideaId: string, content: string): Promise<void> => {
+    const ideaRef = doc(db, 'spaces', spaceId, 'ideas', ideaId);
+    await updateDoc(ideaRef, { content });
+};
+
 
 // Delete an idea from a space
 export const deleteIdea = async (spaceId: string, ideaId: string): Promise<void> => {
