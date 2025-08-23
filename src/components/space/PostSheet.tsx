@@ -1,6 +1,6 @@
 "use client";
 
-import type { Post, Platform } from "@/lib/types";
+import type { Post, Platform, PostStatus } from "@/lib/types";
 import Image from "next/image";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -24,17 +24,17 @@ const PlatformDisplay = ({ platform }: { platform: Platform }) => {
             color: 'bg-black' 
         },
         facebook: { name: 'فيسبوك', Icon: Facebook, color: 'bg-blue-600' },
-        linkedin: { name: 'لينكد إن', Icon: () => <span>in</span>, color: 'bg-sky-700' },
-        threads: { name: 'ثريدز', Icon: () => <span>@</span>, color: 'bg-gray-800' },
+        linkedin: { name: 'لينكد إن', Icon: () => <span className="font-bold text-sm">in</span>, color: 'bg-sky-700' },
+        threads: { name: 'ثريدز', Icon: () => <span className="font-bold text-xl">@</span>, color: 'bg-gray-800' },
     };
     const details = platformDetails[platform];
 
     return (
         <div className="flex items-center gap-2">
-            <div className={`p-1.5 rounded-full ${details.color} flex items-center justify-center`}>
+            <div className={`p-1.5 rounded-md ${details.color} flex items-center justify-center text-white`}>
                 <details.Icon />
             </div>
-            <span className="font-semibold text-white">{details.name}</span>
+            <span className="font-semibold">{details.name}</span>
         </div>
     )
 }
@@ -43,9 +43,10 @@ interface PostSheetProps {
     post: Post | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    onUpdateStatus: (postId: string, newStatus: PostStatus) => void;
 }
 
-export function PostSheet({ post, open, onOpenChange }: PostSheetProps) {
+export function PostSheet({ post, open, onOpenChange, onUpdateStatus }: PostSheetProps) {
   const { toast } = useToast();
 
   if (!post) return null;
@@ -56,6 +57,7 @@ export function PostSheet({ post, open, onOpenChange }: PostSheetProps) {
   };
   
   const handleMarkAsPublished = () => {
+    onUpdateStatus(post.id, 'published');
     onOpenChange(false);
     toast({
         title: "تم تحديث الحالة!",
@@ -74,14 +76,14 @@ export function PostSheet({ post, open, onOpenChange }: PostSheetProps) {
   const statusClasses = {
     draft: 'bg-yellow-500 text-yellow-900',
     ready: 'bg-blue-500 text-white',
-    published: 'bg-gray-500 text-white',
+    published: 'bg-green-600 text-white',
   };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-lg p-0 flex flex-col" side="left">
         <SheetHeader className="p-6 pb-0">
-          <SheetTitle className="font-headline text-2xl ps-8">{post.title}</SheetTitle>
+          <SheetTitle className="font-headline text-2xl">{post.title}</SheetTitle>
           <div className="flex justify-between items-center text-sm pt-2">
             <Badge className={statusClasses[post.status]}>{statusMessages[post.status]}</Badge>
             <div className="text-muted-foreground">{format(post.scheduledAt, 'PPPP', { locale: arSA })}</div>
@@ -90,7 +92,7 @@ export function PostSheet({ post, open, onOpenChange }: PostSheetProps) {
         <div className="flex-grow overflow-y-auto p-6 space-y-6">
             <div>
                 <h3 className="font-semibold mb-2">المنصة</h3>
-                <div className="bg-primary/80 text-primary-foreground p-3 rounded-lg">
+                <div className="p-3 rounded-lg bg-secondary">
                     <PlatformDisplay platform={post.platform} />
                 </div>
             </div>
@@ -137,12 +139,14 @@ export function PostSheet({ post, open, onOpenChange }: PostSheetProps) {
             </div>
 
         </div>
-        <SheetFooter className="p-6 bg-background border-t">
-          <Button size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleMarkAsPublished}>
-            تحديث الحالة إلى: تم النشر
-            <CheckCircle />
-          </Button>
-        </SheetFooter>
+        {post.status !== 'published' && (
+             <SheetFooter className="p-6 bg-background border-t">
+                <Button size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleMarkAsPublished}>
+                    تحديث الحالة إلى: تم النشر
+                    <CheckCircle />
+                </Button>
+            </SheetFooter>
+        )}
       </SheetContent>
     </Sheet>
   );

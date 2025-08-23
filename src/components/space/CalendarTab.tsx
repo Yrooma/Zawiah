@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import type { Post } from '@/lib/types';
+import type { Post, PostStatus } from '@/lib/types';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, addMonths, subMonths, isSameDay } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -14,9 +14,10 @@ const WEEKDAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأر�
 
 interface CalendarTabProps {
   posts: Post[];
+  onUpdatePostStatus: (postId: string, newStatus: PostStatus) => void;
 }
 
-export function CalendarTab({ posts }: CalendarTabProps) {
+export function CalendarTab({ posts, onUpdatePostStatus }: CalendarTabProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
@@ -32,6 +33,10 @@ export function CalendarTab({ posts }: CalendarTabProps) {
 
   const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+
+  const handlePostSheetClose = () => {
+    setSelectedPost(null);
+  }
 
   return (
     <>
@@ -80,7 +85,12 @@ export function CalendarTab({ posts }: CalendarTabProps) {
           );
         })}
       </div>
-      <PostSheet post={selectedPost} open={!!selectedPost} onOpenChange={(isOpen) => !isOpen && setSelectedPost(null)} />
+      <PostSheet 
+        post={selectedPost} 
+        open={!!selectedPost} 
+        onOpenChange={(isOpen) => !isOpen && handlePostSheetClose()}
+        onUpdateStatus={onUpdatePostStatus}
+      />
     </>
   );
 }

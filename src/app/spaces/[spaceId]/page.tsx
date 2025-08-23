@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { notFound } from 'next/navigation';
 import { spaces, users } from '@/lib/data';
-import type { Post, Platform } from '@/lib/types';
+import type { Post, Platform, PostStatus } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
 import { CalendarTab } from '@/components/space/CalendarTab';
@@ -43,6 +43,22 @@ export default function SpacePage({ params }: { params: { spaceId: string } }) {
     space.posts = updatedPosts; // Also update the source data
   };
 
+  const handleUpdatePostStatus = (postId: string, newStatus: PostStatus) => {
+    const updatedPosts = posts.map(p => {
+      if (p.id === postId) {
+        return { 
+          ...p, 
+          status: newStatus,
+          lastModifiedBy: users[0], // Assume current user made the change
+          activityLog: [...p.activityLog, { user: users[0], action: `غيّر الحالة إلى "${newStatus}"`, date: 'الآن' }]
+        };
+      }
+      return p;
+    });
+    setPosts(updatedPosts);
+    space.posts = updatedPosts; // Also update the source data
+  };
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -58,7 +74,7 @@ export default function SpacePage({ params }: { params: { spaceId: string } }) {
               <TabsTrigger value="ideas">الأفكار</TabsTrigger>
             </TabsList>
             <TabsContent value="calendar" className="mt-6">
-              <CalendarTab posts={posts} />
+              <CalendarTab posts={posts} onUpdatePostStatus={handleUpdatePostStatus} />
             </TabsContent>
             <TabsContent value="ideas" className="mt-6">
               <IdeasTab space={space} onConvertToPost={handleOpenCreatePostDialog} />
