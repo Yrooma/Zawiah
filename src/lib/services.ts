@@ -1,7 +1,7 @@
 
 import { db } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp, query, where, writeBatch } from "firebase/firestore";
-import type { Space, Post, Idea, User, AppUser } from './types';
+import type { Space, Post, Idea, User, AppUser, Notification } from './types';
 
 // Helper to convert Firestore timestamp to Date
 const convertTimestamp = (data: any) => {
@@ -167,6 +167,26 @@ export const updatePost = async (spaceId: string, postId: string, postData: Part
 export const addIdea = async (spaceId: string, ideaData: Omit<Idea, 'id'>): Promise<Idea> => {
     const ideasCol = collection(db, 'spaces', spaceId, 'ideas');
     const docRef = await addDoc(ideasCol, ideaData);
+    
+    const space = await getSpaceById(spaceId);
+    if (space) {
+        const batch = writeBatch(db);
+        const notificationsCol = collection(db, 'notifications');
+        space.memberIds.forEach(memberId => {
+            if (memberId !== ideaData.createdBy.id) {
+                const newNotifRef = doc(notificationsCol);
+                batch.set(newNotifRef, {
+                    userId: memberId,
+                    message: `${ideaData.createdBy.name} added a new idea in "${space.name}"`,
+                    link: `/spaces/${spaceId}`,
+                    read: false,
+                    createdAt: serverTimestamp(),
+                });
+            }
+        });
+        await batch.commit();
+    }
+    
     return {
         id: docRef.id,
         ...ideaData
@@ -178,3 +198,22 @@ export const deleteIdea = async (spaceId: string, ideaId: string): Promise<void>
     const ideaRef = doc(db, 'spaces', spaceId, 'ideas', ideaId);
     await deleteDoc(ideaRef);
 }
+
+// Fetch notifications for a user
+export const getNotifications = async (userId: string): Promise<Notification[]> => {
+    const notificationsCol = collection(db, 'notifications');
+    const q = query(notificationsCol, where('userId', '==', userId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => convertTimestamp({ id: d.id, ...d.data() }) as Notification)
+        .sort((a, b) => (b.createdAt as Date).getTime() - (a.createdAt as Date).getTime());
+};
+
+// Mark notifications as read
+export const markNotificationsAsRead = async (notificationIds: string[]): Promise<void> => {
+    const batch = writeBatch(db);
+    notificationIds.forEach(id => {
+        const notifRef = doc(db, 'notifications', id);
+        batch.update(notifRef, { read: true });
+    });
+    await batch.commit();
+};

@@ -53,3 +53,12 @@ export type Space = {
   ideas: Idea[];
   inviteToken?: string | null;
 };
+
+export type Notification = {
+  id: string;
+  userId: string; // The user who should receive the notification
+  message: string;
+  link: string; // e.g., `/spaces/{spaceId}`
+  read: boolean;
+  createdAt: Timestamp;
+};

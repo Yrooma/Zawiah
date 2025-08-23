@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -20,9 +21,35 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '../ui/badge';
 import { useAuth } from '@/hooks/use-auth';
+import { useState, useEffect } from 'react';
+import type { Notification } from '@/lib/types';
+import { getNotifications, markNotificationsAsRead } from '@/lib/services';
+import { formatDistanceToNow } from 'date-fns';
 
 export function DashboardHeader() {
   const { user, signOut } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (user) {
+      const fetchNotifications = async () => {
+        const userNotifications = await getNotifications(user.uid);
+        setNotifications(userNotifications);
+        setUnreadCount(userNotifications.filter(n => !n.read).length);
+      };
+      fetchNotifications();
+    }
+  }, [user]);
+
+  const handleOpenNotifications = async () => {
+    if (unreadCount > 0) {
+      const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+      await markNotificationsAsRead(unreadIds);
+      setUnreadCount(0);
+      setNotifications(notifications.map(n => ({...n, read: true})));
+    }
+  }
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -32,29 +59,35 @@ export function DashboardHeader() {
           <span className="font-headline text-xl font-bold">CollabPost</span>
         </Link>
         <div className="flex items-center gap-4">
-          <DropdownMenu>
+          <DropdownMenu onOpenChange={(open) => open && handleOpenNotifications()}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
-                <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0 text-xs">2</Badge>
+                {unreadCount > 0 && (
+                  <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0 text-xs">{unreadCount}</Badge>
+                )}
                 <span className="sr-only">Notifications</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80">
                 <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <div className='flex flex-col'>
-                        <p className='font-semibold'>Post due for "Azure Fashion"</p>
-                        <p className='text-muted-foreground text-sm'>Time to post on Instagram.</p>
-                    </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <div className='flex flex-col'>
-                        <p className='font-semibold'>New idea from Sarah</p>
-                        <p className='text-muted-foreground text-sm'>"Highlight our sustainable materials."</p>
-                    </div>
-                </DropdownMenuItem>
+                {notifications.length > 0 ? (
+                  notifications.slice(0, 5).map(n => (
+                     <DropdownMenuItem key={n.id} asChild>
+                        <Link href={n.link} className='flex flex-col items-start'>
+                            <p className='font-semibold'>{n.message}</p>
+                            <p className='text-muted-foreground text-sm'>
+                              {formatDistanceToNow(n.createdAt as Date, { addSuffix: true })}
+                            </p>
+                        </Link>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <DropdownMenuItem disabled>
+                    You have no new notifications.
+                  </DropdownMenuItem>
+                )}
             </DropdownMenuContent>
           </DropdownMenu>
 
