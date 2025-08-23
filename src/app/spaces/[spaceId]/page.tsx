@@ -19,8 +19,8 @@ export default function SpacePage({ params }: { params: { spaceId: string } }) {
         <div className="max-w-7xl mx-auto">
           <Tabs defaultValue="calendar" className="w-full">
             <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
-              <TabsTrigger value="calendar">Calendar</TabsTrigger>
-              <TabsTrigger value="ideas">Ideas</TabsTrigger>
+              <TabsTrigger value="calendar">التقويم</TabsTrigger>
+              <TabsTrigger value="ideas">الأفكار</TabsTrigger>
             </TabsList>
             <TabsContent value="calendar" className="mt-6">
               <CalendarTab posts={space.posts} />

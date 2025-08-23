@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from 'react';
-import { Copy, Check, UserPlus } from 'lucide-react';
+import { Copy, Check } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,7 +32,7 @@ export function TeamDialog({ children }: TeamDialogProps) {
   const copyToClipboard = () => {
     navigator.clipboard.writeText(MOCK_TOKEN);
     setHasCopied(true);
-    toast({ title: "Copied to clipboard!" });
+    toast({ title: "تم النسخ إلى الحافظة!" });
     setTimeout(() => setHasCopied(false), 2000);
   };
 
@@ -41,13 +41,13 @@ export function TeamDialog({ children }: TeamDialogProps) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-headline">Manage Team</DialogTitle>
+          <DialogTitle className="font-headline">إدارة الفريق</DialogTitle>
           <DialogDescription>
-            Invite up to 2 other members to this space.
+            ادعُ ما يصل إلى عضوين آخرين إلى هذه المساحة.
           </DialogDescription>
         </DialogHeader>
         <div className="py-2">
-            <h3 className="text-sm font-medium mb-3">Current Members</h3>
+            <h3 className="text-sm font-medium mb-3">الأعضاء الحاليون</h3>
             <div className="space-y-3">
             {MOCK_TEAM.map((user) => (
                 <div key={user.id} className="flex items-center justify-between">
@@ -58,11 +58,11 @@ export function TeamDialog({ children }: TeamDialogProps) {
                     </Avatar>
                     <div>
                     <p className="font-semibold">{user.name}</p>
-                    <p className="text-xs text-muted-foreground">{user.id === users[0].id ? 'Owner' : 'Member'}</p>
+                    <p className="text-xs text-muted-foreground">{user.id === users[0].id ? 'المالك' : 'عضو'}</p>
                     </div>
                 </div>
                 {user.id !== users[0].id && (
-                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">Remove</Button>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">إزالة</Button>
                 )}
                 </div>
             ))}
@@ -70,8 +70,8 @@ export function TeamDialog({ children }: TeamDialogProps) {
         </div>
         <Separator />
         <div className="space-y-2 pt-2">
-          <Label htmlFor="link" className="font-medium">Invite with token</Label>
-          <div className="flex items-center space-x-2">
+          <Label htmlFor="link" className="font-medium">الدعوة باستخدام الرمز</Label>
+          <div className="flex items-center space-x-2 space-x-reverse">
             <Input id="link" value={MOCK_TOKEN} readOnly className="font-mono" />
             <Button size="icon" onClick={copyToClipboard}>
               {hasCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}

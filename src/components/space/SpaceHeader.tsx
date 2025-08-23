@@ -23,8 +23,8 @@ export function SpaceHeader({ spaceName }: SpaceHeaderProps) {
         <div className="flex items-center gap-4">
           <Link href="/" passHref>
             <Button variant="outline" size="icon" className="h-8 w-8">
-              <ArrowLeft className="h-4 w-4" />
-              <span className="sr-only">Back to Dashboard</span>
+              <ArrowLeft className="h-4 w-4 rotate-180" />
+              <span className="sr-only">العودة إلى لوحة التحكم</span>
             </Button>
           </Link>
           <h1 className="text-xl font-headline font-semibold hidden md:block">{spaceName}</h1>
@@ -33,38 +33,38 @@ export function SpaceHeader({ spaceName }: SpaceHeaderProps) {
           <TeamDialog>
             <Button variant="outline">
               <Users />
-              <span className="hidden md:inline-block">Manage Team</span>
+              <span className="hidden md:inline-block">إدارة الفريق</span>
             </Button>
           </TeamDialog>
           <Button>
             <PlusCircle />
-            <span className="hidden md:inline-block">New Post</span>
+            <span className="hidden md:inline-block">منشور جديد</span>
           </Button>
           
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar>
-                  <AvatarImage src="https://placehold.co/100x100/EFEFEFF/333333?text=AD" alt="User avatar" />
+                  <AvatarImage src="https://placehold.co/100x100/EFEFEFF/333333?text=AD" alt="صورة المستخدم الرمزية" />
                   <AvatarFallback>AD</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>حسابي</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <User className="ms-2 h-4 w-4" />
+                <span>الملف الشخصي</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
+                <Settings className="ms-2 h-4 w-4" />
+                <span>الإعدادات</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <LogOut className="ms-2 h-4 w-4" />
+                <span>تسجيل الخروج</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

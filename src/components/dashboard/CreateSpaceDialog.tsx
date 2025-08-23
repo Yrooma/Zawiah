@@ -27,8 +27,8 @@ export function CreateSpaceDialog({ children }: CreateSpaceDialogProps) {
   const handleCreateSpace = () => {
     if (spaceName.trim()) {
       toast({
-        title: "Space Created!",
-        description: `The space "${spaceName}" has been successfully created.`,
+        title: "تم إنشاء المساحة!",
+        description: `تم إنشاء مساحة العمل "${spaceName}" بنجاح.`,
       });
       setSpaceName("");
       setOpen(false);
@@ -40,28 +40,28 @@ export function CreateSpaceDialog({ children }: CreateSpaceDialogProps) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">Create New Space</DialogTitle>
+          <DialogTitle className="font-headline">إنشاء مساحة جديدة</DialogTitle>
           <DialogDescription>
-            Give your new collaboration space a name. You can invite team members later.
+            أعطِ مساحة التعاون الجديدة اسمًا. يمكنك دعوة أعضاء الفريق لاحقًا.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
-              Name
+              الاسم
             </Label>
             <Input
               id="name"
               value={spaceName}
               onChange={(e) => setSpaceName(e.target.value)}
-              placeholder="e.g., 'Fashion Store Campaign'"
+              placeholder="مثال: 'حملة متجر الأزياء'"
               className="col-span-3"
             />
           </div>
         </div>
         <DialogFooter>
           <Button type="submit" onClick={handleCreateSpace} disabled={!spaceName.trim()}>
-            Create Space
+            إنشاء مساحة
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -16,11 +16,11 @@ export function SpaceCard({ space }: SpaceCardProps) {
     <Card className="h-full flex flex-col hover:border-primary/50 hover:shadow-lg transition-all duration-200">
       <CardHeader>
         <CardTitle className="font-headline">{space.name}</CardTitle>
-        <CardDescription>A space for content collaboration.</CardDescription>
+        <CardDescription>مساحة للتعاون في صناعة المحتوى.</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
-        <div className="flex items-center space-x-2">
-          <div className="flex -space-x-2">
+        <div className="flex items-center space-x-2 space-x-reverse">
+          <div className="flex -space-x-2 -space-x-reverse">
             <TooltipProvider>
               {space.team.map((member) => (
                 <Tooltip key={member.id}>
@@ -37,17 +37,17 @@ export function SpaceCard({ space }: SpaceCardProps) {
               ))}
             </TooltipProvider>
           </div>
-          <span className="text-sm text-muted-foreground">{space.team.length} members</span>
+          <span className="text-sm text-muted-foreground">{space.team.length} أعضاء</span>
         </div>
       </CardContent>
       <CardFooter className="flex justify-between text-sm text-muted-foreground bg-secondary/50 py-3 px-6 rounded-b-lg">
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4" />
-          <span>{postsCount} Posts</span>
+          <span>{postsCount} منشورات</span>
         </div>
         <div className="flex items-center gap-2">
           <Lightbulb className="w-4 h-4" />
-          <span>{ideasCount} Ideas</span>
+          <span>{ideasCount} أفكار</span>
         </div>
       </CardFooter>
     </Card>
