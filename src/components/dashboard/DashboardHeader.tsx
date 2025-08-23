@@ -68,16 +68,16 @@ export function DashboardHeader() {
               <DropdownMenuLabel>حسابي</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <User className="ms-2 h-4 w-4" />
+                <User />
                 <span>الملف الشخصي</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Settings className="ms-2 h-4 w-4" />
+                <Settings />
                 <span>الإعدادات</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <LogOut className="ms-2 h-4 w-4" />
+                <LogOut />
                 <span>تسجيل الخروج</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

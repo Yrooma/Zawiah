@@ -31,7 +31,7 @@ const PlatformDisplay = ({ platform }: { platform: Platform }) => {
 
     return (
         <div className="flex items-center gap-2">
-            <div className={`p-1.5 rounded-full ${details.color}`}>
+            <div className={`p-1.5 rounded-full ${details.color} flex items-center justify-center`}>
                 <details.Icon />
             </div>
             <span className="font-semibold text-white">{details.name}</span>
@@ -79,7 +79,7 @@ export function PostSheet({ post, open, onOpenChange }: PostSheetProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg p-0 flex flex-col">
+      <SheetContent className="w-full sm:max-w-lg p-0 flex flex-col" side="left">
         <SheetHeader className="p-6 pb-0">
           <SheetTitle className="font-headline text-2xl ps-8">{post.title}</SheetTitle>
           <div className="flex justify-between items-center text-sm pt-2">
@@ -108,8 +108,8 @@ export function PostSheet({ post, open, onOpenChange }: PostSheetProps) {
                 <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold">المحتوى</h3>
                     <Button variant="outline" size="sm" onClick={handleCopy}>
-                        <Copy className="ms-2 h-4 w-4"/>
                         نسخ النص
+                        <Copy />
                     </Button>
                 </div>
                 <div className="border rounded-lg p-4 bg-muted/30 text-sm whitespace-pre-wrap">
@@ -130,7 +130,7 @@ export function PostSheet({ post, open, onOpenChange }: PostSheetProps) {
                                 <span className="font-medium">{log.user.name}</span>
                                 <span className="text-muted-foreground"> {log.action.toLowerCase()}</span>
                             </div>
-                            <span className="me-auto text-xs text-muted-foreground">{log.date}</span>
+                            <span className="ms-auto text-xs text-muted-foreground">{log.date}</span>
                         </li>
                     ))}
                 </ul>
@@ -139,8 +139,8 @@ export function PostSheet({ post, open, onOpenChange }: PostSheetProps) {
         </div>
         <SheetFooter className="p-6 bg-background border-t">
           <Button size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleMarkAsPublished}>
-            <CheckCircle className="ms-2 h-5 w-5"/>
             تحديث الحالة إلى: تم النشر
+            <CheckCircle />
           </Button>
         </SheetFooter>
       </SheetContent>

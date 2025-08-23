@@ -23,7 +23,7 @@ export function SpaceHeader({ spaceName }: SpaceHeaderProps) {
         <div className="flex items-center gap-4">
           <Link href="/" passHref>
             <Button variant="outline" size="icon" className="h-8 w-8">
-              <ArrowLeft className="h-4 w-4 rotate-180" />
+              <ArrowLeft className="h-4 w-4" />
               <span className="sr-only">العودة إلى لوحة التحكم</span>
             </Button>
           </Link>
@@ -54,16 +54,16 @@ export function SpaceHeader({ spaceName }: SpaceHeaderProps) {
               <DropdownMenuLabel>حسابي</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <User className="ms-2 h-4 w-4" />
+                <User />
                 <span>الملف الشخصي</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Settings className="ms-2 h-4 w-4" />
+                <Settings />
                 <span>الإعدادات</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <LogOut className="ms-2 h-4 w-4" />
+                <LogOut />
                 <span>تسجيل الخروج</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
