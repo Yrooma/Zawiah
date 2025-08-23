@@ -40,6 +40,16 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
         setIdeas(updatedIdeas);
         space.ideas = updatedIdeas; // Also update the source data
     }
+    
+    const handleDeleteIdea = (ideaId: string) => {
+      const updatedIdeas = ideas.filter(idea => idea.id !== ideaId);
+      setIdeas(updatedIdeas);
+      space.ideas = updatedIdeas; // Also update the source data
+      toast({
+        title: "تم حذف الفكرة!",
+        variant: "destructive"
+      });
+    }
 
   return (
     <div>
@@ -70,7 +80,7 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
                 <Button size="sm" variant="outline" onClick={() => handleConvertToPost(idea.content)}>
                   تحويل إلى منشور
                 </Button>
-                <Button size="icon" variant="ghost" className='h-8 w-8 text-muted-foreground hover:text-destructive'>
+                <Button size="icon" variant="ghost" className='h-8 w-8 text-muted-foreground hover:text-destructive' onClick={() => handleDeleteIdea(idea.id)}>
                     <Trash2 className='h-4 w-4'/>
                 </Button>
               </div>
