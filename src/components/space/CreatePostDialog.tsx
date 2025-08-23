@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useToast } from "@/hooks/use-toast";
-import type { Platform } from '@/lib/types';
+import type { Platform, Post } from '@/lib/types';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '../ui/calendar';
@@ -27,18 +27,21 @@ import { cn } from '@/lib/utils';
 interface CreatePostDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddPost: (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }) => void;
+  onSavePost: (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }, id?: string) => void;
   initialContent?: string;
+  postToEdit?: Post;
   children?: ReactNode;
 }
 
-export function CreatePostDialog({ open, onOpenChange, onAddPost, initialContent, children }: CreatePostDialogProps) {
+export function CreatePostDialog({ open, onOpenChange, onSavePost, initialContent, postToEdit, children }: CreatePostDialogProps) {
   const { toast } = useToast();
   
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [platform, setPlatform] = useState<Platform | undefined>(undefined);
   const [scheduledAt, setScheduledAt] = useState<Date | undefined>(new Date());
+  
+  const isEditing = !!postToEdit;
   
   const resetForm = () => {
       setTitle("");
@@ -48,29 +51,38 @@ export function CreatePostDialog({ open, onOpenChange, onAddPost, initialContent
   }
 
   useEffect(() => {
-    if (initialContent) {
-      setContent(initialContent);
-    } else {
-      // when opening without initial content, clear previous content
-      setContent(""); 
+    if (open) {
+      if (postToEdit) {
+        setTitle(postToEdit.title);
+        setContent(postToEdit.content);
+        setPlatform(postToEdit.platform);
+        setScheduledAt(postToEdit.scheduledAt);
+      } else if (initialContent) {
+        setContent(initialContent);
+        setTitle("");
+        setPlatform(undefined);
+        setScheduledAt(new Date());
+      } else {
+        resetForm();
+      }
     }
-  }, [initialContent, open]);
+  }, [postToEdit, initialContent, open]);
 
-  const handleCreatePost = () => {
+  const handleSave = () => {
     if (!title.trim() || !content.trim() || !platform || !scheduledAt) {
         toast({
             variant: "destructive",
             title: "الحقول مطلوبة",
-            description: "الرجاء تعبئة جميع الحقول لإنشاء منشور.",
+            description: "الرجاء تعبئة جميع الحقول لحفظ المنشور.",
         });
         return;
     }
     
-    onAddPost({ title, content, platform, scheduledAt });
+    onSavePost({ title, content, platform, scheduledAt }, postToEdit?.id);
 
     toast({
-      title: "تم إنشاء المنشور!",
-      description: "تمت إضافة مسودة منشورك إلى التقويم.",
+      title: isEditing ? "تم تحديث المنشور!" : "تم إنشاء المنشور!",
+      description: isEditing ? "تم حفظ التغييرات على منشورك." : "تمت إضافة مسودة منشورك إلى التقويم.",
     });
     onOpenChange(false);
   };
@@ -87,9 +99,9 @@ export function CreatePostDialog({ open, onOpenChange, onAddPost, initialContent
       {children}
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">إنشاء منشور جديد</DialogTitle>
+          <DialogTitle className="font-headline">{isEditing ? 'تعديل المنشور' : 'إنشاء منشور جديد'}</DialogTitle>
           <DialogDescription>
-            املأ التفاصيل أدناه لإنشاء مسودة منشور جديدة.
+            {isEditing ? 'قم بتعديل تفاصيل المنشور أدناه.' : 'املأ التفاصيل أدناه لإنشاء مسودة منشور جديدة.'}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -121,7 +133,7 @@ export function CreatePostDialog({ open, onOpenChange, onAddPost, initialContent
             <Label htmlFor="platform" className="text-right">
               المنصة
             </Label>
-            <Select onValueChange={(value: Platform) => setPlatform(value)}>
+            <Select value={platform} onValueChange={(value: Platform) => setPlatform(value)}>
                 <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="اختر منصة" />
                 </SelectTrigger>
@@ -164,8 +176,8 @@ export function CreatePostDialog({ open, onOpenChange, onAddPost, initialContent
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit" onClick={handleCreatePost}>
-            إنشاء مسودة المنشور
+          <Button type="submit" onClick={handleSave}>
+            {isEditing ? 'حفظ التغييرات' : 'إنشاء مسودة المنشور'}
           </Button>
         </DialogFooter>
       </DialogContent>

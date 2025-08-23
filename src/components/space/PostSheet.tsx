@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Post, Platform, PostStatus } from "@/lib/types";
@@ -5,7 +6,7 @@ import Image from "next/image";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Instagram, Facebook, Copy, CheckCircle } from 'lucide-react';
+import { Instagram, Facebook, Copy, CheckCircle, Pencil } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { format } from "date-fns";
@@ -44,9 +45,10 @@ interface PostSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onUpdateStatus: (postId: string, newStatus: PostStatus) => void;
+    onEdit: (post: Post) => void;
 }
 
-export function PostSheet({ post, open, onOpenChange, onUpdateStatus }: PostSheetProps) {
+export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: PostSheetProps) {
   const { toast } = useToast();
 
   if (!post) return null;
@@ -82,14 +84,20 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus }: PostShee
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-lg p-0 flex flex-col" side="left">
-        <SheetHeader className="p-6 pb-0">
-          <SheetTitle className="font-headline text-2xl">{post.title}</SheetTitle>
+        <SheetHeader className="p-6 pb-4">
+          <div className="flex justify-between items-start">
+            <SheetTitle className="font-headline text-2xl">{post.title}</SheetTitle>
+            <Button variant="outline" size="icon" onClick={() => onEdit(post)}>
+              <Pencil />
+              <span className="sr-only">تعديل المنشور</span>
+            </Button>
+          </div>
           <div className="flex justify-between items-center text-sm pt-2">
             <Badge className={statusClasses[post.status]}>{statusMessages[post.status]}</Badge>
             <div className="text-muted-foreground">{format(post.scheduledAt, 'PPPP', { locale: arSA })}</div>
           </div>
         </SheetHeader>
-        <div className="flex-grow overflow-y-auto p-6 space-y-6">
+        <div className="flex-grow overflow-y-auto p-6 pt-2 space-y-6">
             <div>
                 <h3 className="font-semibold mb-2">المنصة</h3>
                 <div className="p-3 rounded-lg bg-secondary">

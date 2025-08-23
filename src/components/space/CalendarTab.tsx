@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -15,9 +16,10 @@ const WEEKDAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأر�
 interface CalendarTabProps {
   posts: Post[];
   onUpdatePostStatus: (postId: string, newStatus: PostStatus) => void;
+  onEditPost: (post: Post) => void;
 }
 
-export function CalendarTab({ posts, onUpdatePostStatus }: CalendarTabProps) {
+export function CalendarTab({ posts, onUpdatePostStatus, onEditPost }: CalendarTabProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
@@ -36,6 +38,12 @@ export function CalendarTab({ posts, onUpdatePostStatus }: CalendarTabProps) {
 
   const handlePostSheetClose = () => {
     setSelectedPost(null);
+  }
+  
+  const handleEdit = (post: Post) => {
+    handlePostSheetClose();
+    // Delay to allow sheet to close before opening dialog
+    setTimeout(() => onEditPost(post), 100);
   }
 
   return (
@@ -90,6 +98,7 @@ export function CalendarTab({ posts, onUpdatePostStatus }: CalendarTabProps) {
         open={!!selectedPost} 
         onOpenChange={(isOpen) => !isOpen && handlePostSheetClose()}
         onUpdateStatus={onUpdatePostStatus}
+        onEdit={handleEdit}
       />
     </>
   );
