@@ -95,3 +95,6 @@ export const spaces: Space[] = [
     ideas: techIdeas
   },
 ];
+
+export const teamMembers = [users[0], users[1]];
+export const teamInviteToken = 'a1b2c3d4e5';

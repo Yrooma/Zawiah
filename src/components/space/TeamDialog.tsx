@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { users } from '@/lib/mock-data';
+import { teamMembers, teamInviteToken, users } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 
@@ -22,15 +22,12 @@ interface TeamDialogProps {
   children: ReactNode;
 }
 
-const MOCK_TEAM = [users[0], users[1]];
-const MOCK_TOKEN = 'a1b2c3d4e5';
-
 export function TeamDialog({ children }: TeamDialogProps) {
   const [hasCopied, setHasCopied] = useState(false);
   const { toast } = useToast();
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(MOCK_TOKEN);
+    navigator.clipboard.writeText(teamInviteToken);
     setHasCopied(true);
     toast({ title: "تم النسخ إلى الحافظة!" });
     setTimeout(() => setHasCopied(false), 2000);
@@ -49,7 +46,7 @@ export function TeamDialog({ children }: TeamDialogProps) {
         <div className="py-2">
             <h3 className="text-sm font-medium mb-3">الأعضاء الحاليون</h3>
             <div className="space-y-3">
-            {MOCK_TEAM.map((user) => (
+            {teamMembers.map((user) => (
                 <div key={user.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Avatar>
@@ -72,9 +69,9 @@ export function TeamDialog({ children }: TeamDialogProps) {
         <div className="space-y-2 pt-2">
           <Label htmlFor="link" className="font-medium">الدعوة باستخدام الرمز</Label>
           <div className="flex items-center space-x-2 space-x-reverse">
-            <Input id="link" value={MOCK_TOKEN} readOnly className="font-mono" />
+            <Input id="link" value={teamInviteToken} readOnly className="font-mono" />
             <Button size="icon" onClick={copyToClipboard}>
-              {hasCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {hasCopied ? <Check /> : <Copy />}
             </Button>
           </div>
         </div>

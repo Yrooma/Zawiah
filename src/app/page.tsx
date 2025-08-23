@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { SpaceCard } from '@/components/dashboard/SpaceCard';
 import { CreateSpaceDialog } from '@/components/dashboard/CreateSpaceDialog';
-import { spaces } from '@/lib/mock-data';
+import { spaces } from '@/lib/data';
 
 export default function DashboardPage() {
   return (

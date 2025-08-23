@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { spaces } from '@/lib/mock-data';
+import { spaces } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
 import { CalendarTab } from '@/components/space/CalendarTab';

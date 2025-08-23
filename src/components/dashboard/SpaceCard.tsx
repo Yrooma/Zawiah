@@ -42,11 +42,11 @@ export function SpaceCard({ space }: SpaceCardProps) {
       </CardContent>
       <CardFooter className="flex justify-between text-sm text-muted-foreground bg-secondary/50 py-3 px-6 rounded-b-lg">
         <div className="flex items-center gap-2">
-          <FileText className="w-4 h-4" />
+          <FileText />
           <span>{postsCount} منشورات</span>
         </div>
         <div className="flex items-center gap-2">
-          <Lightbulb className="w-4 h-4" />
+          <Lightbulb />
           <span>{ideasCount} أفكار</span>
         </div>
       </CardFooter>

@@ -15,6 +15,12 @@ export type Idea = {
   createdAt: string;
 };
 
+export type ActivityLog = {
+  user: User;
+  action: string;
+  date: string;
+};
+
 export type Post = {
   id: string;
   title: string;
@@ -25,11 +31,7 @@ export type Post = {
   createdBy: User;
   lastModifiedBy: User;
   imageUrl?: string;
-  activityLog: {
-    user: User;
-    action: string;
-    date: string;
-  }[];
+  activityLog: ActivityLog[];
 };
 
 export type Space = {
