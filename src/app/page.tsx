@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { LayoutGrid, ArrowLeft } from 'lucide-react';
@@ -14,8 +15,6 @@ export default function LandingPage() {
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
             <Link href="#features" className="transition-colors hover:text-primary">الميزات</Link>
-            <Link href="#pricing" className="transition-colors hover:text-primary">الأسعار</Link>
-            <Link href="#contact" className="transition-colors hover:text-primary">اتصل بنا</Link>
           </nav>
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild>
@@ -76,12 +75,12 @@ export default function LandingPage() {
 
       </main>
 
-      <footer id="contact" className="w-full border-t bg-background">
+      <footer className="w-full border-t bg-background">
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row">
             <p className="text-sm text-muted-foreground">© 2024 زاوية. جميع الحقوق محفوظة.</p>
             <div className="flex items-center gap-4">
-                 <Link href="#" className="text-sm transition-colors hover:text-primary">سياسة الخصوصية</Link>
-                 <Link href="#" className="text-sm transition-colors hover:text-primary">شروط الخدمة</Link>
+                 <Link href="/privacy" className="text-sm transition-colors hover:text-primary">سياسة الخصوصية</Link>
+                 <Link href="/terms" className="text-sm transition-colors hover:text-primary">شروط الخدمة</Link>
             </div>
         </div>
       </footer>
