@@ -1,3 +1,4 @@
+
 import type { Space, User, Post, Idea } from './types';
 import { subDays, addDays } from 'date-fns';
 
@@ -85,16 +86,15 @@ export const spaces: Space[] = [
     name: 'متجر أزياء أزور',
     team: [users[0], users[1], users[2]],
     posts: fashionPosts,
-    ideas: fashionIdeas
+    ideas: fashionIdeas,
+    inviteToken: 'AZRFSHN-33'
   },
   {
     id: 'space-2',
     name: 'Innovatech SaaS',
     team: [users[0], users[2]],
     posts: techPosts,
-    ideas: techIdeas
+    ideas: techIdeas,
+    inviteToken: 'INVTCH-SaaS'
   },
 ];
-
-export const teamMembers = [users[0], users[1]];
-export const teamInviteToken = 'a1b2c3d4e5';

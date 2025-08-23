@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CreatePostDialog } from './CreatePostDialog';
+import type { Space } from '@/lib/types';
+import { spaces } from '@/lib/data'; // We'll get the space data from here
 
 interface SpaceHeaderProps {
   spaceName: string;
@@ -20,6 +22,10 @@ interface SpaceHeaderProps {
 }
 
 export function SpaceHeader({ spaceName, onNewPostClick }: SpaceHeaderProps) {
+  // This is a placeholder to find the current space. In a real app,
+  // this would come from a data fetch based on the spaceId.
+  const currentSpace = spaces.find(s => s.name === spaceName);
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 md:px-8">
@@ -33,7 +39,7 @@ export function SpaceHeader({ spaceName, onNewPostClick }: SpaceHeaderProps) {
           <h1 className="text-xl font-headline font-semibold hidden md:block">{spaceName}</h1>
         </div>
         <div className="flex items-center gap-2 md:gap-4">
-          <TeamDialog>
+          <TeamDialog team={currentSpace?.team || []} inviteToken={currentSpace?.inviteToken || ''}>
             <Button variant="outline">
               <Users />
               <span className="hidden md:inline-block">إدارة الفريق</span>

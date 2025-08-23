@@ -1,3 +1,4 @@
+
 export type User = {
   id: string;
   name: string;
@@ -40,4 +41,5 @@ export type Space = {
   team: User[];
   posts: Post[];
   ideas: Idea[];
+  inviteToken?: string;
 };
