@@ -8,12 +8,12 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  projectId: "collabpost-rehtm",
+  appId: "1:959254466273:web:81c2c2149c84d6234a31a0",
+  storageBucket: "collabpost-rehtm.firebasestorage.app",
+  apiKey: "AIzaSyB-TnEPMMnredCFt7F8867A32KF6iVnNH0",
+  authDomain: "collabpost-rehtm.firebaseapp.com",
+  messagingSenderId: "959254466273"
 };
 
 // Initialize Firebase

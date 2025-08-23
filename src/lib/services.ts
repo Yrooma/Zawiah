@@ -1,6 +1,6 @@
 import { db } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp } from "firebase/firestore";
-import type { Space, Post, Idea, User, PostStatus } from './types';
+import type { Space, Post, Idea, User } from './types';
 
 // Helper to convert Firestore timestamp to Date
 const convertTimestamp = (data: any) => {
@@ -66,7 +66,7 @@ export const getSpaceById = async (spaceId: string): Promise<Space | null> => {
     const ideasSnapshot = await getDocs(ideasCol);
 
     const posts = postsSnapshot.docs.map(d => convertTimestamp({ id: d.id, ...d.data() })) as Post[];
-    const ideas = ideasSnapshot.docs.map(d => ({ id: d.id, ...d.data() }) as Idea[];
+    const ideas = ideasSnapshot.docs.map(d => ({ id: d.id, ...d.data() })) as Idea[];
 
     return {
         id: spaceSnap.id,
