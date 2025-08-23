@@ -30,7 +30,7 @@ export default function DashboardPage() {
       if(user) {
         try {
           setIsLoading(true);
-          const spacesFromDb = await getSpaces(user.id);
+          const spacesFromDb = await getSpaces(user.uid);
           setSpaces(spacesFromDb);
           setError(null);
         } catch (err) {

@@ -150,8 +150,9 @@ export const addPost = async (spaceId: string, postData: Omit<Post, 'id'>): Prom
     const docRef = await addDoc(postsCol, postData);
     return {
         id: docRef.id,
-        ...postData
-    }
+        ...postData,
+        scheduledAt: (postData.scheduledAt as Timestamp).toDate(),
+    } as Post
 }
 
 // Update an existing Post

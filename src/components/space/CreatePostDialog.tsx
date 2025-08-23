@@ -57,7 +57,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
         setTitle(postToEdit.title);
         setContent(postToEdit.content);
         setPlatform(postToEdit.platform);
-        setScheduledAt(postToEdit.scheduledAt);
+        setScheduledAt(postToEdit.scheduledAt as Date);
       } else if (initialContent) {
         setContent(initialContent);
         setTitle("");
