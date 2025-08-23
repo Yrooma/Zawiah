@@ -16,27 +16,58 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useToast } from "@/hooks/use-toast";
+import type { Platform } from '@/lib/types';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { CalendarIcon } from 'lucide-react';
+import { Calendar } from '../ui/calendar';
+import { format } from 'date-fns';
+import { arSA } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 interface CreatePostDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onAddPost: (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }) => void;
   initialContent?: string;
   children?: ReactNode;
 }
 
-export function CreatePostDialog({ open, onOpenChange, initialContent, children }: CreatePostDialogProps) {
+export function CreatePostDialog({ open, onOpenChange, onAddPost, initialContent, children }: CreatePostDialogProps) {
   const { toast } = useToast();
+  
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [platform, setPlatform] = useState<Platform | undefined>(undefined);
+  const [scheduledAt, setScheduledAt] = useState<Date | undefined>(new Date());
+  
+  const resetForm = () => {
+      setTitle("");
+      setContent("");
+      setPlatform(undefined);
+      setScheduledAt(new Date());
+  }
 
   useEffect(() => {
     if (initialContent) {
       setContent(initialContent);
     } else {
-      setContent("");
+      // when opening without initial content, clear previous content
+      setContent(""); 
     }
   }, [initialContent, open]);
 
   const handleCreatePost = () => {
+    if (!title.trim() || !content.trim() || !platform || !scheduledAt) {
+        toast({
+            variant: "destructive",
+            title: "الحقول مطلوبة",
+            description: "الرجاء تعبئة جميع الحقول لإنشاء منشور.",
+        });
+        return;
+    }
+    
+    onAddPost({ title, content, platform, scheduledAt });
+
     toast({
       title: "تم إنشاء المنشور!",
       description: "تمت إضافة مسودة منشورك إلى التقويم.",
@@ -45,10 +76,10 @@ export function CreatePostDialog({ open, onOpenChange, initialContent, children 
   };
   
   const handleOpenChange = (isOpen: boolean) => {
-    onOpenChange(isOpen);
     if (!isOpen) {
-        setContent("");
+        resetForm();
     }
+    onOpenChange(isOpen);
   }
 
   return (
@@ -68,6 +99,8 @@ export function CreatePostDialog({ open, onOpenChange, initialContent, children 
             </Label>
             <Input
               id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="مثال: 'إطلاق مجموعة الربيع'"
               className="col-span-3"
             />
@@ -88,7 +121,7 @@ export function CreatePostDialog({ open, onOpenChange, initialContent, children 
             <Label htmlFor="platform" className="text-right">
               المنصة
             </Label>
-            <Select>
+            <Select onValueChange={(value: Platform) => setPlatform(value)}>
                 <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="اختر منصة" />
                 </SelectTrigger>
@@ -100,6 +133,34 @@ export function CreatePostDialog({ open, onOpenChange, initialContent, children 
                     <SelectItem value="threads">ثريدز</SelectItem>
                 </SelectContent>
             </Select>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+             <Label htmlFor="date" className="text-right">
+              تاريخ النشر
+            </Label>
+             <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "col-span-3 justify-start text-left font-normal",
+                    !scheduledAt && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="ml-2 h-4 w-4" />
+                  {scheduledAt ? format(scheduledAt, 'PPP', { locale: arSA }) : <span>اختر تاريخ</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={scheduledAt}
+                  onSelect={setScheduledAt}
+                  initialFocus
+                  locale={arSA}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
         <DialogFooter>

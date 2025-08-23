@@ -3,8 +3,8 @@
 
 import { useState } from 'react';
 import { notFound } from 'next/navigation';
-import { spaces } from '@/lib/data';
-import type { Post, Idea } from '@/lib/types';
+import { spaces, users } from '@/lib/data';
+import type { Post, Platform } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
 import { CalendarTab } from '@/components/space/CalendarTab';
@@ -13,9 +13,6 @@ import { CreatePostDialog } from '@/components/space/CreatePostDialog';
 import React from 'react';
 
 export default function SpacePage({ params }: { params: { spaceId: string } }) {
-  const [isCreatePostOpen, setCreatePostOpen] = useState(false);
-  const [initialPostContent, setInitialPostContent] = useState<string | undefined>(undefined);
-
   const spaceId = params.spaceId;
   const space = spaces.find((s) => s.id === spaceId);
 
@@ -23,10 +20,29 @@ export default function SpacePage({ params }: { params: { spaceId: string } }) {
     notFound();
   }
 
+  const [posts, setPosts] = useState<Post[]>(space.posts);
+  const [isCreatePostOpen, setCreatePostOpen] = useState(false);
+  const [initialPostContent, setInitialPostContent] = useState<string | undefined>(undefined);
+
   const handleOpenCreatePostDialog = (content?: string) => {
     setInitialPostContent(content);
     setCreatePostOpen(true);
   };
+  
+  const handleAddPost = (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }) => {
+    const newPost: Post = {
+      id: `post-${Date.now()}`,
+      ...postDetails,
+      status: 'draft',
+      createdBy: users[0],
+      lastModifiedBy: users[0],
+      activityLog: [{ user: users[0], action: 'أنشأ', date: 'الآن' }],
+    };
+    const updatedPosts = [...posts, newPost];
+    setPosts(updatedPosts);
+    space.posts = updatedPosts; // Also update the source data
+  };
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -42,7 +58,7 @@ export default function SpacePage({ params }: { params: { spaceId: string } }) {
               <TabsTrigger value="ideas">الأفكار</TabsTrigger>
             </TabsList>
             <TabsContent value="calendar" className="mt-6">
-              <CalendarTab posts={space.posts} />
+              <CalendarTab posts={posts} />
             </TabsContent>
             <TabsContent value="ideas" className="mt-6">
               <IdeasTab space={space} onConvertToPost={handleOpenCreatePostDialog} />
@@ -54,6 +70,7 @@ export default function SpacePage({ params }: { params: { spaceId: string } }) {
         open={isCreatePostOpen}
         onOpenChange={setCreatePostOpen}
         initialContent={initialPostContent}
+        onAddPost={handleAddPost}
       />
     </div>
   );
