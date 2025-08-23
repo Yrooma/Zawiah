@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CreatePostDialog } from './CreatePostDialog';
 
 interface SpaceHeaderProps {
   spaceName: string;
@@ -36,10 +37,12 @@ export function SpaceHeader({ spaceName }: SpaceHeaderProps) {
               <span className="hidden md:inline-block">إدارة الفريق</span>
             </Button>
           </TeamDialog>
-          <Button>
-            <PlusCircle />
-            <span className="hidden md:inline-block">منشور جديد</span>
-          </Button>
+          <CreatePostDialog>
+            <Button>
+              <PlusCircle />
+              <span className="hidden md:inline-block">منشور جديد</span>
+            </Button>
+          </CreatePostDialog>
           
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
