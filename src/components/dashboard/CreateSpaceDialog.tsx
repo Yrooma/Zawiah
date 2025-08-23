@@ -15,8 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { addSpace } from '@/lib/services';
-import type { Space } from '@/lib/types';
-import { users } from '@/lib/data';
+import type { Space, User } from '@/lib/types';
+import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
 
 interface CreateSpaceDialogProps {
@@ -29,14 +29,21 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
   const [spaceName, setSpaceName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { user: authUser } = useAuth();
 
   const handleCreateSpace = async () => {
-    if (spaceName.trim()) {
+    if (spaceName.trim() && authUser) {
       setIsLoading(true);
       try {
+        const owner: User = {
+          id: authUser.uid,
+          name: authUser.name,
+          avatarUrl: authUser.avatarUrl,
+        };
         const newSpaceData = {
           name: spaceName,
-          team: [users[0]], // Add current user as the owner
+          team: [owner],
+          memberIds: [owner.id],
         };
         const newSpace = await addSpace(newSpaceData);
         

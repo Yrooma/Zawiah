@@ -1,6 +1,6 @@
 import { db } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp } from "firebase/firestore";
-import type { Space, Post, Idea, User } from './types';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp, query, where, writeBatch } from "firebase/firestore";
+import type { Space, Post, Idea, User, AppUser } from './types';
 
 // Helper to convert Firestore timestamp to Date
 const convertTimestamp = (data: any) => {
@@ -17,18 +17,26 @@ const convertTimestamp = (data: any) => {
     return convert(data);
 };
 
+// Fetch user profile from Firestore
+export const getUserProfile = async (userId: string): Promise<AppUser | null> => {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+        return { uid: userSnap.id, ...userSnap.data() } as AppUser;
+    }
+    return null;
+}
 
-// Fetch all spaces for the dashboard
-export const getSpaces = async (): Promise<Space[]> => {
+// Fetch all spaces for the dashboard for a given user
+export const getSpaces = async (userId: string): Promise<Space[]> => {
     const spacesCol = collection(db, 'spaces');
-    const spacesSnapshot = await getDocs(spacesCol);
+    const q = query(spacesCol, where('memberIds', 'array-contains', userId));
+    const spacesSnapshot = await getDocs(q);
     
     const spaceList = await Promise.all(spacesSnapshot.docs.map(async (d) => {
         const spaceData = d.data();
         const spaceId = d.id;
 
-        // For the dashboard, we might not need all posts/ideas, just counts.
-        // But for simplicity in this stage, we fetch them. This can be optimized later.
         const postsCol = collection(db, 'spaces', spaceId, 'posts');
         const ideasCol = collection(db, 'spaces', spaceId, 'ideas');
         const postsSnapshot = await getDocs(postsCol);
@@ -36,11 +44,9 @@ export const getSpaces = async (): Promise<Space[]> => {
 
         return {
             id: spaceId,
-            name: spaceData.name,
-            team: spaceData.team,
-            posts: postsSnapshot.docs.map(postDoc => convertTimestamp({ id: postDoc.id, ...postDoc.data() })) as Post[],
-            ideas: ideasSnapshot.docs.map(ideaDoc => ({ id: ideaDoc.id, ...ideaDoc.data() })) as Idea[],
-            inviteToken: spaceData.inviteToken,
+            ...spaceData,
+            posts: postsSnapshot.docs.map(postDoc => convertTimestamp({ id: postDoc.id, ...postDoc.data() }) as Post),
+            ideas: ideasSnapshot.docs.map(ideaDoc => ({ id: ideaDoc.id, ...ideaDoc.data() }) as Idea),
         } as Space;
     }));
 
@@ -58,28 +64,25 @@ export const getSpaceById = async (spaceId: string): Promise<Space | null> => {
 
     const spaceData = spaceSnap.data();
 
-    // Fetch subcollections
     const postsCol = collection(db, 'spaces', spaceId, 'posts');
     const ideasCol = collection(db, 'spaces', spaceId, 'ideas');
 
     const postsSnapshot = await getDocs(postsCol);
     const ideasSnapshot = await getDocs(ideasCol);
 
-    const posts = postsSnapshot.docs.map(d => convertTimestamp({ id: d.id, ...d.data() })) as Post[];
-    const ideas = ideasSnapshot.docs.map(d => ({ id: d.id, ...d.data() })) as Idea[];
+    const posts = postsSnapshot.docs.map(d => convertTimestamp({ id: d.id, ...d.data() }) as Post);
+    const ideas = ideasSnapshot.docs.map(d => ({ id: d.id, ...d.data() }) as Idea);
 
     return {
         id: spaceSnap.id,
-        name: spaceData.name,
-        team: spaceData.team,
+        ...spaceData,
         posts,
         ideas,
-        inviteToken: spaceData.inviteToken,
     } as Space;
 };
 
 // Add a new space
-export const addSpace = async (spaceData: { name: string; team: User[] }): Promise<Space> => {
+export const addSpace = async (spaceData: { name: string; team: User[], memberIds: string[] }): Promise<Space> => {
     const spacesCol = collection(db, 'spaces');
     const docRef = await addDoc(spacesCol, {
         ...spaceData,
@@ -92,13 +95,54 @@ export const addSpace = async (spaceData: { name: string; team: User[] }): Promi
 
     return {
         id: docRef.id,
-        name: spaceData.name,
-        team: spaceData.team,
+        ...newSpaceData,
         posts: [],
         ideas: [],
-        inviteToken: newSpaceData?.inviteToken,
     } as Space;
 };
+
+// Add a user to a space using an invite token and invalidate the token
+export const joinSpaceWithToken = async (userId: string, token: string): Promise<Space | null> => {
+    const spacesRef = collection(db, 'spaces');
+    const q = query(spacesRef, where('inviteToken', '==', token));
+    const spaceSnapshot = await getDocs(q);
+
+    if (spaceSnapshot.empty) {
+        throw new Error("Invalid invite token.");
+    }
+    
+    const spaceDoc = spaceSnapshot.docs[0];
+    const spaceData = spaceDoc.data() as Space;
+
+    if (spaceData.memberIds.length >= 3) {
+        throw new Error("This workspace is already full.");
+    }
+    
+    if (spaceData.memberIds.includes(userId)) {
+        throw new Error("You are already a member of this workspace.");
+    }
+
+    const userProfile = await getUserProfile(userId);
+    if (!userProfile) {
+        throw new Error("User profile not found.");
+    }
+
+    const user: User = { id: userProfile.uid, name: userProfile.name, avatarUrl: userProfile.avatarUrl };
+    
+    const batch = writeBatch(db);
+    const spaceRef = doc(db, 'spaces', spaceDoc.id);
+
+    batch.update(spaceRef, {
+        team: [...spaceData.team, user],
+        memberIds: [...spaceData.memberIds, userId],
+        inviteToken: null // Invalidate the token
+    });
+
+    await batch.commit();
+
+    return getSpaceById(spaceDoc.id);
+}
+
 
 // Add a new Post to a space
 export const addPost = async (spaceId: string, postData: Omit<Post, 'id'>): Promise<Post> => {

@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { getSpaceById, addPost, updatePost, addIdea, deleteIdea } from '@/lib/services';
-import type { Space, Post, Platform, PostStatus, Idea } from '@/lib/types';
-import { users } from '@/lib/data';
+import type { Space, Post, Platform, PostStatus, Idea, User } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
 import { CalendarTab } from '@/components/space/CalendarTab';
@@ -14,11 +13,14 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function SpacePage({ params: { spaceId } }: { params: { spaceId: string } }) {
   const [space, setSpace] = useState<Space | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
 
   const [isCreatePostOpen, setCreatePostOpen] = useState(false);
   const [initialPostContent, setInitialPostContent] = useState<string | undefined>(undefined);
@@ -26,24 +28,32 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
   const { toast } = useToast();
 
   useEffect(() => {
+     if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
+
+  useEffect(() => {
     const fetchSpace = async () => {
-      try {
-        setIsLoading(true);
-        const spaceData = await getSpaceById(spaceId);
-        if (spaceData) {
-          setSpace(spaceData);
-        } else {
-          notFound();
+      if (user) {
+        try {
+          setIsLoading(true);
+          const spaceData = await getSpaceById(spaceId);
+          if (spaceData && spaceData.memberIds.includes(user.uid)) {
+            setSpace(spaceData);
+          } else {
+            notFound();
+          }
+        } catch (err) {
+          console.error(err);
+          setError("Failed to load space data.");
+        } finally {
+          setIsLoading(false);
         }
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load space data.");
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchSpace();
-  }, [spaceId]);
+  }, [spaceId, user]);
 
   const handleOpenCreatePostDialog = (content?: string) => {
     setInitialPostContent(content);
@@ -58,15 +68,19 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
   }
   
   const handleAddOrUpdatePost = async (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }, id?: string) => {
-    if (!space) return;
+    if (!space || !user) return;
+    
+    const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl };
 
     try {
       if (id) {
         // Update existing post
+        const postToUpdate = space.posts.find(p => p.id === id);
+        if (!postToUpdate) return;
         const updatedPostData = {
           ...postDetails,
-          lastModifiedBy: users[0],
-          activityLog: [...(space.posts.find(p => p.id === id)?.activityLog || []), { user: users[0], action: 'updated the post', date: 'Just now' }]
+          lastModifiedBy: currentUser,
+          activityLog: [...postToUpdate.activityLog, { user: currentUser, action: 'updated the post', date: 'Just now' }]
         };
         await updatePost(space.id, id, updatedPostData);
         
@@ -78,9 +92,9 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
         const newPostData: Omit<Post, 'id'> = {
             ...postDetails,
             status: 'draft',
-            createdBy: users[0], 
-            lastModifiedBy: users[0],
-            activityLog: [{ user: users[0], action: 'created', date: 'Just now' }],
+            createdBy: currentUser, 
+            lastModifiedBy: currentUser,
+            activityLog: [{ user: currentUser, action: 'created', date: 'Just now' }],
         };
         const newPost = await addPost(space.id, newPostData);
         
@@ -95,11 +109,12 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
   };
 
   const handleUpdatePostStatus = async (postId: string, newStatus: PostStatus) => {
-    if (!space) return;
+    if (!space || !user) return;
     try {
         const postToUpdate = space.posts.find(p => p.id === postId);
         if (!postToUpdate) return;
         
+        const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl };
         const statusMessages = {
             draft: 'Draft',
             ready: 'Ready to Publish',
@@ -108,8 +123,8 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
 
         const updatedPostData = {
             status: newStatus,
-            lastModifiedBy: users[0],
-            activityLog: [...postToUpdate.activityLog, { user: users[0], action: `changed status to "${statusMessages[newStatus]}"`, date: 'Just now' }]
+            lastModifiedBy: currentUser,
+            activityLog: [...postToUpdate.activityLog, { user: currentUser, action: `changed status to "${statusMessages[newStatus]}"`, date: 'Just now' }]
         };
 
         await updatePost(space.id, postId, updatedPostData);
@@ -123,11 +138,12 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
   };
   
   const handleAddIdea = async (content: string) => {
-    if (!space) return;
+    if (!space || !user) return;
     try {
+      const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl };
       const newIdeaData: Omit<Idea, 'id'> = {
         content,
-        createdBy: users[0],
+        createdBy: currentUser,
         createdAt: new Date().toISOString(),
       };
       const newIdea = await addIdea(space.id, newIdeaData);
@@ -152,7 +168,7 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
   };
 
 
-  if (isLoading) {
+  if (isLoading || authLoading || !user) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -165,7 +181,7 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-2xl font-bold text-destructive mb-4">Error</h1>
         <p className="text-muted-foreground">{error || "Could not find the requested space."}</p>
-        <Button onClick={() => window.location.href = '/'} className="mt-4">Go to Dashboard</Button>
+        <Button onClick={() => router.push('/')} className="mt-4">Go to Dashboard</Button>
       </div>
     );
   }

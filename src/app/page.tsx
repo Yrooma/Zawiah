@@ -9,32 +9,52 @@ import { CreateSpaceDialog } from '@/components/dashboard/CreateSpaceDialog';
 import { getSpaces } from '@/lib/services';
 import type { Space } from '@/lib/types';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     const fetchSpaces = async () => {
-      try {
-        setIsLoading(true);
-        const spacesFromDb = await getSpaces();
-        setSpaces(spacesFromDb);
-        setError(null);
-      } catch (err) {
-        setError("Failed to fetch workspaces. Please try again later.");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
+      if(user) {
+        try {
+          setIsLoading(true);
+          const spacesFromDb = await getSpaces(user.id);
+          setSpaces(spacesFromDb);
+          setError(null);
+        } catch (err) {
+          setError("Failed to fetch workspaces. Please try again later.");
+          console.error(err);
+        } finally {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchSpaces();
-  }, []);
+  }, [user]);
 
   const handleSpaceCreated = (newSpace: Space) => {
     setSpaces(prevSpaces => [...prevSpaces, newSpace]);
+  }
+  
+  if (authLoading || !user) {
+    return (
+       <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (

@@ -6,6 +6,13 @@ export type User = {
   avatarUrl: string;
 };
 
+export type AppUser = {
+  uid: string;
+  email: string | null;
+  name: string;
+  avatarUrl: string;
+}
+
 export type Platform = 'instagram' | 'x' | 'facebook' | 'linkedin' | 'threads';
 
 export type PostStatus = 'draft' | 'ready' | 'published';
@@ -24,7 +31,7 @@ export type ActivityLog = {
 };
 
 export type Post = {
-  id: string;
+  id:string;
   title: string;
   content: string;
   platform: Platform;
@@ -40,7 +47,8 @@ export type Space = {
   id: string;
   name: string;
   team: User[];
+  memberIds: string[];
   posts: Post[];
   ideas: Idea[];
-  inviteToken?: string;
+  inviteToken?: string | null;
 };

@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Settings, LogOut } from 'lucide-react';
 import type { Space } from '@/lib/types';
+import { useAuth } from '@/hooks/use-auth';
 
 
 interface SpaceHeaderProps {
@@ -22,6 +23,7 @@ interface SpaceHeaderProps {
 }
 
 export function SpaceHeader({ spaceName, onNewPostClick, space }: SpaceHeaderProps) {
+  const { user, signOut } = useAuth();
   
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -52,8 +54,8 @@ export function SpaceHeader({ spaceName, onNewPostClick, space }: SpaceHeaderPro
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar>
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="User avatar" />
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarImage src={user?.avatarUrl} alt="User avatar" />
+                  <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -69,7 +71,7 @@ export function SpaceHeader({ spaceName, onNewPostClick, space }: SpaceHeaderPro
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={signOut}>
                 <LogOut />
                 <span>Log out</span>
               </DropdownMenuItem>

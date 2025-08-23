@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
 
 interface CreateIdeaDialogProps {
   children: ReactNode;
@@ -26,9 +27,10 @@ export function CreateIdeaDialog({ children, onAddIdea }: CreateIdeaDialogProps)
   const [ideaContent, setIdeaContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleCreateIdea = async () => {
-    if (ideaContent.trim()) {
+    if (ideaContent.trim() && user) {
       setIsLoading(true);
       try {
         await onAddIdea(ideaContent);

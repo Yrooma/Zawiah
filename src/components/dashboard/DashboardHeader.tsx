@@ -19,8 +19,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '../ui/badge';
+import { useAuth } from '@/hooks/use-auth';
 
 export function DashboardHeader() {
+  const { user, signOut } = useAuth();
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 md:px-8">
@@ -59,8 +62,8 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar>
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="User avatar" />
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarImage src={user?.avatarUrl} alt="User avatar" />
+                  <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -76,7 +79,7 @@ export function DashboardHeader() {
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={signOut}>
                 <LogOut />
                 <span>Log out</span>
               </DropdownMenuItem>

@@ -21,6 +21,7 @@ import { CalendarIcon, Loader2 } from 'lucide-react';
 import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
 
 interface CreatePostDialogProps {
   open: boolean;
@@ -33,6 +34,7 @@ interface CreatePostDialogProps {
 
 export function CreatePostDialog({ open, onOpenChange, onSavePost, initialContent, postToEdit, children }: CreatePostDialogProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -77,6 +79,11 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
         return;
     }
     
+    if (!user) {
+        toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to save a post." });
+        return;
+    }
+
     setIsLoading(true);
     try {
       await onSavePost({ title, content, platform, scheduledAt }, postToEdit?.id);
