@@ -1,3 +1,6 @@
+
+"use client";
+
 import type { Idea } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -8,15 +11,17 @@ import { CreateIdeaDialog } from './CreateIdeaDialog';
 
 interface IdeasTabProps {
   ideas: Idea[];
+  onConvertToPost: (content: string) => void;
 }
 
-export function IdeasTab({ ideas }: IdeasTabProps) {
+export function IdeasTab({ ideas, onConvertToPost }: IdeasTabProps) {
     const { toast } = useToast();
 
     const handleConvertToPost = (ideaContent: string) => {
+        onConvertToPost(ideaContent);
         toast({
             title: "فكرة جاهزة للتخطيط!",
-            description: `تم نقل "${ideaContent.substring(0, 30)}..." إلى مخطط المنشورات.`,
+            description: `تم نقل المحتوى إلى شاشة إنشاء المنشور.`,
         });
     }
 

@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactNode, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,7 +10,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,24 +18,42 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useToast } from "@/hooks/use-toast";
 
 interface CreatePostDialogProps {
-  children: ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  initialContent?: string;
+  children?: ReactNode;
 }
 
-export function CreatePostDialog({ children }: CreatePostDialogProps) {
-  const [open, setOpen] = useState(false);
+export function CreatePostDialog({ open, onOpenChange, initialContent, children }: CreatePostDialogProps) {
   const { toast } = useToast();
+  const [content, setContent] = useState("");
+
+  useEffect(() => {
+    if (initialContent) {
+      setContent(initialContent);
+    } else {
+      setContent("");
+    }
+  }, [initialContent, open]);
 
   const handleCreatePost = () => {
     toast({
       title: "تم إنشاء المنشور!",
       description: "تمت إضافة مسودة منشورك إلى التقويم.",
     });
-    setOpen(false);
+    onOpenChange(false);
   };
+  
+  const handleOpenChange = (isOpen: boolean) => {
+    onOpenChange(isOpen);
+    if (!isOpen) {
+        setContent("");
+    }
+  }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      {children}
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle className="font-headline">إنشاء منشور جديد</DialogTitle>
@@ -60,6 +78,8 @@ export function CreatePostDialog({ children }: CreatePostDialogProps) {
             </Label>
             <Textarea
               id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
               placeholder="اكتب محتوى منشورك هنا..."
               className="col-span-3 min-h-[120px]"
             />

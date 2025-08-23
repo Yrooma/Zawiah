@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { ArrowLeft, Users, PlusCircle, Bell, User, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,9 +16,10 @@ import { CreatePostDialog } from './CreatePostDialog';
 
 interface SpaceHeaderProps {
   spaceName: string;
+  onNewPostClick: () => void;
 }
 
-export function SpaceHeader({ spaceName }: SpaceHeaderProps) {
+export function SpaceHeader({ spaceName, onNewPostClick }: SpaceHeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 md:px-8">
@@ -37,12 +39,11 @@ export function SpaceHeader({ spaceName }: SpaceHeaderProps) {
               <span className="hidden md:inline-block">إدارة الفريق</span>
             </Button>
           </TeamDialog>
-          <CreatePostDialog>
-            <Button>
-              <PlusCircle />
-              <span className="hidden md:inline-block">منشور جديد</span>
-            </Button>
-          </CreatePostDialog>
+          
+          <Button onClick={onNewPostClick}>
+            <PlusCircle />
+            <span className="hidden md:inline-block">منشور جديد</span>
+          </Button>
           
            <DropdownMenu>
             <DropdownMenuTrigger asChild>

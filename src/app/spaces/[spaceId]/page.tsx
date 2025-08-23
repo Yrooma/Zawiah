@@ -1,20 +1,37 @@
+
+"use client";
+
+import { useState } from 'react';
 import { notFound } from 'next/navigation';
 import { spaces } from '@/lib/data';
+import type { Post } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
 import { CalendarTab } from '@/components/space/CalendarTab';
 import { IdeasTab } from '@/components/space/IdeasTab';
+import { CreatePostDialog } from '@/components/space/CreatePostDialog';
 
 export default function SpacePage({ params }: { params: { spaceId: string } }) {
+  const [isCreatePostOpen, setCreatePostOpen] = useState(false);
+  const [initialPostContent, setInitialPostContent] = useState<string | undefined>(undefined);
+
   const space = spaces.find((s) => s.id === params.spaceId);
 
   if (!space) {
     notFound();
   }
 
+  const handleOpenCreatePostDialog = (content?: string) => {
+    setInitialPostContent(content);
+    setCreatePostOpen(true);
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
-      <SpaceHeader spaceName={space.name} />
+      <SpaceHeader 
+        spaceName={space.name} 
+        onNewPostClick={() => handleOpenCreatePostDialog()}
+      />
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <Tabs defaultValue="calendar" className="w-full">
@@ -26,11 +43,16 @@ export default function SpacePage({ params }: { params: { spaceId: string } }) {
               <CalendarTab posts={space.posts} />
             </TabsContent>
             <TabsContent value="ideas" className="mt-6">
-              <IdeasTab ideas={space.ideas} />
+              <IdeasTab ideas={space.ideas} onConvertToPost={handleOpenCreatePostDialog} />
             </TabsContent>
           </Tabs>
         </div>
       </main>
+      <CreatePostDialog
+        open={isCreatePostOpen}
+        onOpenChange={setCreatePostOpen}
+        initialContent={initialPostContent}
+      />
     </div>
   );
 }
