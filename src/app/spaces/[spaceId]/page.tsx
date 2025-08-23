@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { getSpaceById, addPost, updatePost, addIdea, deleteIdea } from '@/lib/services';
 import type { Space, Post, Platform, PostStatus, Idea, User } from '@/lib/types';
@@ -28,6 +28,28 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
   const [postToEdit, setPostToEdit] = useState<Post | undefined>(undefined);
   const { toast } = useToast();
 
+  const fetchSpace = useCallback(async () => {
+    if (user) {
+      try {
+        setIsLoading(true);
+        const spaceData = await getSpaceById(spaceId);
+        if (spaceData && spaceData.memberIds.includes(user.uid)) {
+          setSpace(spaceData);
+        } else {
+          // If user is not a member, they can't access this space.
+          // This might happen if they were removed from the team.
+          // We can redirect them or show a not found page.
+          notFound();
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load space data.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  }, [spaceId, user]);
+
   useEffect(() => {
      if (!authLoading && !user) {
       router.push('/login');
@@ -35,26 +57,8 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    const fetchSpace = async () => {
-      if (user) {
-        try {
-          setIsLoading(true);
-          const spaceData = await getSpaceById(spaceId);
-          if (spaceData && spaceData.memberIds.includes(user.uid)) {
-            setSpace(spaceData);
-          } else {
-            notFound();
-          }
-        } catch (err) {
-          console.error(err);
-          setError("Failed to load space data.");
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
     fetchSpace();
-  }, [spaceId, user]);
+  }, [fetchSpace]);
 
   const handleOpenCreatePostDialog = (content?: string) => {
     setInitialPostContent(content);
@@ -194,6 +198,7 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
         spaceName={space.name} 
         onNewPostClick={() => handleOpenCreatePostDialog()}
         space={space}
+        onSpaceUpdate={fetchSpace}
       />
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">

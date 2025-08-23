@@ -14,7 +14,7 @@ export type AppUser = {
   avatarUrl: string;
 }
 
-export type Platform = 'instagram' | 'x' | 'facebook' | 'linkedin' | 'threads';
+export type Platform = 'instagram' | 'x' | 'facebook' | 'linkedin' | 'threads' | 'tiktok' | 'snapchat' | 'email';
 
 export type PostStatus = 'draft' | 'ready' | 'published';
 

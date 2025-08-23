@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Post, Platform, PostStatus } from "@/lib/types";
@@ -5,10 +6,16 @@ import Image from "next/image";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Instagram, Facebook, Copy, CheckCircle, Pencil } from 'lucide-react';
+import { Instagram, Facebook, Copy, CheckCircle, Pencil, Mail, MessageSquare } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { format } from "date-fns";
+
+const TikTokIcon = () => (
+    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 fill-white">
+        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.28-1.1-.63-1.6-1.03V16.5c0 1.96-.35 3.93-1.06 5.8l-1.84.18c-.33-.52-.63-1.07-.9-1.64-.17-3.4-1.35-6.69-3.46-9.49l-1.82-2.35V.02h3.81z"/>
+    </svg>
+)
 
 const PlatformDisplay = ({ platform }: { platform: Platform }) => {
     const platformDetails = {
@@ -25,6 +32,9 @@ const PlatformDisplay = ({ platform }: { platform: Platform }) => {
         facebook: { name: 'Facebook', Icon: Facebook, color: 'bg-blue-600' },
         linkedin: { name: 'LinkedIn', Icon: () => <span className="font-bold text-sm">in</span>, color: 'bg-sky-700' },
         threads: { name: 'Threads', Icon: () => <span className="font-bold text-xl">@</span>, color: 'bg-gray-800' },
+        tiktok: { name: 'TikTok', Icon: TikTokIcon, color: 'bg-black' },
+        snapchat: { name: 'Snapchat', Icon: MessageSquare, color: 'bg-yellow-400' },
+        email: { name: 'Email', Icon: Mail, color: 'bg-gray-500' },
     };
     const details = platformDetails[platform];
 

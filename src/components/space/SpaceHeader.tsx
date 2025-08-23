@@ -20,10 +20,11 @@ import { useAuth } from '@/hooks/use-auth';
 interface SpaceHeaderProps {
   spaceName: string;
   onNewPostClick: () => void;
-  space?: Space; // Make space optional for now
+  space: Space;
+  onSpaceUpdate: () => void;
 }
 
-export function SpaceHeader({ spaceName, onNewPostClick, space }: SpaceHeaderProps) {
+export function SpaceHeader({ spaceName, onNewPostClick, space, onSpaceUpdate }: SpaceHeaderProps) {
   const { user, signOut } = useAuth();
   
   return (
@@ -39,7 +40,7 @@ export function SpaceHeader({ spaceName, onNewPostClick, space }: SpaceHeaderPro
           <h1 className="text-xl font-headline font-semibold hidden md:block">{spaceName}</h1>
         </div>
         <div className="flex items-center gap-2 md:gap-4">
-          <TeamDialog team={space?.team || []} inviteToken={space?.inviteToken || ''}>
+          <TeamDialog space={space} onSpaceUpdate={onSpaceUpdate}>
             <Button variant="outline">
               <Users />
               <span className="hidden md:inline-block">Manage Team</span>

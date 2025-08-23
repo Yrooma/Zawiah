@@ -102,7 +102,7 @@ export const addSpace = async (spaceData: { name: string; team: User[], memberId
     } as Space;
 };
 
-// Add a user to a space using an invite token and invalidate the token
+// Add a user to a space using an invite token and regenerate the token
 export const joinSpaceWithToken = async (userId: string, token: string): Promise<Space | null> => {
     const spacesRef = collection(db, 'spaces');
     const q = query(spacesRef, where('inviteToken', '==', token));
@@ -132,11 +132,13 @@ export const joinSpaceWithToken = async (userId: string, token: string): Promise
     
     const batch = writeBatch(db);
     const spaceRef = doc(db, 'spaces', spaceDoc.id);
+    
+    const newInviteToken = `${spaceData.name.slice(0,4).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
     batch.update(spaceRef, {
         team: [...spaceData.team, user],
         memberIds: [...spaceData.memberIds, userId],
-        inviteToken: null // Invalidate the token
+        inviteToken: newInviteToken
     });
 
     await batch.commit();
@@ -198,6 +200,36 @@ export const deleteIdea = async (spaceId: string, ideaId: string): Promise<void>
     const ideaRef = doc(db, 'spaces', spaceId, 'ideas', ideaId);
     await deleteDoc(ideaRef);
 }
+
+// Delete a space (owner only)
+export const deleteSpace = async (spaceId: string): Promise<void> => {
+    // This is a simple delete. For a real app, you might want to delete subcollections too.
+    const spaceRef = doc(db, 'spaces', spaceId);
+    await deleteDoc(spaceRef);
+};
+
+// Leave a space
+export const leaveSpace = async (spaceId: string, userId: string): Promise<void> => {
+    const space = await getSpaceById(spaceId);
+    if (!space) {
+        throw new Error("Space not found.");
+    }
+    
+    const remainingTeam = space.team.filter(member => member.id !== userId);
+    const remainingMemberIds = space.memberIds.filter(id => id !== userId);
+
+    if (remainingMemberIds.length === 0) {
+        // If the last member leaves, delete the space
+        await deleteSpace(spaceId);
+    } else {
+        const spaceRef = doc(db, 'spaces', spaceId);
+        await updateDoc(spaceRef, {
+            team: remainingTeam,
+            memberIds: remainingMemberIds
+        });
+    }
+};
+
 
 // Fetch notifications for a user
 export const getNotifications = async (userId: string): Promise<Notification[]> => {

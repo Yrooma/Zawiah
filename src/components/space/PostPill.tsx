@@ -1,7 +1,14 @@
+
 import type { Post, Platform } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Instagram, Facebook } from 'lucide-react';
+import { Instagram, Facebook, Mail, MessageSquare } from 'lucide-react';
+
+const TikTokIcon = () => (
+    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 fill-current">
+        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.28-1.1-.63-1.6-1.03V16.5c0 1.96-.35 3.93-1.06 5.8l-1.84.18c-.33-.52-.63-1.07-.9-1.64-.17-3.4-1.35-6.69-3.46-9.49l-1.82-2.35V.02h3.81z"/>
+    </svg>
+)
 
 const PlatformIcon = ({ platform }: { platform: Platform }) => {
     switch (platform) {
@@ -15,6 +22,12 @@ const PlatformIcon = ({ platform }: { platform: Platform }) => {
             );
         case 'facebook':
             return <Facebook className="w-3 h-3" />;
+        case 'tiktok':
+            return <TikTokIcon />;
+        case 'snapchat':
+            return <MessageSquare className="w-3 h-3" />;
+        case 'email':
+            return <Mail className="w-3 h-3" />;
         default:
             return null;
     }
@@ -38,7 +51,7 @@ export function PostPill({ post, onClick }: { post: Post, onClick: () => void })
             )}
         >
             <PlatformIcon platform={post.platform} />
-            <span className="me-1.5 truncate">{post.title}</span>
+            <span className="ml-1.5 truncate">{post.title}</span>
         </Badge>
     </button>
   );

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, type ReactNode, useEffect } from 'react';
@@ -162,6 +163,9 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
                     <SelectItem value="facebook">Facebook</SelectItem>
                     <SelectItem value="linkedin">LinkedIn</SelectItem>
                     <SelectItem value="threads">Threads</SelectItem>
+                    <SelectItem value="tiktok">TikTok</SelectItem>
+                    <SelectItem value="snapchat">Snapchat</SelectItem>
+                    <SelectItem value="email">Email</SelectItem>
                 </SelectContent>
             </Select>
           </div>
