@@ -29,8 +29,8 @@ export default function LoginPage() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Login Failed",
-        description: error.message || "An unexpected error occurred. Please try again.",
+        title: "فشل تسجيل الدخول",
+        description: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
       });
       setIsLoading(false);
     }
@@ -41,14 +41,14 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm mx-auto">
         <CardHeader className="text-center">
             <LayoutGrid className="h-8 w-8 text-primary mx-auto mb-2" />
-          <CardTitle className="text-2xl font-headline">Welcome Back!</CardTitle>
-          <CardDescription>Log in to your CollabPost account</CardDescription>
+          <CardTitle className="text-2xl font-headline">مرحباً بعودتك!</CardTitle>
+          <CardDescription>سجل الدخول إلى حسابك في زاوية</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">البريد الإلكتروني</Label>
                 <Input
                   id="email"
                   type="email"
@@ -61,7 +61,7 @@ export default function LoginPage() {
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">كلمة المرور</Label>
                 </div>
                 <Input 
                   id="password" 
@@ -73,14 +73,14 @@ export default function LoginPage() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? <Loader2 className="animate-spin" /> : 'Log in'}
+                {isLoading ? <Loader2 className="animate-spin" /> : 'تسجيل الدخول'}
               </Button>
             </div>
           </form>
           <div className="mt-4 text-center text-sm">
-            Don't have an account?{' '}
+            ليس لديك حساب؟{' '}
             <Link href="/signup" className="underline">
-              Sign up
+              أنشئ حساباً
             </Link>
           </div>
         </CardContent>

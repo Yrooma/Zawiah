@@ -50,8 +50,8 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
         onSpaceCreated(newSpace);
 
         toast({
-          title: "Space created!",
-          description: `Workspace "${spaceName}" has been created successfully.`,
+          title: "تم إنشاء المساحة!",
+          description: `تم إنشاء مساحة العمل "${spaceName}" بنجاح.`,
         });
 
         setSpaceName("");
@@ -61,8 +61,8 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
         console.error("Failed to create space:", error);
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Could not create the new workspace. Please try again."
+          title: "خطأ",
+          description: "تعذر إنشاء مساحة العمل الجديدة. يرجى المحاولة مرة أخرى."
         });
       } finally {
         setIsLoading(false);
@@ -75,31 +75,31 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">Create New Space</DialogTitle>
+          <DialogTitle className="font-headline">إنشاء مساحة جديدة</DialogTitle>
           <DialogDescription>
-            Give your new collaboration space a name. You can invite team members later.
+            أعط مساحة التعاون الجديدة اسمًا. يمكنك دعوة أعضاء الفريق لاحقًا.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
-              Name
+              الاسم
             </Label>
             <Input
               id="name"
               value={spaceName}
               onChange={(e) => setSpaceName(e.target.value)}
-              placeholder="e.g. 'Fashion Store Campaign'"
+              placeholder="مثال: 'حملة متجر الأزياء'"
               className="col-span-3"
               disabled={isLoading}
             />
           </div>
         </div>
         <DialogFooter>
-           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>Cancel</Button>
+           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>إلغاء</Button>
           <Button type="submit" onClick={handleCreateSpace} disabled={!spaceName.trim() || isLoading}>
             {isLoading && <Loader2 className="animate-spin" />}
-            {isLoading ? 'Creating...' : 'Create Space'}
+            {isLoading ? 'جارٍ الإنشاء...' : 'إنشاء مساحة'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -53,7 +53,7 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
     if (!space.inviteToken) return;
     navigator.clipboard.writeText(space.inviteToken);
     setHasCopied(true);
-    toast({ title: "Copied token to clipboard!" });
+    toast({ title: "تم نسخ الرمز إلى الحافظة!" });
     setTimeout(() => setHasCopied(false), 2000);
   };
 
@@ -63,20 +63,20 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
     if (!user) return;
     try {
         await leaveSpace(space.id, user.uid);
-        toast({ title: `You have left ${space.name}.`});
+        toast({ title: `لقد غادرت ${space.name}.`});
         router.push('/');
     } catch (error: any) {
-        toast({ variant: 'destructive', title: "Error leaving space", description: error.message });
+        toast({ variant: 'destructive', title: "خطأ في مغادرة المساحة", description: error.message });
     }
   }
 
   const handleDeleteSpace = async () => {
       try {
           await deleteSpace(space.id);
-          toast({ title: `${space.name} has been deleted.`});
+          toast({ title: `تم حذف ${space.name}.`});
           router.push('/');
       } catch (error: any) {
-          toast({ variant: 'destructive', title: "Error deleting space", description: error.message });
+          toast({ variant: 'destructive', title: "خطأ في حذف المساحة", description: error.message });
       }
   }
 
@@ -85,13 +85,13 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-headline">Manage Team</DialogTitle>
+          <DialogTitle className="font-headline">إدارة الفريق</DialogTitle>
           <DialogDescription>
-            Invite others or manage your membership for this space.
+            ادعُ الآخرين أو قم بإدارة عضويتك في هذه المساحة.
           </DialogDescription>
         </DialogHeader>
         <div className="py-2">
-            <h3 className="text-sm font-medium mb-3">Current Members ({space.team.length}/3)</h3>
+            <h3 className="text-sm font-medium mb-3">الأعضاء الحاليون ({space.team.length}/3)</h3>
             <div className="space-y-3">
             {space.team.map((member) => (
                 <div key={member.id} className="flex items-center justify-between">
@@ -102,7 +102,7 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
                         </Avatar>
                         <div>
                         <p className="font-semibold">{member.name}</p>
-                        <p className="text-xs text-muted-foreground">{space.team[0].id === member.id ? 'Owner' : 'Member'}</p>
+                        <p className="text-xs text-muted-foreground">{space.team[0].id === member.id ? 'المالك' : 'عضو'}</p>
                         </div>
                     </div>
                 </div>
@@ -114,10 +114,10 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
 
         {isCurrentUserOwner && space.team.length < 3 && (
             <div className="space-y-2 pt-2">
-            <Label htmlFor="link" className="font-medium">Invite with token</Label>
-            <p className='text-xs text-muted-foreground'>This token will regenerate after each use.</p>
+            <Label htmlFor="link" className="font-medium">الدعوة باستخدام الرمز</Label>
+            <p className='text-xs text-muted-foreground'>سيتم تجديد هذا الرمز بعد كل استخدام.</p>
             <div className="flex items-center space-x-2">
-                <Input id="link" value={space.inviteToken || "Workspace is full"} readOnly className="font-mono text-center tracking-widest" />
+                <Input id="link" value={space.inviteToken || "مساحة العمل ممتلئة"} readOnly className="font-mono text-center tracking-widest" />
                 <Button size="icon" onClick={copyToClipboard} disabled={!space.inviteToken}>
                 {hasCopied ? <Check /> : <Copy />}
                 </Button>
@@ -130,29 +130,29 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
                 <AlertDialogTrigger asChild>
                     <Button variant="outline" className='text-destructive hover:text-destructive'>
                         {isCurrentUserOwner ? <Trash2/> : <LogOut/>}
-                        {isCurrentUserOwner ? 'Delete Workspace' : 'Leave Workspace'}
+                        {isCurrentUserOwner ? 'حذف مساحة العمل' : 'مغادرة مساحة العمل'}
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
                         <AlertDialogDescription>
                             {isCurrentUserOwner 
-                                ? "This action cannot be undone. This will permanently delete the workspace and all its data."
-                                : "You will be removed from this workspace and will need a new invitation to rejoin."
+                                ? "لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف مساحة العمل وجميع بياناتها بشكل دائم."
+                                : "ستتم إزالتك من مساحة العمل هذه وستحتاج إلى دعوة جديدة لإعادة الانضمام."
                             }
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>إلغاء</AlertDialogCancel>
                         <AlertDialogAction onClick={isCurrentUserOwner ? handleDeleteSpace : handleLeaveSpace}>
-                            Continue
+                            متابعة
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
             <DialogClose asChild>
-                <Button variant="outline">Close</Button>
+                <Button variant="outline">إغلاق</Button>
             </DialogClose>
         </DialogFooter>
       </DialogContent>

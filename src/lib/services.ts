@@ -109,23 +109,23 @@ export const joinSpaceWithToken = async (userId: string, token: string): Promise
     const spaceSnapshot = await getDocs(q);
 
     if (spaceSnapshot.empty) {
-        throw new Error("Invalid invite token.");
+        throw new Error("رمز دعوة غير صالح.");
     }
     
     const spaceDoc = spaceSnapshot.docs[0];
     const spaceData = spaceDoc.data() as Space;
 
     if (spaceData.memberIds.length >= 3) {
-        throw new Error("This workspace is already full.");
+        throw new Error("مساحة العمل هذه ممتلئة بالفعل.");
     }
     
     if (spaceData.memberIds.includes(userId)) {
-        throw new Error("You are already a member of this workspace.");
+        throw new Error("أنت عضو بالفعل في مساحة العمل هذه.");
     }
 
     const userProfile = await getUserProfile(userId);
     if (!userProfile) {
-        throw new Error("User profile not found.");
+        throw new Error("لم يتم العثور على ملف تعريف المستخدم.");
     }
 
     const user: User = { id: userProfile.uid, name: userProfile.name, avatarUrl: userProfile.avatarUrl };
@@ -181,7 +181,7 @@ export const addIdea = async (spaceId: string, ideaData: Omit<Idea, 'id'>): Prom
                 const newNotifRef = doc(notificationsCol);
                 batch.set(newNotifRef, {
                     userId: memberId,
-                    message: `${ideaData.createdBy.name} added a new idea in "${space.name}"`,
+                    message: `${ideaData.createdBy.name} أضاف فكرة جديدة في "${space.name}"`,
                     link: `/spaces/${spaceId}`,
                     read: false,
                     createdAt: serverTimestamp(),
@@ -212,7 +212,6 @@ export const deleteIdea = async (spaceId: string, ideaId: string): Promise<void>
 
 // Delete a space (owner only)
 export const deleteSpace = async (spaceId: string): Promise<void> => {
-    // This is a simple delete. For a real app, you might want to delete subcollections too.
     const spaceRef = doc(db, 'spaces', spaceId);
     await deleteDoc(spaceRef);
 };
@@ -221,14 +220,13 @@ export const deleteSpace = async (spaceId: string): Promise<void> => {
 export const leaveSpace = async (spaceId: string, userId: string): Promise<void> => {
     const space = await getSpaceById(spaceId);
     if (!space) {
-        throw new Error("Space not found.");
+        throw new Error("لم يتم العثور على المساحة.");
     }
     
     const remainingTeam = space.team.filter(member => member.id !== userId);
     const remainingMemberIds = space.memberIds.filter(id => id !== userId);
 
     if (remainingMemberIds.length === 0) {
-        // If the last member leaves, delete the space
         await deleteSpace(spaceId);
     } else {
         const spaceRef = doc(db, 'spaces', spaceId);
@@ -258,4 +256,3 @@ export const markNotificationsAsRead = async (notificationIds: string[]): Promis
     });
     await batch.commit();
 };
-

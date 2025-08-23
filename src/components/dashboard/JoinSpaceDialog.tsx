@@ -42,8 +42,8 @@ export function JoinSpaceDialog({ children, onSpaceJoined }: JoinSpaceDialogProp
             onSpaceJoined(joinedSpace);
 
             toast({
-            title: "Successfully joined space!",
-            description: `You are now a member of "${joinedSpace.name}".`,
+            title: "تم الانضمام إلى المساحة بنجاح!",
+            description: `أصبحت الآن عضوًا في "${joinedSpace.name}".`,
             });
 
             setInviteToken("");
@@ -54,8 +54,8 @@ export function JoinSpaceDialog({ children, onSpaceJoined }: JoinSpaceDialogProp
         console.error("Failed to join space:", error);
         toast({
           variant: "destructive",
-          title: "Error",
-          description: error.message || "Could not join the workspace. Please check the token and try again."
+          title: "خطأ",
+          description: error.message || "تعذر الانضمام إلى مساحة العمل. يرجى التحقق من الرمز والمحاولة مرة أخرى."
         });
       } finally {
         setIsLoading(false);
@@ -68,31 +68,31 @@ export function JoinSpaceDialog({ children, onSpaceJoined }: JoinSpaceDialogProp
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">Join a Workspace</DialogTitle>
+          <DialogTitle className="font-headline">الانضمام إلى مساحة عمل</DialogTitle>
           <DialogDescription>
-            Enter the invite token you received to join a new workspace.
+            أدخل رمز الدعوة الذي تلقيته للانضمام إلى مساحة عمل جديدة.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="token" className="text-right">
-              Token
+              الرمز
             </Label>
             <Input
               id="token"
               value={inviteToken}
               onChange={(e) => setInviteToken(e.target.value)}
-              placeholder="e.g. 'FASH-ABC123'"
+              placeholder="مثال: 'FASH-ABC123'"
               className="col-span-3 font-mono"
               disabled={isLoading}
             />
           </div>
         </div>
         <DialogFooter>
-           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>Cancel</Button>
+           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>إلغاء</Button>
           <Button type="submit" onClick={handleJoinSpace} disabled={!inviteToken.trim() || isLoading}>
             {isLoading && <Loader2 className="animate-spin" />}
-            {isLoading ? 'Joining...' : 'Join Workspace'}
+            {isLoading ? 'جارٍ الانضمام...' : 'الانضمام إلى مساحة العمل'}
           </Button>
         </DialogFooter>
       </DialogContent>

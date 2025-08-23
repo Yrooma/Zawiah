@@ -51,7 +51,7 @@ export function PostPill({ post, onClick }: { post: Post, onClick: () => void })
             )}
         >
             <PlatformIcon platform={post.platform} />
-            <span className="ml-1.5 truncate">{post.title}</span>
+            <span className="ms-1.5 truncate">{post.title}</span>
         </Badge>
     </button>
   );

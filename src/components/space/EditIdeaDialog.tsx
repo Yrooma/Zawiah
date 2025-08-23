@@ -41,16 +41,16 @@ export function EditIdeaDialog({ idea, open, onOpenChange, onUpdateIdea }: EditI
       try {
         await onUpdateIdea(idea.id, ideaContent);
         toast({
-          title: "Idea updated!",
-          description: `Your idea has been successfully updated.`,
+          title: "تم تحديث الفكرة!",
+          description: `تم تحديث فكرتك بنجاح.`,
         });
         onOpenChange(false);
       } catch (error) {
         console.error("Failed to update idea:", error);
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Could not update the idea. Please try again."
+          title: "خطأ",
+          description: "تعذر تحديث الفكرة. يرجى المحاولة مرة أخرى."
         });
       } finally {
         setIsLoading(false);
@@ -62,29 +62,29 @@ export function EditIdeaDialog({ idea, open, onOpenChange, onUpdateIdea }: EditI
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">Edit Idea</DialogTitle>
+          <DialogTitle className="font-headline">تعديل الفكرة</DialogTitle>
           <DialogDescription>
-            Make changes to your idea below.
+            قم بإجراء تغييرات على فكرتك أدناه.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid w-full gap-1.5">
-            <Label htmlFor="idea-content">Idea Content</Label>
+            <Label htmlFor="idea-content">محتوى الفكرة</Label>
             <Textarea
               id="idea-content"
               value={ideaContent}
               onChange={(e) => setIdeaContent(e.target.value)}
-              placeholder="e.g. 'Run an Instagram contest next week...'"
+              placeholder="مثال: 'إجراء مسابقة على انستغرام الأسبوع المقبل...'"
               className="min-h-[100px]"
               disabled={isLoading}
             />
           </div>
         </div>
         <DialogFooter>
-           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>Cancel</Button>
+           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>إلغاء</Button>
           <Button type="submit" onClick={handleUpdate} disabled={!ideaContent.trim() || isLoading}>
             {isLoading && <Loader2 className="animate-spin" />}
-            {isLoading ? 'Saving...' : 'Save Changes'}
+            {isLoading ? 'جارٍ الحفظ...' : 'حفظ التغييرات'}
           </Button>
         </DialogFooter>
       </DialogContent>

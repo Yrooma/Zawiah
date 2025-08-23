@@ -35,8 +35,8 @@ export function CreateIdeaDialog({ children, onAddIdea }: CreateIdeaDialogProps)
       try {
         await onAddIdea(ideaContent);
         toast({
-          title: "Idea added!",
-          description: `Your idea has been successfully added.`,
+          title: "تمت إضافة الفكرة!",
+          description: `تمت إضافة فكرتك بنجاح.`,
         });
         setIdeaContent("");
         setOpen(false);
@@ -44,8 +44,8 @@ export function CreateIdeaDialog({ children, onAddIdea }: CreateIdeaDialogProps)
         console.error("Failed to add idea:", error);
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Could not add the new idea. Please try again."
+          title: "خطأ",
+          description: "تعذرت إضافة الفكرة الجديدة. يرجى المحاولة مرة أخرى."
         });
       } finally {
         setIsLoading(false);
@@ -58,29 +58,29 @@ export function CreateIdeaDialog({ children, onAddIdea }: CreateIdeaDialogProps)
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">Add New Idea</DialogTitle>
+          <DialogTitle className="font-headline">إضافة فكرة جديدة</DialogTitle>
           <DialogDescription>
-            Write down your content idea. The team can see and build upon it.
+            اكتب فكرة المحتوى الخاصة بك. يمكن للفريق رؤيتها والبناء عليها.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid w-full gap-1.5">
-            <Label htmlFor="idea-content">Your Idea</Label>
+            <Label htmlFor="idea-content">فكرتك</Label>
             <Textarea
               id="idea-content"
               value={ideaContent}
               onChange={(e) => setIdeaContent(e.target.value)}
-              placeholder="e.g. 'Run an Instagram contest next week...'"
+              placeholder="مثال: 'إجراء مسابقة على انستغرام الأسبوع المقبل...'"
               className="min-h-[100px]"
               disabled={isLoading}
             />
           </div>
         </div>
         <DialogFooter>
-           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>Cancel</Button>
+           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>إلغاء</Button>
           <Button type="submit" onClick={handleCreateIdea} disabled={!ideaContent.trim() || isLoading}>
             {isLoading && <Loader2 className="animate-spin" />}
-            {isLoading ? 'Adding...' : 'Add Idea'}
+            {isLoading ? 'جارٍ الإضافة...' : 'إضافة فكرة'}
           </Button>
         </DialogFooter>
       </DialogContent>

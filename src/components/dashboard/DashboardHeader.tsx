@@ -25,6 +25,7 @@ import { useState, useEffect } from 'react';
 import type { Notification } from '@/lib/types';
 import { getNotifications, markNotificationsAsRead } from '@/lib/services';
 import { formatDistanceToNow } from 'date-fns';
+import { ar } from 'date-fns/locale';
 
 export function DashboardHeader() {
   const { user, signOut } = useAuth();
@@ -56,7 +57,7 @@ export function DashboardHeader() {
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 md:px-8">
         <Link href="/" className="flex items-center gap-2">
           <LayoutGrid className="h-6 w-6 text-primary" />
-          <span className="font-headline text-xl font-bold">CollabPost</span>
+          <span className="font-headline text-xl font-bold">زاوية</span>
         </Link>
         <div className="flex items-center gap-4">
           <DropdownMenu onOpenChange={(open) => open && handleOpenNotifications()}>
@@ -66,11 +67,11 @@ export function DashboardHeader() {
                 {unreadCount > 0 && (
                   <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0 text-xs">{unreadCount}</Badge>
                 )}
-                <span className="sr-only">Notifications</span>
+                <span className="sr-only">الإشعارات</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                <DropdownMenuLabel>الإشعارات</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {notifications.length > 0 ? (
                   notifications.slice(0, 5).map(n => (
@@ -78,14 +79,14 @@ export function DashboardHeader() {
                         <Link href={n.link} className='flex flex-col items-start'>
                             <p className='font-semibold'>{n.message}</p>
                             <p className='text-muted-foreground text-sm'>
-                              {formatDistanceToNow(n.createdAt as Date, { addSuffix: true })}
+                              {formatDistanceToNow(n.createdAt as Date, { addSuffix: true, locale: ar })}
                             </p>
                         </Link>
                     </DropdownMenuItem>
                   ))
                 ) : (
                   <DropdownMenuItem disabled>
-                    You have no new notifications.
+                    ليس لديك إشعارات جديدة.
                   </DropdownMenuItem>
                 )}
             </DropdownMenuContent>
@@ -95,26 +96,26 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar>
-                  <AvatarImage src={user?.avatarUrl} alt="User avatar" />
+                  <AvatarImage src={user?.avatarUrl} alt="صورة المستخدم" />
                   <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>حسابي</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <User />
-                <span>Profile</span>
+                <span>الملف الشخصي</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings />
-                <span>Settings</span>
+                <span>الإعدادات</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut}>
                 <LogOut />
-                <span>Log out</span>
+                <span>تسجيل الخروج</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

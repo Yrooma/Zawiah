@@ -39,14 +39,11 @@ export default function SpacePage() {
         if (spaceData && spaceData.memberIds.includes(user.uid)) {
           setSpace(spaceData);
         } else {
-          // If user is not a member, they can't access this space.
-          // This might happen if they were removed from the team.
-          // We can redirect them or show a not found page.
           notFound();
         }
       } catch (err) {
         console.error(err);
-        setError("Failed to load space data.");
+        setError("فشل تحميل بيانات المساحة.");
       } finally {
         setIsLoading(false);
       }
@@ -84,37 +81,33 @@ export default function SpacePage() {
 
     try {
       if (id) {
-        // Update existing post
         const postToUpdate = space.posts.find(p => p.id === id);
         if (!postToUpdate) return;
         const updatedPostData = {
           ...postDetails,
           lastModifiedBy: currentUser,
-          activityLog: [...postToUpdate.activityLog, { user: currentUser, action: 'updated the post', date: 'Just now' }]
+          activityLog: [...postToUpdate.activityLog, { user: currentUser, action: 'تحديث المنشور', date: 'الآن' }]
         };
         await updatePost(space.id, id, updatedPostData);
         
-        // Update local state
         const updatedPosts = space.posts.map(p => p.id === id ? { ...p, ...updatedPostData, scheduledAt: postDetails.scheduledAt } : p);
         setSpace({...space, posts: updatedPosts});
       } else {
-        // Add new post
         const newPostData: Omit<Post, 'id'> = {
             ...postDetails,
             status: 'draft',
             createdBy: currentUser, 
             lastModifiedBy: currentUser,
-            activityLog: [{ user: currentUser, action: 'created', date: 'Just now' }],
+            activityLog: [{ user: currentUser, action: 'إنشاء', date: 'الآن' }],
         };
         const newPost = await addPost(space.id, newPostData);
         
-        // Update local state
         const updatedPosts = [...space.posts, newPost];
         setSpace({...space, posts: updatedPosts});
       }
     } catch (e) {
         console.error("Failed to save post", e);
-        toast({ title: "Error saving post", variant: "destructive" });
+        toast({ title: "خطأ في حفظ المنشور", variant: "destructive" });
     }
   };
 
@@ -126,15 +119,15 @@ export default function SpacePage() {
         
         const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl };
         const statusMessages = {
-            draft: 'Draft',
-            ready: 'Ready to Publish',
-            published: 'Published',
+            draft: 'مسودة',
+            ready: 'جاهز للنشر',
+            published: 'تم النشر',
         };
 
         const updatedPostData = {
             status: newStatus,
             lastModifiedBy: currentUser,
-            activityLog: [...postToUpdate.activityLog, { user: currentUser, action: `changed status to "${statusMessages[newStatus]}"`, date: 'Just now' }]
+            activityLog: [...postToUpdate.activityLog, { user: currentUser, action: `غير الحالة إلى "${statusMessages[newStatus]}"`, date: 'الآن' }]
         };
 
         await updatePost(space.id, postId, updatedPostData);
@@ -143,7 +136,7 @@ export default function SpacePage() {
         setSpace({...space, posts: updatedPosts});
     } catch(e) {
         console.error("Failed to update status", e);
-        toast({ title: "Error updating status", variant: "destructive" });
+        toast({ title: "خطأ في تحديث الحالة", variant: "destructive" });
     }
   };
   
@@ -161,7 +154,7 @@ export default function SpacePage() {
       setSpace({ ...space, ideas: updatedIdeas });
     } catch (e) {
       console.error("Failed to add idea", e);
-      toast({ title: "Error adding idea", variant: "destructive" });
+      toast({ title: "خطأ في إضافة الفكرة", variant: "destructive" });
     }
   };
 
@@ -175,7 +168,7 @@ export default function SpacePage() {
       setSpace({ ...space, ideas: updatedIdeas });
     } catch (e) {
       console.error("Failed to update idea", e);
-      toast({ title: "Error updating idea", variant: "destructive" });
+      toast({ title: "خطأ في تحديث الفكرة", variant: "destructive" });
     }
   };
 
@@ -187,7 +180,7 @@ export default function SpacePage() {
       setSpace({ ...space, ideas: updatedIdeas });
     } catch (e) {
       console.error("Failed to delete idea", e);
-      toast({ title: "Error deleting idea", variant: "destructive" });
+      toast({ title: "خطأ في حذف الفكرة", variant: "destructive" });
     }
   };
 
@@ -203,9 +196,9 @@ export default function SpacePage() {
   if (error || !space) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold text-destructive mb-4">Error</h1>
-        <p className="text-muted-foreground">{error || "Could not find the requested space."}</p>
-        <Button onClick={() => router.push('/')} className="mt-4">Go to Dashboard</Button>
+        <h1 className="text-2xl font-bold text-destructive mb-4">خطأ</h1>
+        <p className="text-muted-foreground">{error || "تعذر العثور على المساحة المطلوبة."}</p>
+        <Button onClick={() => router.push('/')} className="mt-4">العودة إلى لوحة التحكم</Button>
       </div>
     );
   }
@@ -223,8 +216,8 @@ export default function SpacePage() {
         <div className="max-w-7xl mx-auto">
           <Tabs defaultValue="calendar" className="w-full">
             <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
-              <TabsTrigger value="calendar">Calendar</TabsTrigger>
-              <TabsTrigger value="ideas">Ideas</TabsTrigger>
+              <TabsTrigger value="calendar">التقويم</TabsTrigger>
+              <TabsTrigger value="ideas">الأفكار</TabsTrigger>
             </TabsList>
             <TabsContent value="calendar" className="mt-6">
               <CalendarTab posts={space.posts} onUpdatePostStatus={handleUpdatePostStatus} onEditPost={handleOpenEditPostDialog} />

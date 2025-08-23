@@ -32,13 +32,13 @@ export default function SignupPage() {
       if (inviteToken.trim()) {
         await joinSpaceWithToken(newUser.uid, inviteToken.trim());
         toast({
-          title: "Account created and joined workspace!",
-          description: "You have been successfully added to the workspace.",
+          title: "تم إنشاء الحساب والانضمام إلى مساحة العمل!",
+          description: "لقد تم إضافتك بنجاح إلى مساحة العمل.",
         });
       } else {
         toast({
-          title: "Account Created!",
-          description: "You can now create your own workspaces.",
+          title: "تم إنشاء الحساب!",
+          description: "يمكنك الآن إنشاء مساحات العمل الخاصة بك.",
         });
       }
 
@@ -47,8 +47,8 @@ export default function SignupPage() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Signup Failed",
-        description: error.message || "An unexpected error occurred. Please try again.",
+        title: "فشل إنشاء الحساب",
+        description: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
       });
       setIsLoading(false);
     }
@@ -59,14 +59,14 @@ export default function SignupPage() {
       <Card className="w-full max-w-sm mx-auto">
         <CardHeader className="text-center">
           <LayoutGrid className="h-8 w-8 text-primary mx-auto mb-2" />
-          <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
-          <CardDescription>Enter your details to get started.</CardDescription>
+          <CardTitle className="text-2xl font-headline">إنشاء حساب</CardTitle>
+          <CardDescription>أدخل التفاصيل الخاصة بك للبدء.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup}>
             <div className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">الاسم الكامل</Label>
                 <Input 
                   id="name" 
                   required 
@@ -76,7 +76,7 @@ export default function SignupPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">البريد الإلكتروني</Label>
                 <Input
                   id="email"
                   type="email"
@@ -88,7 +88,7 @@ export default function SignupPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">كلمة المرور</Label>
                 <Input 
                   id="password" 
                   type="password" 
@@ -100,24 +100,24 @@ export default function SignupPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="invite-token">Invite Token (Optional)</Label>
+                <Label htmlFor="invite-token">رمز الدعوة (اختياري)</Label>
                 <Input
                   id="invite-token"
-                  placeholder="Enter token to join a team"
+                  placeholder="أدخل الرمز للانضمام إلى فريق"
                   value={inviteToken}
                   onChange={(e) => setInviteToken(e.target.value)}
                   disabled={isLoading}
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? <Loader2 className="animate-spin" /> : 'Create Account'}
+                {isLoading ? <Loader2 className="animate-spin" /> : 'إنشاء حساب'}
               </Button>
             </div>
           </form>
           <div className="mt-4 text-center text-sm">
-            Already have an account?{' '}
+            هل لديك حساب بالفعل؟{' '}
             <Link href="/login" className="underline">
-              Log in
+              تسجيل الدخول
             </Link>
           </div>
         </CardContent>

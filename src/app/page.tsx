@@ -35,7 +35,7 @@ export default function DashboardPage() {
         setSpaces(spacesFromDb);
         setError(null);
       } catch (err) {
-        setError("Failed to fetch workspaces. Please try again later.");
+        setError("فشل في جلب مساحات العمل. يرجى المحاولة مرة أخرى لاحقًا.");
         console.error(err);
       } finally {
         setIsLoading(false);
@@ -52,11 +52,9 @@ export default function DashboardPage() {
   }
   
   const handleSpaceJoined = (joinedSpace: Space) => {
-    // Check if the space is already in the list to avoid duplicates
     if (!spaces.find(s => s.id === joinedSpace.id)) {
       setSpaces(prevSpaces => [...prevSpaces, joinedSpace]);
     }
-    // Or just refetch all spaces to be safe
     fetchSpaces();
   }
 
@@ -75,19 +73,19 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-headline font-bold text-foreground">
-              Your Workspaces
+              مساحات العمل الخاصة بك
             </h1>
             <div className='flex items-center gap-2'>
               <JoinSpaceDialog onSpaceJoined={handleSpaceJoined}>
                 <Button variant="outline">
                   <UserPlus />
-                  Join a Workspace
+                  انضم إلى مساحة عمل
                 </Button>
               </JoinSpaceDialog>
               <CreateSpaceDialog onSpaceCreated={handleSpaceCreated}>
                 <Button>
                   <PlusCircle />
-                  Create New Space
+                  إنشاء مساحة جديدة
                 </Button>
               </CreateSpaceDialog>
             </div>
@@ -99,7 +97,7 @@ export default function DashboardPage() {
             </div>
           ) : error ? (
              <div className="text-center py-16 border-2 border-dashed rounded-lg bg-destructive/10 border-destructive/50">
-              <h2 className="text-xl font-semibold text-destructive">Error</h2>
+              <h2 className="text-xl font-semibold text-destructive">خطأ</h2>
               <p className="text-muted-foreground mt-2">{error}</p>
             </div>
           ) : spaces.length > 0 ? (
@@ -112,19 +110,19 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="text-center py-16 border-2 border-dashed rounded-lg">
-              <h2 className="text-xl font-semibold text-muted-foreground">No workspaces yet.</h2>
-              <p className="text-muted-foreground mt-2">Get started by creating a new workspace or joining an existing one.</p>
+              <h2 className="text-xl font-semibold text-muted-foreground">لا توجد مساحات عمل حتى الآن.</h2>
+              <p className="text-muted-foreground mt-2">ابدأ بإنشاء مساحة عمل جديدة أو الانضمام إلى واحدة موجودة.</p>
               <div className="flex justify-center gap-4 mt-4">
                 <JoinSpaceDialog onSpaceJoined={handleSpaceJoined}>
                   <Button variant="outline">
                     <UserPlus />
-                    Join a Workspace
+                    انضم إلى مساحة عمل
                   </Button>
                 </JoinSpaceDialog>
                 <CreateSpaceDialog onSpaceCreated={handleSpaceCreated}>
                   <Button>
                     <PlusCircle />
-                    Create First Workspace
+                    إنشاء مساحة العمل الأولى
                   </Button>
                 </CreateSpaceDialog>
               </div>

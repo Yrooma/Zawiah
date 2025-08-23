@@ -34,7 +34,7 @@ export function SpaceHeader({ spaceName, onNewPostClick, space, onSpaceUpdate }:
           <Link href="/" passHref>
             <Button variant="outline" size="icon" className="h-8 w-8">
               <ArrowLeft className="h-4 w-4" />
-              <span className="sr-only">Back to Dashboard</span>
+              <span className="sr-only">العودة إلى لوحة التحكم</span>
             </Button>
           </Link>
           <h1 className="text-xl font-headline font-semibold hidden md:block">{spaceName}</h1>
@@ -43,39 +43,39 @@ export function SpaceHeader({ spaceName, onNewPostClick, space, onSpaceUpdate }:
           <TeamDialog space={space} onSpaceUpdate={onSpaceUpdate}>
             <Button variant="outline">
               <Users />
-              <span className="hidden md:inline-block">Manage Team</span>
+              <span className="hidden md:inline-block">إدارة الفريق</span>
             </Button>
           </TeamDialog>
           
           <Button onClick={onNewPostClick}>
             <PlusCircle />
-            <span className="hidden md:inline-block">New Post</span>
+            <span className="hidden md:inline-block">منشور جديد</span>
           </Button>
           
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar>
-                  <AvatarImage src={user?.avatarUrl} alt="User avatar" />
+                  <AvatarImage src={user?.avatarUrl} alt="صورة المستخدم" />
                   <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>حسابي</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <User />
-                <span>Profile</span>
+                <span>الملف الشخصي</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings />
-                <span>Settings</span>
+                <span>الإعدادات</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut}>
                 <LogOut />
-                <span>Log out</span>
+                <span>تسجيل الخروج</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

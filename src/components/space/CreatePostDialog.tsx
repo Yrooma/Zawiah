@@ -74,14 +74,14 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
     if (!title.trim() || !content.trim() || !platform || !scheduledAt) {
         toast({
             variant: "destructive",
-            title: "Fields Required",
-            description: "Please fill out all fields to save the post.",
+            title: "الحقول مطلوبة",
+            description: "يرجى ملء جميع الحقول لحفظ المنشور.",
         });
         return;
     }
     
     if (!user) {
-        toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to save a post." });
+        toast({ variant: "destructive", title: "خطأ في المصادقة", description: "يجب أن تكون مسجلاً للدخول لحفظ منشور." });
         return;
     }
 
@@ -90,15 +90,15 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
       await onSavePost({ title, content, platform, scheduledAt }, postToEdit?.id);
 
       toast({
-        title: isEditing ? "Post updated!" : "Post created!",
-        description: isEditing ? "Your changes to the post have been saved." : "Your draft post has been added to the calendar.",
+        title: isEditing ? "تم تحديث المنشور!" : "تم إنشاء المنشور!",
+        description: isEditing ? "تم حفظ تغييراتك على المنشور." : "تمت إضافة مسودة منشورك إلى التقويم.",
       });
       onOpenChange(false);
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Could not save the post. Please try again.",
+        title: "خطأ",
+        description: "تعذر حفظ المنشور. يرجى المحاولة مرة أخرى.",
       });
     } finally {
       setIsLoading(false);
@@ -117,61 +117,61 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
       {children}
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">{isEditing ? 'Edit Post' : 'Create New Post'}</DialogTitle>
+          <DialogTitle className="font-headline">{isEditing ? 'تعديل المنشور' : 'إنشاء منشور جديد'}</DialogTitle>
           <DialogDescription>
-            {isEditing ? 'Edit the post details below.' : 'Fill in the details below to create a new draft post.'}
+            {isEditing ? 'عدّل تفاصيل المنشور أدناه.' : 'املأ التفاصيل أدناه لإنشاء مسودة منشور جديدة.'}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="title" className="text-right">
-              Title
+              العنوان
             </Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. 'Spring Collection Launch'"
+              placeholder="مثال: 'إطلاق مجموعة الربيع'"
               className="col-span-3"
               disabled={isLoading}
             />
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="content" className="text-right pt-2">
-              Content
+              المحتوى
             </Label>
             <Textarea
               id="content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Write your post content here..."
+              placeholder="اكتب محتوى منشورك هنا..."
               className="col-span-3 min-h-[120px]"
               disabled={isLoading}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="platform" className="text-right">
-              Platform
+              المنصة
             </Label>
             <Select value={platform} onValueChange={(value: Platform) => setPlatform(value)} disabled={isLoading}>
                 <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a platform" />
+                    <SelectValue placeholder="اختر منصة" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="instagram">Instagram</SelectItem>
-                    <SelectItem value="x">X (Twitter)</SelectItem>
-                    <SelectItem value="facebook">Facebook</SelectItem>
-                    <SelectItem value="linkedin">LinkedIn</SelectItem>
-                    <SelectItem value="threads">Threads</SelectItem>
-                    <SelectItem value="tiktok">TikTok</SelectItem>
-                    <SelectItem value="snapchat">Snapchat</SelectItem>
-                    <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="instagram">انستغرام</SelectItem>
+                    <SelectItem value="x">إكس (تويتر)</SelectItem>
+                    <SelectItem value="facebook">فيسبوك</SelectItem>
+                    <SelectItem value="linkedin">لينكدإن</SelectItem>
+                    <SelectItem value="threads">ثريدز</SelectItem>
+                    <SelectItem value="tiktok">تيك توك</SelectItem>
+                    <SelectItem value="snapchat">سناب شات</SelectItem>
+                    <SelectItem value="email">بريد إلكتروني</SelectItem>
                 </SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
              <Label htmlFor="date" className="text-right">
-              Publish Date
+              تاريخ النشر
             </Label>
              <Popover>
               <PopoverTrigger asChild>
@@ -183,8 +183,8 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
                   )}
                   disabled={isLoading}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {scheduledAt ? format(scheduledAt, 'PPP') : <span>Pick a date</span>}
+                  <CalendarIcon className="ms-2 h-4 w-4" />
+                  {scheduledAt ? format(scheduledAt, 'PPP') : <span>اختر تاريخًا</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -199,10 +199,10 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>إلغاء</Button>
           <Button type="submit" onClick={handleSave} disabled={isLoading}>
              {isLoading && <Loader2 className="animate-spin" />}
-            {isLoading ? 'Saving...' : (isEditing ? 'Save Changes' : 'Create Draft Post')}
+            {isLoading ? 'جارٍ الحفظ...' : (isEditing ? 'حفظ التغييرات' : 'إنشاء مسودة')}
           </Button>
         </DialogFooter>
       </DialogContent>
