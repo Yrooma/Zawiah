@@ -130,18 +130,21 @@ export const joinSpaceWithToken = async (userId: string, token: string): Promise
 
     const user: User = { id: userProfile.uid, name: userProfile.name, avatarUrl: userProfile.avatarUrl };
     
-    const batch = writeBatch(db);
     const spaceRef = doc(db, 'spaces', spaceDoc.id);
     
-    const newInviteToken = `${spaceData.name.slice(0,4).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const updatedTeam = [...spaceData.team, user];
+    const updatedMemberIds = [...spaceData.memberIds, userId];
 
-    batch.update(spaceRef, {
-        team: [...spaceData.team, user],
-        memberIds: [...spaceData.memberIds, userId],
+    // Regenerate a new token if there's still room, otherwise nullify it.
+    const newInviteToken = updatedMemberIds.length < 3
+        ? `${spaceData.name.slice(0,4).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+        : null;
+
+    await updateDoc(spaceRef, {
+        team: updatedTeam,
+        memberIds: updatedMemberIds,
         inviteToken: newInviteToken
     });
-
-    await batch.commit();
 
     return getSpaceById(spaceDoc.id);
 }
@@ -249,3 +252,4 @@ export const markNotificationsAsRead = async (notificationIds: string[]): Promis
     });
     await batch.commit();
 };
+

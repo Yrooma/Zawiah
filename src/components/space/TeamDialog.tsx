@@ -112,12 +112,12 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
         
         <Separator />
 
-        {space.team.length < 3 && (
+        {isCurrentUserOwner && space.team.length < 3 && (
             <div className="space-y-2 pt-2">
             <Label htmlFor="link" className="font-medium">Invite with token</Label>
-            <p className='text-xs text-muted-foreground'>This token is single-use and will regenerate after being used.</p>
+            <p className='text-xs text-muted-foreground'>This token will regenerate after each use.</p>
             <div className="flex items-center space-x-2">
-                <Input id="link" value={space.inviteToken || "No token available"} readOnly className="font-mono text-center tracking-widest" />
+                <Input id="link" value={space.inviteToken || "Workspace is full"} readOnly className="font-mono text-center tracking-widest" />
                 <Button size="icon" onClick={copyToClipboard} disabled={!space.inviteToken}>
                 {hasCopied ? <Check /> : <Copy />}
                 </Button>
