@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type ReactNode } from 'react';
-import { Copy, Check, LogOut, Trash2, ShieldAlert } from 'lucide-react';
+import { Copy, Check, LogOut, Trash2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,7 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
-import type { Space, User } from '@/lib/types';
+import type { Space } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { leaveSpace, deleteSpace } from '@/lib/services';
@@ -64,7 +64,7 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
     try {
         await leaveSpace(space.id, user.uid);
         toast({ title: `لقد غادرت ${space.name}.`});
-        router.push('/');
+        router.push('/dashboard');
     } catch (error: any) {
         toast({ variant: 'destructive', title: "خطأ في مغادرة المساحة", description: error.message });
     }
@@ -74,7 +74,7 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
       try {
           await deleteSpace(space.id);
           toast({ title: `تم حذف ${space.name}.`});
-          router.push('/');
+          router.push('/dashboard');
       } catch (error: any) {
           toast({ variant: 'destructive', title: "خطأ في حذف المساحة", description: error.message });
       }
@@ -159,3 +159,5 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
     </Dialog>
   );
 }
+
+    

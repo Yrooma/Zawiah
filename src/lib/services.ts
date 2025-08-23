@@ -256,3 +256,5 @@ export const markNotificationsAsRead = async (notificationIds: string[]): Promis
     });
     await batch.commit();
 };
+
+    
