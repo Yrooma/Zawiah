@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type ReactNode, useEffect } from 'react';
@@ -21,7 +20,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
-import { arSA } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
 interface CreatePostDialogProps {
@@ -72,8 +70,8 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
     if (!title.trim() || !content.trim() || !platform || !scheduledAt) {
         toast({
             variant: "destructive",
-            title: "الحقول مطلوبة",
-            description: "الرجاء تعبئة جميع الحقول لحفظ المنشور.",
+            title: "Fields Required",
+            description: "Please fill out all fields to save the post.",
         });
         return;
     }
@@ -81,8 +79,8 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
     onSavePost({ title, content, platform, scheduledAt }, postToEdit?.id);
 
     toast({
-      title: isEditing ? "تم تحديث المنشور!" : "تم إنشاء المنشور!",
-      description: isEditing ? "تم حفظ التغييرات على منشورك." : "تمت إضافة مسودة منشورك إلى التقويم.",
+      title: isEditing ? "Post updated!" : "Post created!",
+      description: isEditing ? "Your changes to the post have been saved." : "Your draft post has been added to the calendar.",
     });
     onOpenChange(false);
   };
@@ -99,56 +97,56 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
       {children}
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">{isEditing ? 'تعديل المنشور' : 'إنشاء منشور جديد'}</DialogTitle>
+          <DialogTitle className="font-headline">{isEditing ? 'Edit Post' : 'Create New Post'}</DialogTitle>
           <DialogDescription>
-            {isEditing ? 'قم بتعديل تفاصيل المنشور أدناه.' : 'املأ التفاصيل أدناه لإنشاء مسودة منشور جديدة.'}
+            {isEditing ? 'Edit the post details below.' : 'Fill in the details below to create a new draft post.'}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="title" className="text-right">
-              العنوان
+              Title
             </Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="مثال: 'إطلاق مجموعة الربيع'"
+              placeholder="e.g. 'Spring Collection Launch'"
               className="col-span-3"
             />
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="content" className="text-right pt-2">
-              المحتوى
+              Content
             </Label>
             <Textarea
               id="content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="اكتب محتوى منشورك هنا..."
+              placeholder="Write your post content here..."
               className="col-span-3 min-h-[120px]"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="platform" className="text-right">
-              المنصة
+              Platform
             </Label>
             <Select value={platform} onValueChange={(value: Platform) => setPlatform(value)}>
                 <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="اختر منصة" />
+                    <SelectValue placeholder="Select a platform" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="instagram">انستغرام</SelectItem>
-                    <SelectItem value="x">X (تويتر)</SelectItem>
-                    <SelectItem value="facebook">فيسبوك</SelectItem>
-                    <SelectItem value="linkedin">لينكد إن</SelectItem>
-                    <SelectItem value="threads">ثريدز</SelectItem>
+                    <SelectItem value="instagram">Instagram</SelectItem>
+                    <SelectItem value="x">X (Twitter)</SelectItem>
+                    <SelectItem value="facebook">Facebook</SelectItem>
+                    <SelectItem value="linkedin">LinkedIn</SelectItem>
+                    <SelectItem value="threads">Threads</SelectItem>
                 </SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
              <Label htmlFor="date" className="text-right">
-              تاريخ النشر
+              Publish Date
             </Label>
              <Popover>
               <PopoverTrigger asChild>
@@ -159,8 +157,8 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
                     !scheduledAt && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="ml-2 h-4 w-4" />
-                  {scheduledAt ? format(scheduledAt, 'PPP', { locale: arSA }) : <span>اختر تاريخ</span>}
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {scheduledAt ? format(scheduledAt, 'PPP') : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -169,7 +167,6 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
                   selected={scheduledAt}
                   onSelect={setScheduledAt}
                   initialFocus
-                  locale={arSA}
                 />
               </PopoverContent>
             </Popover>
@@ -177,7 +174,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
         </div>
         <DialogFooter>
           <Button type="submit" onClick={handleSave}>
-            {isEditing ? 'حفظ التغييرات' : 'إنشاء مسودة المنشور'}
+            {isEditing ? 'Save Changes' : 'Create Draft Post'}
           </Button>
         </DialogFooter>
       </DialogContent>

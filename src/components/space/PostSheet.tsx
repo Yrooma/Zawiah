@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { Post, Platform, PostStatus } from "@/lib/types";
@@ -10,13 +9,12 @@ import { Instagram, Facebook, Copy, CheckCircle, Pencil } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { format } from "date-fns";
-import { arSA } from "date-fns/locale";
 
 const PlatformDisplay = ({ platform }: { platform: Platform }) => {
     const platformDetails = {
-        instagram: { name: 'انستغرام', Icon: Instagram, color: 'bg-pink-500' },
+        instagram: { name: 'Instagram', Icon: Instagram, color: 'bg-pink-500' },
         x: { 
-            name: 'X (تويتر)', 
+            name: 'X (Twitter)', 
             Icon: () => (
                 <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 fill-white">
                     <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
@@ -24,9 +22,9 @@ const PlatformDisplay = ({ platform }: { platform: Platform }) => {
             ),
             color: 'bg-black' 
         },
-        facebook: { name: 'فيسبوك', Icon: Facebook, color: 'bg-blue-600' },
-        linkedin: { name: 'لينكد إن', Icon: () => <span className="font-bold text-sm">in</span>, color: 'bg-sky-700' },
-        threads: { name: 'ثريدز', Icon: () => <span className="font-bold text-xl">@</span>, color: 'bg-gray-800' },
+        facebook: { name: 'Facebook', Icon: Facebook, color: 'bg-blue-600' },
+        linkedin: { name: 'LinkedIn', Icon: () => <span className="font-bold text-sm">in</span>, color: 'bg-sky-700' },
+        threads: { name: 'Threads', Icon: () => <span className="font-bold text-xl">@</span>, color: 'bg-gray-800' },
     };
     const details = platformDetails[platform];
 
@@ -55,24 +53,24 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
 
   const handleCopy = () => {
     navigator.clipboard.writeText(post.content);
-    toast({ title: "تم نسخ محتوى المنشور!" });
+    toast({ title: "Post content copied!" });
   };
   
   const handleMarkAsPublished = () => {
     onUpdateStatus(post.id, 'published');
     onOpenChange(false);
     toast({
-        title: "تم تحديث الحالة!",
-        description: `تم تحديد "${post.title}" كمنشور تم نشره.`,
+        title: "Status Updated!",
+        description: `"${post.title}" has been marked as published.`,
         variant: "default",
         className: "bg-accent text-accent-foreground"
       });
   }
 
   const statusMessages = {
-    draft: 'مسودة',
-    ready: 'جاهز للنشر',
-    published: 'تم النشر',
+    draft: 'Draft',
+    ready: 'Ready to Publish',
+    published: 'Published',
   };
 
   const statusClasses = {
@@ -89,17 +87,17 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
             <SheetTitle className="font-headline text-2xl">{post.title}</SheetTitle>
             <Button variant="outline" size="icon" onClick={() => onEdit(post)}>
               <Pencil />
-              <span className="sr-only">تعديل المنشور</span>
+              <span className="sr-only">Edit Post</span>
             </Button>
           </div>
           <div className="flex justify-between items-center text-sm pt-2">
             <Badge className={statusClasses[post.status]}>{statusMessages[post.status]}</Badge>
-            <div className="text-muted-foreground">{format(post.scheduledAt, 'PPPP', { locale: arSA })}</div>
+            <div className="text-muted-foreground">{format(post.scheduledAt, 'PPP')}</div>
           </div>
         </SheetHeader>
         <div className="flex-grow overflow-y-auto p-6 pt-2 space-y-6">
             <div>
-                <h3 className="font-semibold mb-2">المنصة</h3>
+                <h3 className="font-semibold mb-2">Platform</h3>
                 <div className="p-3 rounded-lg bg-secondary">
                     <PlatformDisplay platform={post.platform} />
                 </div>
@@ -107,7 +105,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
 
             {post.imageUrl && (
                 <div>
-                    <h3 className="font-semibold mb-2">الوسائط</h3>
+                    <h3 className="font-semibold mb-2">Media</h3>
                     <div className="relative aspect-video rounded-lg overflow-hidden border">
                         <Image src={post.imageUrl} alt={post.title} layout="fill" objectFit="cover" data-ai-hint="social media lifestyle" />
                     </div>
@@ -116,9 +114,9 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
             
             <div>
                 <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold">المحتوى</h3>
+                    <h3 className="font-semibold">Content</h3>
                     <Button variant="outline" size="sm" onClick={handleCopy}>
-                        نسخ النص
+                        Copy Text
                         <Copy />
                     </Button>
                 </div>
@@ -128,7 +126,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
             </div>
 
             <div>
-                <h3 className="font-semibold mb-3">سجل النشاط</h3>
+                <h3 className="font-semibold mb-3">Activity Log</h3>
                 <ul className="space-y-3 text-sm">
                     {post.activityLog.map((log, index) => (
                         <li key={index} className="flex items-center gap-3">
@@ -140,7 +138,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
                                 <span className="font-medium">{log.user.name}</span>
                                 <span className="text-muted-foreground"> {log.action.toLowerCase()}</span>
                             </div>
-                            <span className="ms-auto text-xs text-muted-foreground">{log.date}</span>
+                            <span className="ml-auto text-xs text-muted-foreground">{log.date}</span>
                         </li>
                     ))}
                 </ul>
@@ -150,7 +148,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
         {post.status !== 'published' && (
              <SheetFooter className="p-6 bg-background border-t">
                 <Button size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleMarkAsPublished}>
-                    تحديث الحالة إلى: تم النشر
+                    Update Status to: Published
                     <CheckCircle />
                 </Button>
             </SheetFooter>

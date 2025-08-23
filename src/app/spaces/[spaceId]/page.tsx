@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -45,7 +44,7 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
                     ...p,
                     ...postDetails,
                     lastModifiedBy: users[0],
-                    activityLog: [...p.activityLog, { user: users[0], action: 'حدّث المنشور', date: 'الآن' }]
+                    activityLog: [...p.activityLog, { user: users[0], action: 'updated the post', date: 'Just now' }]
                 };
             }
             return p;
@@ -60,7 +59,7 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
             status: 'draft',
             createdBy: users[0], 
             lastModifiedBy: users[0],
-            activityLog: [{ user: users[0], action: 'أنشأ', date: 'الآن' }],
+            activityLog: [{ user: users[0], action: 'created', date: 'Just now' }],
         };
         const updatedPosts = [...posts, newPost];
         setPosts(updatedPosts);
@@ -70,9 +69,9 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
 
   const handleUpdatePostStatus = (postId: string, newStatus: PostStatus) => {
     const statusMessages = {
-      draft: 'مسودة',
-      ready: 'جاهز للنشر',
-      published: 'تم النشر',
+      draft: 'Draft',
+      ready: 'Ready to Publish',
+      published: 'Published',
     };
     const updatedPosts = posts.map(p => {
       if (p.id === postId) {
@@ -80,7 +79,7 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
           ...p, 
           status: newStatus,
           lastModifiedBy: users[0],
-          activityLog: [...p.activityLog, { user: users[0], action: `غيّر الحالة إلى "${statusMessages[newStatus]}"`, date: 'الآن' }]
+          activityLog: [...p.activityLog, { user: users[0], action: `changed status to "${statusMessages[newStatus]}"`, date: 'Just now' }]
         };
       }
       return p;
@@ -100,8 +99,8 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
         <div className="max-w-7xl mx-auto">
           <Tabs defaultValue="calendar" className="w-full">
             <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
-              <TabsTrigger value="calendar">التقويم</TabsTrigger>
-              <TabsTrigger value="ideas">الأفكار</TabsTrigger>
+              <TabsTrigger value="calendar">Calendar</TabsTrigger>
+              <TabsTrigger value="ideas">Ideas</TabsTrigger>
             </TabsList>
             <TabsContent value="calendar" className="mt-6">
               <CalendarTab posts={posts} onUpdatePostStatus={handleUpdatePostStatus} onEditPost={handleOpenEditPostDialog} />

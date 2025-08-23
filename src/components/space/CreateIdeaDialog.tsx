@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type ReactNode } from 'react';
@@ -30,8 +29,8 @@ export function CreateIdeaDialog({ children, onAddIdea }: CreateIdeaDialogProps)
     if (ideaContent.trim()) {
       onAddIdea(ideaContent);
       toast({
-        title: "تمت إضافة الفكرة!",
-        description: `تمت إضافة فكرتك بنجاح.`,
+        title: "Idea added!",
+        description: `Your idea has been successfully added.`,
       });
       setIdeaContent("");
       setOpen(false);
@@ -43,26 +42,26 @@ export function CreateIdeaDialog({ children, onAddIdea }: CreateIdeaDialogProps)
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">أضف فكرة جديدة</DialogTitle>
+          <DialogTitle className="font-headline">Add New Idea</DialogTitle>
           <DialogDescription>
-            اكتب فكرة المحتوى الخاصة بك. يمكن للفريق مشاهدتها والبناء عليها.
+            Write down your content idea. The team can see and build upon it.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid w-full gap-1.5">
-            <Label htmlFor="idea-content">فكرتك</Label>
+            <Label htmlFor="idea-content">Your Idea</Label>
             <Textarea
               id="idea-content"
               value={ideaContent}
               onChange={(e) => setIdeaContent(e.target.value)}
-              placeholder="مثال: 'إطلاق مسابقة على انستغرام الأسبوع القادم...'"
+              placeholder="e.g. 'Run an Instagram contest next week...'"
               className="min-h-[100px]"
             />
           </div>
         </div>
         <DialogFooter>
           <Button type="submit" onClick={handleCreateIdea} disabled={!ideaContent.trim()}>
-            أضف الفكرة
+            Add Idea
           </Button>
         </DialogFooter>
       </DialogContent>

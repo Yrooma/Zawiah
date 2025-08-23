@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -24,8 +23,8 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
     const handleConvertToPost = (ideaContent: string) => {
         onConvertToPost(ideaContent);
         toast({
-            title: "فكرة جاهزة للتخطيط!",
-            description: `تم نقل المحتوى إلى شاشة إنشاء المنشور.`,
+            title: "Idea ready for scheduling!",
+            description: `The content has been moved to the create post screen.`,
         });
     }
 
@@ -46,7 +45,7 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
       setIdeas(updatedIdeas);
       space.ideas = updatedIdeas; // Also update the source data
       toast({
-        title: "تم حذف الفكرة!",
+        title: "Idea Deleted!",
         variant: "destructive"
       });
     }
@@ -54,11 +53,11 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-headline font-bold">أفكار المحتوى</h2>
+        <h2 className="text-2xl font-headline font-bold">Content Ideas</h2>
         <CreateIdeaDialog onAddIdea={handleAddIdea}>
           <Button>
             <PlusCircle />
-            أضف فكرة
+            Add Idea
           </Button>
         </CreateIdeaDialog>
       </div>
@@ -74,11 +73,11 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
                     <AvatarImage src={idea.createdBy.avatarUrl} />
                     <AvatarFallback>{idea.createdBy.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <span className='text-xs text-muted-foreground'>بواسطة {idea.createdBy.name}</span>
+                <span className='text-xs text-muted-foreground'>By {idea.createdBy.name}</span>
               </div>
               <div className='flex gap-2'>
                 <Button size="sm" variant="outline" onClick={() => handleConvertToPost(idea.content)}>
-                  تحويل إلى منشور
+                  Convert to Post
                 </Button>
                 <Button size="icon" variant="ghost" className='h-8 w-8 text-muted-foreground hover:text-destructive' onClick={() => handleDeleteIdea(idea.id)}>
                     <Trash2 className='h-4 w-4'/>
@@ -90,14 +89,14 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
         {ideas.length === 0 && (
             <div className="md:col-span-2 lg:col-span-3 text-center py-16 border-2 border-dashed rounded-lg">
                 <Lightbulb className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="mt-4 text-lg font-medium">لا توجد أفكار بعد</h3>
+                <h3 className="mt-4 text-lg font-medium">No ideas yet</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    هذه هي مساحتك لتبادل الأفكار. أضف فكرتك الأولى!
+                    This is your space for brainstorming. Add your first idea!
                 </p>
                 <CreateIdeaDialog onAddIdea={handleAddIdea}>
                     <Button className="mt-4">
                         <PlusCircle />
-                        أضف فكرتك الأولى
+                        Add your first idea
                     </Button>
                 </CreateIdeaDialog>
             </div>

@@ -25,12 +25,12 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-headline font-bold text-foreground">
-              مساحات العمل الخاصة بك
+              Your Workspaces
             </h1>
             <CreateSpaceDialog>
               <Button>
                 <PlusCircle />
-                إنشاء مساحة جديدة
+                Create New Space
               </Button>
             </CreateSpaceDialog>
           </div>
@@ -46,12 +46,12 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="text-center py-16 border-2 border-dashed rounded-lg">
-              <h2 className="text-xl font-semibold text-muted-foreground">لا توجد مساحات عمل حتى الآن.</h2>
-              <p className="text-muted-foreground mt-2">ابدأ بإنشاء مساحة التعاون الأولى لك.</p>
+              <h2 className="text-xl font-semibold text-muted-foreground">No workspaces yet.</h2>
+              <p className="text-muted-foreground mt-2">Get started by creating your first collaboration space.</p>
               <CreateSpaceDialog>
                 <Button className="mt-4">
                   <PlusCircle />
-                  إنشاء مساحة العمل الأولى
+                  Create First Workspace
                 </Button>
               </CreateSpaceDialog>
             </div>

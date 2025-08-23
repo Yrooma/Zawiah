@@ -33,23 +33,23 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
-                <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0 text-xs">٢</Badge>
-                <span className="sr-only">الإشعارات</span>
+                <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0 text-xs">2</Badge>
+                <span className="sr-only">Notifications</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>الإشعارات</DropdownMenuLabel>
+                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                     <div className='flex flex-col'>
-                        <p className='font-semibold'>منشور مستحق لـ "متجر أزياء أزور"</p>
-                        <p className='text-muted-foreground text-sm'>حان وقت النشر على انستغرام.</p>
+                        <p className='font-semibold'>Post due for "Azure Fashion"</p>
+                        <p className='text-muted-foreground text-sm'>Time to post on Instagram.</p>
                     </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                     <div className='flex flex-col'>
-                        <p className='font-semibold'>فكرة جديدة من سميرة</p>
-                        <p className='text-muted-foreground text-sm'>"تسليط الضوء على موادنا المستدامة."</p>
+                        <p className='font-semibold'>New idea from Sarah</p>
+                        <p className='text-muted-foreground text-sm'>"Highlight our sustainable materials."</p>
                     </div>
                 </DropdownMenuItem>
             </DropdownMenuContent>
@@ -59,26 +59,26 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar>
-                  <AvatarImage src="https://placehold.co/100x100/EFEFEFF/333333?text=AD" alt="صورة المستخدم الرمزية" />
+                  <AvatarImage src="https://placehold.co/100x100.png" alt="User avatar" />
                   <AvatarFallback>AD</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>حسابي</DropdownMenuLabel>
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <User />
-                <span>الملف الشخصي</span>
+                <span>Profile</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings />
-                <span>الإعدادات</span>
+                <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <LogOut />
-                <span>تسجيل الخروج</span>
+                <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

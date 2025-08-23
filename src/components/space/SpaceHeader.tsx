@@ -1,6 +1,5 @@
-
 import Link from 'next/link';
-import { ArrowLeft, Users, PlusCircle, Bell, User, Settings, LogOut } from 'lucide-react';
+import { ArrowLeft, Users, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TeamDialog } from './TeamDialog';
 import {
@@ -12,9 +11,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CreatePostDialog } from './CreatePostDialog';
-import type { Space } from '@/lib/types';
-import { spaces } from '@/lib/data'; // We'll get the space data from here
+import { spaces } from '@/lib/data';
+import { User, Settings, LogOut } from 'lucide-react';
 
 interface SpaceHeaderProps {
   spaceName: string;
@@ -22,8 +20,6 @@ interface SpaceHeaderProps {
 }
 
 export function SpaceHeader({ spaceName, onNewPostClick }: SpaceHeaderProps) {
-  // This is a placeholder to find the current space. In a real app,
-  // this would come from a data fetch based on the spaceId.
   const currentSpace = spaces.find(s => s.name === spaceName);
 
   return (
@@ -33,7 +29,7 @@ export function SpaceHeader({ spaceName, onNewPostClick }: SpaceHeaderProps) {
           <Link href="/" passHref>
             <Button variant="outline" size="icon" className="h-8 w-8">
               <ArrowLeft className="h-4 w-4" />
-              <span className="sr-only">العودة إلى لوحة التحكم</span>
+              <span className="sr-only">Back to Dashboard</span>
             </Button>
           </Link>
           <h1 className="text-xl font-headline font-semibold hidden md:block">{spaceName}</h1>
@@ -42,39 +38,39 @@ export function SpaceHeader({ spaceName, onNewPostClick }: SpaceHeaderProps) {
           <TeamDialog team={currentSpace?.team || []} inviteToken={currentSpace?.inviteToken || ''}>
             <Button variant="outline">
               <Users />
-              <span className="hidden md:inline-block">إدارة الفريق</span>
+              <span className="hidden md:inline-block">Manage Team</span>
             </Button>
           </TeamDialog>
           
           <Button onClick={onNewPostClick}>
             <PlusCircle />
-            <span className="hidden md:inline-block">منشور جديد</span>
+            <span className="hidden md:inline-block">New Post</span>
           </Button>
           
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar>
-                  <AvatarImage src="https://placehold.co/100x100/EFEFEFF/333333?text=AD" alt="صورة المستخدم الرمزية" />
+                  <AvatarImage src="https://placehold.co/100x100.png" alt="User avatar" />
                   <AvatarFallback>AD</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>حسابي</DropdownMenuLabel>
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <User />
-                <span>الملف الشخصي</span>
+                <span>Profile</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings />
-                <span>الإعدادات</span>
+                <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <LogOut />
-                <span>تسجيل الخروج</span>
+                <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
