@@ -14,35 +14,52 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { spaces, users } from '@/lib/data';
+import { addSpace } from '@/lib/services';
+import type { Space } from '@/lib/types';
+import { users } from '@/lib/data';
 
 interface CreateSpaceDialogProps {
   children: ReactNode;
+  onSpaceCreated: (newSpace: Space) => void;
 }
 
-export function CreateSpaceDialog({ children }: CreateSpaceDialogProps) {
+export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialogProps) {
   const [open, setOpen] = useState(false);
   const [spaceName, setSpaceName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleCreateSpace = () => {
+  const handleCreateSpace = async () => {
     if (spaceName.trim()) {
-      const newSpace = {
-        id: `space-${Date.now()}`,
-        name: spaceName,
-        team: [users[0]], // Add current user as the owner
-        posts: [],
-        ideas: [],
-        inviteToken: `${spaceName.slice(0,4).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
-      };
-      spaces.push(newSpace);
+      setIsLoading(true);
+      try {
+        const newSpaceData = {
+          name: spaceName,
+          team: [users[0]], // Add current user as the owner
+          // Firestore will initialize posts and ideas as empty arrays/subcollections
+        };
+        const newSpace = await addSpace(newSpaceData);
+        
+        onSpaceCreated(newSpace);
 
-      toast({
-        title: "Space created!",
-        description: `Workspace "${spaceName}" has been created successfully.`,
-      });
-      setSpaceName("");
-      setOpen(false);
+        toast({
+          title: "Space created!",
+          description: `Workspace "${spaceName}" has been created successfully.`,
+        });
+
+        setSpaceName("");
+        setOpen(false);
+
+      } catch (error) {
+        console.error("Failed to create space:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not create the new workspace. Please try again."
+        });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -71,8 +88,8 @@ export function CreateSpaceDialog({ children }: CreateSpaceDialogProps) {
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit" onClick={handleCreateSpace} disabled={!spaceName.trim()}>
-            Create Space
+          <Button type="submit" onClick={handleCreateSpace} disabled={!spaceName.trim() || isLoading}>
+            {isLoading ? 'Creating...' : 'Create Space'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,3 +1,4 @@
+import type { Timestamp } from "firebase/firestore";
 
 export type User = {
   id: string;
@@ -13,13 +14,13 @@ export type Idea = {
   id: string;
   content: string;
   createdBy: User;
-  createdAt: string;
+  createdAt: string; // Keep as ISO string for simplicity, or use Firestore Timestamp
 };
 
 export type ActivityLog = {
   user: User;
   action: string;
-  date: string;
+  date: string; // Keep as string for simplicity
 };
 
 export type Post = {
@@ -28,7 +29,7 @@ export type Post = {
   content: string;
   platform: Platform;
   status: PostStatus;
-  scheduledAt: Date;
+  scheduledAt: Date | Timestamp; // Allow both for client and server
   createdBy: User;
   lastModifiedBy: User;
   imageUrl?: string;

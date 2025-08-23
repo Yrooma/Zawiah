@@ -1,27 +1,46 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
-import { spaces, users } from '@/lib/data';
-import type { Post, Platform, PostStatus } from '@/lib/types';
+import { getSpaceById } from '@/lib/services';
+import type { Space, Post, Platform, PostStatus } from '@/lib/types';
+import { users } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
 import { CalendarTab } from '@/components/space/CalendarTab';
 import { IdeasTab } from '@/components/space/IdeasTab';
 import { CreatePostDialog } from '@/components/space/CreatePostDialog';
 import React from 'react';
+import { Loader2 } from 'lucide-react';
 
 export default function SpacePage({ params: { spaceId } }: { params: { spaceId: string } }) {
-  const space = spaces.find((s) => s.id === spaceId);
+  const [space, setSpace] = useState<Space | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!space) {
-    notFound();
-  }
-
-  const [posts, setPosts] = useState<Post[]>(space.posts);
   const [isCreatePostOpen, setCreatePostOpen] = useState(false);
   const [initialPostContent, setInitialPostContent] = useState<string | undefined>(undefined);
   const [postToEdit, setPostToEdit] = useState<Post | undefined>(undefined);
+
+  useEffect(() => {
+    const fetchSpace = async () => {
+      try {
+        setIsLoading(true);
+        const spaceData = await getSpaceById(spaceId);
+        if (spaceData) {
+          setSpace(spaceData);
+        } else {
+          notFound();
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load space data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSpace();
+  }, [spaceId]);
 
   const handleOpenCreatePostDialog = (content?: string) => {
     setInitialPostContent(content);
@@ -36,21 +55,23 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
   }
   
   const handleAddOrUpdatePost = (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }, id?: string) => {
+    if (!space) return;
+
     if (id) {
         // Update existing post
-        const updatedPosts = posts.map(p => {
+        const updatedPosts = space.posts.map(p => {
             if (p.id === id) {
-                return {
+                const updatedPost = {
                     ...p,
                     ...postDetails,
                     lastModifiedBy: users[0],
                     activityLog: [...p.activityLog, { user: users[0], action: 'updated the post', date: 'Just now' }]
                 };
+                return updatedPost;
             }
             return p;
         });
-        setPosts(updatedPosts);
-        space.posts = updatedPosts;
+        setSpace({...space, posts: updatedPosts});
     } else {
         // Add new post
         const newPost: Post = {
@@ -61,19 +82,19 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
             lastModifiedBy: users[0],
             activityLog: [{ user: users[0], action: 'created', date: 'Just now' }],
         };
-        const updatedPosts = [...posts, newPost];
-        setPosts(updatedPosts);
-        space.posts = updatedPosts; 
+        const updatedPosts = [...space.posts, newPost];
+        setSpace({...space, posts: updatedPosts});
     }
   };
 
   const handleUpdatePostStatus = (postId: string, newStatus: PostStatus) => {
+    if (!space) return;
     const statusMessages = {
       draft: 'Draft',
       ready: 'Ready to Publish',
       published: 'Published',
     };
-    const updatedPosts = posts.map(p => {
+    const updatedPosts = space.posts.map(p => {
       if (p.id === postId) {
         return { 
           ...p, 
@@ -84,9 +105,26 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
       }
       return p;
     });
-    setPosts(updatedPosts);
-    space.posts = updatedPosts; 
+    setSpace({...space, posts: updatedPosts});
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error || !space) {
+     return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <h1 className="text-2xl font-bold text-destructive mb-4">Error</h1>
+        <p className="text-muted-foreground">{error || "Could not find the requested space."}</p>
+        <Button onClick={() => window.location.href = '/'} className="mt-4">Go to Dashboard</Button>
+      </div>
+    );
+  }
 
 
   return (
@@ -103,7 +141,7 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
               <TabsTrigger value="ideas">Ideas</TabsTrigger>
             </TabsList>
             <TabsContent value="calendar" className="mt-6">
-              <CalendarTab posts={posts} onUpdatePostStatus={handleUpdatePostStatus} onEditPost={handleOpenEditPostDialog} />
+              <CalendarTab posts={space.posts} onUpdatePostStatus={handleUpdatePostStatus} onEditPost={handleOpenEditPostDialog} />
             </TabsContent>
             <TabsContent value="ideas" className="mt-6">
               <IdeasTab space={space} onConvertToPost={handleOpenCreatePostDialog} />
