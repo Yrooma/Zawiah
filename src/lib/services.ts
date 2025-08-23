@@ -1,3 +1,4 @@
+
 import { db } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp, query, where, writeBatch } from "firebase/firestore";
 import type { Space, Post, Idea, User, AppUser } from './types';
@@ -87,7 +88,7 @@ export const addSpace = async (spaceData: { name: string; team: User[], memberId
     const docRef = await addDoc(spacesCol, {
         ...spaceData,
         createdAt: serverTimestamp(),
-        inviteToken: `${spaceData.name.slice(0,4).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
+        inviteToken: `${spaceData.name.slice(0,4).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
     });
     
     const newSpaceDoc = await getDoc(docRef);
@@ -147,18 +148,19 @@ export const joinSpaceWithToken = async (userId: string, token: string): Promise
 // Add a new Post to a space
 export const addPost = async (spaceId: string, postData: Omit<Post, 'id'>): Promise<Post> => {
     const postsCol = collection(db, 'spaces', spaceId, 'posts');
-    const docRef = await addDoc(postsCol, postData);
-    return {
-        id: docRef.id,
-        ...postData,
-        scheduledAt: (postData.scheduledAt as Timestamp).toDate(),
-    } as Post
+    const docRef = await addDoc(postsCol, { ...postData, scheduledAt: Timestamp.fromDate(postData.scheduledAt as Date) });
+    const newPostDoc = await getDoc(docRef);
+    return convertTimestamp({ id: newPostDoc.id, ...newPostDoc.data() }) as Post;
 }
 
 // Update an existing Post
 export const updatePost = async (spaceId: string, postId: string, postData: Partial<Post>): Promise<void> => {
     const postRef = doc(db, 'spaces', spaceId, 'posts', postId);
-    await updateDoc(postRef, postData);
+    const dataToUpdate = { ...postData };
+    if (dataToUpdate.scheduledAt instanceof Date) {
+        dataToUpdate.scheduledAt = Timestamp.fromDate(dataToUpdate.scheduledAt);
+    }
+    await updateDoc(postRef, dataToUpdate);
 }
 
 // Add a new Idea to a space

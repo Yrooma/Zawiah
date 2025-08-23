@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -85,7 +86,7 @@ export default function SpacePage({ params: { spaceId } }: { params: { spaceId: 
         await updatePost(space.id, id, updatedPostData);
         
         // Update local state
-        const updatedPosts = space.posts.map(p => p.id === id ? { ...p, ...updatedPostData } : p);
+        const updatedPosts = space.posts.map(p => p.id === id ? { ...p, ...updatedPostData, scheduledAt: postDetails.scheduledAt } : p);
         setSpace({...space, posts: updatedPosts});
       } else {
         // Add new post
