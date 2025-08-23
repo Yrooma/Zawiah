@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, type ReactNode } from 'react';
@@ -17,15 +18,17 @@ import { useToast } from "@/hooks/use-toast";
 
 interface CreateIdeaDialogProps {
   children: ReactNode;
+  onAddIdea: (content: string) => void;
 }
 
-export function CreateIdeaDialog({ children }: CreateIdeaDialogProps) {
+export function CreateIdeaDialog({ children, onAddIdea }: CreateIdeaDialogProps) {
   const [open, setOpen] = useState(false);
   const [ideaContent, setIdeaContent] = useState("");
   const { toast } = useToast();
 
   const handleCreateIdea = () => {
     if (ideaContent.trim()) {
+      onAddIdea(ideaContent);
       toast({
         title: "تمت إضافة الفكرة!",
         description: `تمت إضافة فكرتك بنجاح.`,

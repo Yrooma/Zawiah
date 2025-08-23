@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { notFound } from 'next/navigation';
 import { spaces } from '@/lib/data';
-import type { Post } from '@/lib/types';
+import type { Post, Idea } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
 import { CalendarTab } from '@/components/space/CalendarTab';
@@ -43,7 +43,7 @@ export default function SpacePage({ params }: { params: { spaceId: string } }) {
               <CalendarTab posts={space.posts} />
             </TabsContent>
             <TabsContent value="ideas" className="mt-6">
-              <IdeasTab ideas={space.ideas} onConvertToPost={handleOpenCreatePostDialog} />
+              <IdeasTab space={space} onConvertToPost={handleOpenCreatePostDialog} />
             </TabsContent>
           </Tabs>
         </div>

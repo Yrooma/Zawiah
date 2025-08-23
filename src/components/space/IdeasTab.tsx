@@ -1,7 +1,9 @@
 
 "use client";
 
-import type { Idea } from '@/lib/types';
+import { useState } from 'react';
+import type { Idea, Space } from '@/lib/types';
+import { users } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Lightbulb, PlusCircle, Trash2 } from 'lucide-react';
@@ -9,13 +11,15 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { CreateIdeaDialog } from './CreateIdeaDialog';
 
+
 interface IdeasTabProps {
-  ideas: Idea[];
+  space: Space;
   onConvertToPost: (content: string) => void;
 }
 
-export function IdeasTab({ ideas, onConvertToPost }: IdeasTabProps) {
+export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
     const { toast } = useToast();
+    const [ideas, setIdeas] = useState<Idea[]>(space.ideas);
 
     const handleConvertToPost = (ideaContent: string) => {
         onConvertToPost(ideaContent);
@@ -25,11 +29,23 @@ export function IdeasTab({ ideas, onConvertToPost }: IdeasTabProps) {
         });
     }
 
+    const handleAddIdea = (content: string) => {
+        const newIdea: Idea = {
+            id: `idea-${Date.now()}`,
+            content: content,
+            createdBy: users[0], // Assuming current user is users[0]
+            createdAt: new Date().toISOString().split('T')[0],
+        };
+        const updatedIdeas = [...ideas, newIdea];
+        setIdeas(updatedIdeas);
+        space.ideas = updatedIdeas; // Also update the source data
+    }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-headline font-bold">أفكار المحتوى</h2>
-        <CreateIdeaDialog>
+        <CreateIdeaDialog onAddIdea={handleAddIdea}>
           <Button>
             <PlusCircle />
             أضف فكرة
@@ -68,7 +84,7 @@ export function IdeasTab({ ideas, onConvertToPost }: IdeasTabProps) {
                 <p className="mt-1 text-sm text-muted-foreground">
                     هذه هي مساحتك لتبادل الأفكار. أضف فكرتك الأولى!
                 </p>
-                <CreateIdeaDialog>
+                <CreateIdeaDialog onAddIdea={handleAddIdea}>
                     <Button className="mt-4">
                         <PlusCircle />
                         أضف فكرتك الأولى
