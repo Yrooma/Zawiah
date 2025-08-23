@@ -34,7 +34,7 @@ export default function SpacePage({ params }: { params: { spaceId: string } }) {
       id: `post-${Date.now()}`,
       ...postDetails,
       status: 'draft',
-      createdBy: users[0],
+      createdBy: users[0], // Assume current user is users[0]
       lastModifiedBy: users[0],
       activityLog: [{ user: users[0], action: 'أنشأ', date: 'الآن' }],
     };
@@ -44,13 +44,18 @@ export default function SpacePage({ params }: { params: { spaceId: string } }) {
   };
 
   const handleUpdatePostStatus = (postId: string, newStatus: PostStatus) => {
+    const statusMessages = {
+      draft: 'مسودة',
+      ready: 'جاهز للنشر',
+      published: 'تم النشر',
+    };
     const updatedPosts = posts.map(p => {
       if (p.id === postId) {
         return { 
           ...p, 
           status: newStatus,
           lastModifiedBy: users[0], // Assume current user made the change
-          activityLog: [...p.activityLog, { user: users[0], action: `غيّر الحالة إلى "${newStatus}"`, date: 'الآن' }]
+          activityLog: [...p.activityLog, { user: users[0], action: `غيّر الحالة إلى "${statusMessages[newStatus]}"`, date: 'الآن' }]
         };
       }
       return p;
