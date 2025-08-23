@@ -5,10 +5,11 @@ import type { Idea, Space } from '@/lib/types';
 import { users } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Lightbulb, PlusCircle, Trash2 } from 'lucide-react';
+import { Lightbulb, PlusCircle, Sparkles, Trash2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { CreateIdeaDialog } from './CreateIdeaDialog';
+import { expandOnIdea } from '@/ai/flows/idea-generation-flow';
 
 
 interface IdeasTabProps {
@@ -19,6 +20,7 @@ interface IdeasTabProps {
 export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
     const { toast } = useToast();
     const [ideas, setIdeas] = useState<Idea[]>(space.ideas);
+    const [isExpanding, setIsExpanding] = useState<string | null>(null);
 
     const handleConvertToPost = (ideaContent: string) => {
         onConvertToPost(ideaContent);
@@ -50,6 +52,34 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
       });
     }
 
+    const handleExpandIdea = async (idea: Idea) => {
+      setIsExpanding(idea.id);
+      try {
+        const result = await expandOnIdea({ idea: idea.content });
+        if (result && result.expandedPost) {
+          const updatedIdeas = ideas.map(i => 
+            i.id === idea.id ? { ...i, content: result.expandedPost } : i
+          );
+          setIdeas(updatedIdeas);
+          space.ideas = updatedIdeas;
+          toast({
+            title: "Idea Expanded!",
+            description: "The AI has expanded your idea into a post.",
+          });
+        }
+      } catch (error) {
+        console.error("Error expanding idea:", error);
+        toast({
+          title: "Error",
+          description: "Could not expand the idea with AI.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsExpanding(null);
+      }
+    }
+
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -65,7 +95,7 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
         {ideas.map((idea) => (
           <Card key={idea.id} className="flex flex-col">
             <CardContent className="p-6 flex-grow">
-              <p className="text-foreground">{idea.content}</p>
+              <p className="text-foreground whitespace-pre-wrap">{idea.content}</p>
             </CardContent>
             <CardFooter className="p-4 bg-muted/50 flex justify-between items-center">
               <div className='flex items-center gap-2'>
@@ -75,7 +105,11 @@ export function IdeasTab({ space, onConvertToPost }: IdeasTabProps) {
                 </Avatar>
                 <span className='text-xs text-muted-foreground'>By {idea.createdBy.name}</span>
               </div>
-              <div className='flex gap-2'>
+              <div className='flex gap-1'>
+                <Button size="sm" variant="ghost" onClick={() => handleExpandIdea(idea)} disabled={isExpanding === idea.id}>
+                    <Sparkles />
+                    {isExpanding === idea.id ? 'Expanding...' : 'Expand with AI'}
+                </Button>
                 <Button size="sm" variant="outline" onClick={() => handleConvertToPost(idea.content)}>
                   Convert to Post
                 </Button>
