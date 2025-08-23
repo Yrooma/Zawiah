@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { addSpace } from '@/lib/services';
 import type { Space } from '@/lib/types';
 import { users } from '@/lib/data';
+import { Loader2 } from 'lucide-react';
 
 interface CreateSpaceDialogProps {
   children: ReactNode;
@@ -36,7 +37,6 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
         const newSpaceData = {
           name: spaceName,
           team: [users[0]], // Add current user as the owner
-          // Firestore will initialize posts and ideas as empty arrays/subcollections
         };
         const newSpace = await addSpace(newSpaceData);
         
@@ -84,11 +84,14 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
               onChange={(e) => setSpaceName(e.target.value)}
               placeholder="e.g. 'Fashion Store Campaign'"
               className="col-span-3"
+              disabled={isLoading}
             />
           </div>
         </div>
         <DialogFooter>
+           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>Cancel</Button>
           <Button type="submit" onClick={handleCreateSpace} disabled={!spaceName.trim() || isLoading}>
+            {isLoading && <Loader2 className="animate-spin" />}
             {isLoading ? 'Creating...' : 'Create Space'}
           </Button>
         </DialogFooter>

@@ -85,10 +85,15 @@ export const addSpace = async (spaceData: { name: string; team: User[] }): Promi
         inviteToken: `${spaceData.name.slice(0,4).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
     });
     
+    const newSpaceDoc = await getDoc(docRef);
+    const newSpaceData = newSpaceDoc.data();
+
     return {
         id: docRef.id,
-        ...spaceData,
+        name: spaceData.name,
+        team: spaceData.team,
         posts: [],
         ideas: [],
+        inviteToken: newSpaceData?.inviteToken,
     } as Space;
 }
