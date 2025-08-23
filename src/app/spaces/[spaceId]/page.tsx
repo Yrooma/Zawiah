@@ -12,6 +12,7 @@ import { IdeasTab } from '@/components/space/IdeasTab';
 import { CreatePostDialog } from '@/components/space/CreatePostDialog';
 import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function SpacePage({ params: { spaceId } }: { params: { spaceId: string } }) {
   const [space, setSpace] = useState<Space | null>(null);

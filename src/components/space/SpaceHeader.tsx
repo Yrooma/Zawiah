@@ -11,17 +11,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { spaces } from '@/lib/data';
 import { User, Settings, LogOut } from 'lucide-react';
+import type { Space } from '@/lib/types';
+
 
 interface SpaceHeaderProps {
   spaceName: string;
   onNewPostClick: () => void;
+  space?: Space; // Make space optional for now
 }
 
-export function SpaceHeader({ spaceName, onNewPostClick }: SpaceHeaderProps) {
-  const currentSpace = spaces.find(s => s.name === spaceName);
-
+export function SpaceHeader({ spaceName, onNewPostClick, space }: SpaceHeaderProps) {
+  
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 md:px-8">
@@ -35,7 +36,7 @@ export function SpaceHeader({ spaceName, onNewPostClick }: SpaceHeaderProps) {
           <h1 className="text-xl font-headline font-semibold hidden md:block">{spaceName}</h1>
         </div>
         <div className="flex items-center gap-2 md:gap-4">
-          <TeamDialog team={currentSpace?.team || []} inviteToken={currentSpace?.inviteToken || ''}>
+          <TeamDialog team={space?.team || []} inviteToken={space?.inviteToken || ''}>
             <Button variant="outline">
               <Users />
               <span className="hidden md:inline-block">Manage Team</span>
