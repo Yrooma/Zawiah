@@ -10,12 +10,14 @@ import { SpaceHeader } from '@/components/space/SpaceHeader';
 import { CalendarTab } from '@/components/space/CalendarTab';
 import { IdeasTab } from '@/components/space/IdeasTab';
 import { CreatePostDialog } from '@/components/space/CreatePostDialog';
+import React from 'react';
 
 export default function SpacePage({ params }: { params: { spaceId: string } }) {
   const [isCreatePostOpen, setCreatePostOpen] = useState(false);
   const [initialPostContent, setInitialPostContent] = useState<string | undefined>(undefined);
 
-  const space = spaces.find((s) => s.id === params.spaceId);
+  const spaceId = params.spaceId;
+  const space = spaces.find((s) => s.id === spaceId);
 
   if (!space) {
     notFound();
