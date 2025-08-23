@@ -12,8 +12,7 @@ import { IdeasTab } from '@/components/space/IdeasTab';
 import { CreatePostDialog } from '@/components/space/CreatePostDialog';
 import React from 'react';
 
-export default function SpacePage({ params }: { params: { spaceId: string } }) {
-  const { spaceId } = params;
+export default function SpacePage({ params: { spaceId } }: { params: { spaceId: string } }) {
   const space = spaces.find((s) => s.id === spaceId);
 
   if (!space) {
@@ -116,7 +115,7 @@ export default function SpacePage({ params }: { params: { spaceId: string } }) {
       <CreatePostDialog
         open={isCreatePostOpen}
         onOpenChange={setCreatePostOpen}
-        initialContent={initialContent}
+        initialContent={initialPostContent}
         postToEdit={postToEdit}
         onSavePost={handleAddOrUpdatePost}
       />
