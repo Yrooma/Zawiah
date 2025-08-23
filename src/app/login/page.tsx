@@ -25,7 +25,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signIn(email, password);
-      router.push('/');
+      router.push('/dashboard');
     } catch (error: any) {
       toast({
         variant: "destructive",

@@ -1,135 +1,90 @@
-
-"use client";
-
 import Link from 'next/link';
-import { PlusCircle, Loader2, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { SpaceCard } from '@/components/dashboard/SpaceCard';
-import { CreateSpaceDialog } from '@/components/dashboard/CreateSpaceDialog';
-import { JoinSpaceDialog } from '@/components/dashboard/JoinSpaceDialog';
-import { getSpaces } from '@/lib/services';
-import type { Space } from '@/lib/types';
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/use-auth';
-import { useRouter } from 'next/navigation';
+import { LayoutGrid, ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
 
-export default function DashboardPage() {
-  const [spaces, setSpaces] = useState<Space[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login');
-    }
-  }, [user, authLoading, router]);
-
-  const fetchSpaces = async () => {
-    if(user) {
-      try {
-        setIsLoading(true);
-        const spacesFromDb = await getSpaces(user.uid);
-        setSpaces(spacesFromDb);
-        setError(null);
-      } catch (err) {
-        setError("فشل في جلب مساحات العمل. يرجى المحاولة مرة أخرى لاحقًا.");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchSpaces();
-  }, [user]);
-
-  const handleSpaceCreated = (newSpace: Space) => {
-    setSpaces(prevSpaces => [...prevSpaces, newSpace]);
-  }
-  
-  const handleSpaceJoined = (joinedSpace: Space) => {
-    if (!spaces.find(s => s.id === joinedSpace.id)) {
-      setSpaces(prevSpaces => [...prevSpaces, joinedSpace]);
-    }
-    fetchSpaces();
-  }
-
-  if (authLoading || !user) {
-    return (
-       <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
-  }
-
+export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <DashboardHeader />
-      <main className="flex-1 p-4 md:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-headline font-bold text-foreground">
-              مساحات العمل الخاصة بك
-            </h1>
-            <div className='flex items-center gap-2'>
-              <JoinSpaceDialog onSpaceJoined={handleSpaceJoined}>
-                <Button variant="outline">
-                  <UserPlus />
-                  انضم إلى مساحة عمل
-                </Button>
-              </JoinSpaceDialog>
-              <CreateSpaceDialog onSpaceCreated={handleSpaceCreated}>
-                <Button>
-                  <PlusCircle />
-                  إنشاء مساحة جديدة
-                </Button>
-              </CreateSpaceDialog>
-            </div>
+    <div className="flex flex-col min-h-screen bg-secondary/50">
+      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+          <Link href="/" className="flex items-center gap-2">
+            <LayoutGrid className="h-6 w-6 text-primary" />
+            <span className="font-headline text-xl font-bold">زاوية</span>
+          </Link>
+          <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+            <Link href="#features" className="transition-colors hover:text-primary">الميزات</Link>
+            <Link href="#pricing" className="transition-colors hover:text-primary">الأسعار</Link>
+            <Link href="#contact" className="transition-colors hover:text-primary">اتصل بنا</Link>
+          </nav>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" asChild>
+                <Link href="/login">تسجيل الدخول</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/signup">
+                ابدأ مجاناً <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
-
-          {isLoading ? (
-            <div className="flex justify-center items-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : error ? (
-             <div className="text-center py-16 border-2 border-dashed rounded-lg bg-destructive/10 border-destructive/50">
-              <h2 className="text-xl font-semibold text-destructive">خطأ</h2>
-              <p className="text-muted-foreground mt-2">{error}</p>
-            </div>
-          ) : spaces.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {spaces.map((space) => (
-                <Link href={`/spaces/${space.id}`} key={space.id} className="block transition-transform transform hover:-translate-y-1">
-                  <SpaceCard space={space} />
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 border-2 border-dashed rounded-lg">
-              <h2 className="text-xl font-semibold text-muted-foreground">لا توجد مساحات عمل حتى الآن.</h2>
-              <p className="text-muted-foreground mt-2">ابدأ بإنشاء مساحة عمل جديدة أو الانضمام إلى واحدة موجودة.</p>
-              <div className="flex justify-center gap-4 mt-4">
-                <JoinSpaceDialog onSpaceJoined={handleSpaceJoined}>
-                  <Button variant="outline">
-                    <UserPlus />
-                    انضم إلى مساحة عمل
-                  </Button>
-                </JoinSpaceDialog>
-                <CreateSpaceDialog onSpaceCreated={handleSpaceCreated}>
-                  <Button>
-                    <PlusCircle />
-                    إنشاء مساحة العمل الأولى
-                  </Button>
-                </CreateSpaceDialog>
-              </div>
-            </div>
-          )}
         </div>
+      </header>
+
+      <main className="flex-1">
+        <section className="container mx-auto flex flex-col items-center justify-center space-y-6 px-4 py-16 text-center md:py-24 lg:py-32">
+          <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl font-headline">
+            خطط، تعاون، وانشر. كل ذلك في مكان واحد.
+          </h1>
+          <p className="max-w-[700px] text-muted-foreground md:text-xl">
+            زاوية هي المنصة المثالية لمنشئي المحتوى والمسوقين لإدارة تقويم المحتوى الخاص بهم، وتبادل الأفكار، والتعاون بسلاسة مع فريقهم.
+          </p>
+          <Button size="lg" asChild>
+            <Link href="/signup">
+              ابدأ الآن مجاناً <ArrowLeft className="h-5 w-5" />
+            </Link>
+          </Button>
+        </section>
+        
+        <section id="features" className="w-full bg-background py-12 md:py-24">
+            <div className="container mx-auto px-4">
+                 <h2 className="text-3xl font-bold text-center font-headline mb-12">كل ما تحتاجه لنجاح المحتوى الخاص بك</h2>
+                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="flex flex-col items-center text-center p-4">
+                        <div className="mb-4 rounded-full bg-primary/10 p-4 text-primary"><LayoutGrid className="h-8 w-8" /></div>
+                        <h3 className="text-xl font-bold font-headline mb-2">مساحات عمل تعاونية</h3>
+                        <p className="text-muted-foreground">أنشئ مساحات منفصلة لكل عميل أو مشروع للحفاظ على تنظيم كل شيء.</p>
+                    </div>
+                     <div className="flex flex-col items-center text-center p-4">
+                        <div className="mb-4 rounded-full bg-primary/10 p-4 text-primary"><LayoutGrid className="h-8 w-8" /></div>
+                        <h3 className="text-xl font-bold font-headline mb-2">تقويم محتوى مرئي</h3>
+                        <p className="text-muted-foreground">خطط وجدول منشوراتك على وسائل التواصل الاجتماعي بتقويم سهل الاستخدام.</p>
+                    </div>
+                     <div className="flex flex-col items-center text-center p-4">
+                        <div className="mb-4 rounded-full bg-primary/10 p-4 text-primary"><LayoutGrid className="h-8 w-8" /></div>
+                        <h3 className="text-xl font-bold font-headline mb-2">بنك الأفكار</h3>
+                        <p className="text-muted-foreground">اجمع الأفكار وتبادلها مع فريقك، وحوّلها إلى منشورات بنقرة واحدة.</p>
+                    </div>
+                 </div>
+            </div>
+        </section>
+
+        <section className="container mx-auto px-4 py-16 text-center">
+             <div className="relative aspect-video mx-auto max-w-5xl rounded-2xl border-8 border-foreground/80 shadow-2xl overflow-hidden">
+                <Image src="https://placehold.co/1280x720.png" alt="لقطة شاشة لتطبيق زاوية" layout="fill" objectFit="cover" data-ai-hint="dashboard application" />
+             </div>
+        </section>
+
       </main>
+
+      <footer id="contact" className="w-full border-t bg-background">
+        <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row">
+            <p className="text-sm text-muted-foreground">© 2024 زاوية. جميع الحقوق محفوظة.</p>
+            <div className="flex items-center gap-4">
+                 <Link href="#" className="text-sm transition-colors hover:text-primary">سياسة الخصوصية</Link>
+                 <Link href="#" className="text-sm transition-colors hover:text-primary">شروط الخدمة</Link>
+            </div>
+        </div>
+      </footer>
     </div>
   );
 }

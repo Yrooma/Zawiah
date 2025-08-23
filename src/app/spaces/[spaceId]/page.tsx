@@ -57,10 +57,10 @@ export default function SpacePage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (spaceId) {
+    if (spaceId && user) {
         fetchSpace();
     }
-  }, [fetchSpace, spaceId]);
+  }, [fetchSpace, spaceId, user]);
 
   const handleOpenCreatePostDialog = (content?: string) => {
     setInitialPostContent(content);
@@ -198,7 +198,7 @@ export default function SpacePage() {
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-2xl font-bold text-destructive mb-4">خطأ</h1>
         <p className="text-muted-foreground">{error || "تعذر العثور على المساحة المطلوبة."}</p>
-        <Button onClick={() => router.push('/')} className="mt-4">العودة إلى لوحة التحكم</Button>
+        <Button onClick={() => router.push('/dashboard')} className="mt-4">العودة إلى لوحة التحكم</Button>
       </div>
     );
   }
