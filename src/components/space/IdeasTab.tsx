@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Lightbulb, PlusCircle, Trash2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
+import { CreateIdeaDialog } from './CreateIdeaDialog';
 
 interface IdeasTabProps {
   ideas: Idea[];
@@ -23,10 +24,12 @@ export function IdeasTab({ ideas }: IdeasTabProps) {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-headline font-bold">أفكار المحتوى</h2>
-        <Button>
-          <PlusCircle />
-          أضف فكرة
-        </Button>
+        <CreateIdeaDialog>
+          <Button>
+            <PlusCircle />
+            أضف فكرة
+          </Button>
+        </CreateIdeaDialog>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {ideas.map((idea) => (
@@ -60,10 +63,12 @@ export function IdeasTab({ ideas }: IdeasTabProps) {
                 <p className="mt-1 text-sm text-muted-foreground">
                     هذه هي مساحتك لتبادل الأفكار. أضف فكرتك الأولى!
                 </p>
-                <Button className="mt-4">
-                    <PlusCircle />
-                    أضف فكرتك الأولى
-                </Button>
+                <CreateIdeaDialog>
+                    <Button className="mt-4">
+                        <PlusCircle />
+                        أضف فكرتك الأولى
+                    </Button>
+                </CreateIdeaDialog>
             </div>
         )}
       </div>
