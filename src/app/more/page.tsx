@@ -48,7 +48,7 @@ export default function MorePage() {
                             </Button>
                         </li>
                          <li>
-                            <Button variant="ghost" className="w-full justify-start gap-3">
+                            <Button variant="ghost" className="w-full justify-start gap-3" onClick={() => router.push('/settings')}>
                                 <Settings className="h-5 w-5 text-muted-foreground" />
                                 <span>الإعدادات</span>
                             </Button>

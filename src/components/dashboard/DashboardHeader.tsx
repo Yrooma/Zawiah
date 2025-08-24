@@ -11,7 +11,9 @@ import {
   Calendar,
   LifeBuoy,
   PlusCircle,
-  Home
+  Home,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,6 +36,7 @@ import { ar } from 'date-fns/locale';
 import { usePathname, useRouter } from 'next/navigation';
 import { CreateItemDialog } from '../layout/CreateItemDialog';
 import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
 
 export function DashboardHeader() {
   const { user, signOut } = useAuth();
@@ -158,7 +161,7 @@ export function DashboardHeader() {
                     <User />
                     <span>الملف الشخصي</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/settings')}>
                     <Settings />
                     <span>الإعدادات</span>
                   </DropdownMenuItem>

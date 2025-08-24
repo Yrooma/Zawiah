@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { DashboardHeader } from "../dashboard/DashboardHeader";
+import { ThemeProvider } from "next-themes";
 
 interface AppLayoutProps {
     children: React.ReactNode;
@@ -30,9 +31,11 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
     
     return (
-        <div className="flex flex-col min-h-screen">
-            <DashboardHeader />
-            <div className="flex-1 pb-20 md:pb-0">{children}</div>
-        </div>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <div className="flex flex-col min-h-screen">
+                <DashboardHeader />
+                <div className="flex-1 pb-20 md:pb-0">{children}</div>
+            </div>
+        </ThemeProvider>
     )
 }

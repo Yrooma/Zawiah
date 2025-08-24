@@ -2,7 +2,7 @@
 import { db, auth } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp, query, where, writeBatch } from "firebase/firestore";
 import type { Space, Post, Idea, User, AppUser, Notification } from './types';
-import { updateProfile as firebaseUpdateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { updateProfile as firebaseUpdateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
 
 // Helper to convert Firestore timestamp to Date
 const convertTimestamp = (data: any) => {
@@ -75,6 +75,31 @@ export const updateUserPassword = async (currentPassword: string, newPassword: s
          throw new Error("User not authenticated or email not available.");
     }
 }
+
+// Delete user account from Auth and Firestore
+export const deleteUserAccount = async (): Promise<void> => {
+    const user = auth.currentUser;
+    if (!user) {
+        throw new Error("User not authenticated.");
+    }
+
+    try {
+        // First, delete the user's document from Firestore
+        const userRef = doc(db, 'users', user.uid);
+        await deleteDoc(userRef);
+
+        // Then, delete the user from Firebase Authentication
+        await deleteUser(user);
+    } catch (error: any) {
+        // Handle re-authentication if required for sensitive operations
+        if (error.code === 'auth/requires-recent-login') {
+            throw new Error('This operation is sensitive and requires recent authentication. Please sign out and sign back in to delete your account.');
+        }
+        console.error("Error deleting user account:", error);
+        throw error;
+    }
+};
+
 
 // Fetch all spaces for the dashboard for a given user
 export const getSpaces = async (userId: string): Promise<Space[]> => {
