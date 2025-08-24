@@ -41,12 +41,12 @@ export const updateProfile = async (userId: string, data: Partial<Pick<AppUser, 
 
         // Update Firestore user document
         const userRef = doc(db, "users", userId);
-        const updateData: Partial<AppUser> = {
-            name: data.name,
-            avatarColor: data.avatarColor,
-            avatarText: data.avatarText,
-            avatarUrl: '' // Ensure avatarUrl is empty
-        };
+        const updateData: Partial<AppUser> = {};
+        if (data.name) updateData.name = data.name;
+        if (data.avatarColor) updateData.avatarColor = data.avatarColor;
+        if (data.avatarText) updateData.avatarText = data.avatarText;
+        updateData.avatarUrl = ''; // Ensure avatarUrl is empty
+        
         await updateDoc(userRef, updateData);
     } else {
         throw new Error("User not authenticated or mismatch.");
@@ -147,17 +147,16 @@ export const getSpaceById = async (spaceId: string): Promise<Space | null> => {
 
 // Add a new space
 export const addSpace = async (spaceData: { name: string; description: string; team: User[], memberIds: string[] }): Promise<Space> => {
-    const spacesCol = collection(db, 'spaces');
-    const docRef = await addDoc(spacesCol, {
+    const spaceDocRef = await addDoc(collection(db, 'spaces'), {
         ...spaceData,
         createdAt: serverTimestamp(),
     });
     
-    const newSpaceDoc = await getDoc(docRef);
+    const newSpaceDoc = await getDoc(spaceDocRef);
     const newSpaceData = newSpaceDoc.data();
 
     return {
-        id: docRef.id,
+        id: spaceDocRef.id,
         ...newSpaceData,
         posts: [],
         ideas: [],

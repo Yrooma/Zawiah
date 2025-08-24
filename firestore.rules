@@ -3,7 +3,13 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+  
+    // Helper functions
+    function isAuth() {
+      return request.auth != null;
+    }
     
+<<<<<<< HEAD
     // Users can only read and write their own data.
     match /users/{userId} {
       allow read, write: if request.auth.uid == userId;
@@ -47,6 +53,63 @@ service cloud.firestore {
     // Rules for the 'notifications' collection
     match /notifications/{notificationId} {
       allow read, write: if request.auth.uid == resource.data.userId;
+=======
+    function isUser(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isSpaceMember(spaceId) {
+      return isAuth() && get(/databases/$(database)/documents/spaces/$(spaceId)).data.memberIds.hasAny([request.auth.uid]);
+    }
+    
+    function isSpaceOwner(spaceId) {
+      return isAuth() && get(/databases/$(database)/documents/spaces/$(spaceId)).data.team[0].id == request.auth.uid;
+    }
+
+    // Users can read their own profile, and any authenticated user can create their own profile.
+    match /users/{userId} {
+      allow read, update, delete: if isUser(userId);
+      allow create: if isAuth();
+    }
+
+    // Spaces can be read by their members.
+    // They can only be updated by members.
+    // They can only be deleted by the owner (team[0]).
+    // Creation is handled by backend logic, so direct creation is disallowed.
+    match /spaces/{spaceId} {
+      allow read: if isSpaceMember(spaceId);
+      allow create: if false; // Must be created via a secure backend process
+      allow update: if isSpaceMember(spaceId);
+      allow delete: if isSpaceOwner(spaceId);
+
+      // Posts and Ideas can be managed by any member of the space.
+      match /posts/{postId} {
+        allow read, create, update, delete: if isSpaceMember(spaceId);
+      }
+      
+      match /ideas/{ideaId} {
+        allow read, create, update, delete: if isSpaceMember(spaceId);
+      }
+    }
+    
+    // Invite tokens can be read by any authenticated user.
+    // They can only be created or deleted by the owner of the space they point to.
+    match /invites/{inviteId} {
+        allow read: if isAuth();
+        // create: Only the owner of the target space can create an invite.
+        // The spaceId and ownerId are in the request body.
+        allow create: if isAuth() && request.resource.data.ownerId == request.auth.uid;
+        // delete: Only the owner of the target space can delete an invite.
+        // The resource.data refers to the document *before* the delete.
+        allow delete: if isAuth() && resource.data.ownerId == request.auth.uid;
+        allow update: if false;
+    }
+
+    // Notifications can only be read/updated by the user they are intended for.
+    match /notifications/{notificationId} {
+        allow read, update, delete: if isAuth() && resource.data.userId == request.auth.uid;
+        allow create: if isAuth(); // Can be created by service logic for another user
+>>>>>>> fdd672c (so, why when i test (the invite tokens) the function it says permission)
     }
   }
 }
