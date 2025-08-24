@@ -19,16 +19,6 @@ const convertTimestamp = (data: any) => {
     return convert(data);
 };
 
-// Helper to generate a random 8-character alphanumeric token
-const generateRandomToken = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let token = '';
-    for (let i = 0; i < 8; i++) {
-        token += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return token;
-};
-
 // Fetch user profile from Firestore
 export const getUserProfile = async (userId: string): Promise<AppUser | null> => {
     const userRef = doc(db, 'users', userId);
@@ -161,7 +151,6 @@ export const addSpace = async (spaceData: { name: string; description: string; t
     const docRef = await addDoc(spacesCol, {
         ...spaceData,
         createdAt: serverTimestamp(),
-        inviteToken: generateRandomToken()
     });
     
     const newSpaceDoc = await getDoc(docRef);
@@ -180,62 +169,6 @@ export const updateSpace = async (spaceId: string, name: string, description: st
     const spaceRef = doc(db, 'spaces', spaceId);
     await updateDoc(spaceRef, { name, description });
 };
-
-// Manually regenerate the invite token for a space (owner only)
-export const regenerateInviteToken = async (spaceId: string): Promise<string> => {
-    const spaceRef = doc(db, 'spaces', spaceId);
-    const newInviteToken = generateRandomToken();
-    await updateDoc(spaceRef, { inviteToken: newInviteToken });
-    return newInviteToken;
-};
-
-
-// Add a user to a space using an invite token and regenerate the token
-export const joinSpaceWithToken = async (userId: string, token: string): Promise<Space | null> => {
-    const spacesRef = collection(db, 'spaces');
-    const q = query(spacesRef, where('inviteToken', '==', token));
-    const spaceSnapshot = await getDocs(q);
-
-    if (spaceSnapshot.empty) {
-        throw new Error("رمز دعوة غير صالح.");
-    }
-    
-    const spaceDoc = spaceSnapshot.docs[0];
-    const spaceData = spaceDoc.data() as Space;
-
-    if (spaceData.memberIds.includes(userId)) {
-        throw new Error("أنت عضو بالفعل في مساحة العمل هذه.");
-    }
-
-    if (spaceData.memberIds.length >= 3) {
-        throw new Error("مساحة العمل هذه ممتلئة بالفعل.");
-    }
-
-    const userProfile = await getUserProfile(userId);
-    if (!userProfile) {
-        throw new Error("لم يتم العثور على ملف تعريف المستخدم.");
-    }
-
-    const user: User = { id: userProfile.uid, name: userProfile.name, avatarUrl: userProfile.avatarUrl || '', avatarText: userProfile.avatarText, avatarColor: userProfile.avatarColor };
-    
-    const spaceRef = doc(db, 'spaces', spaceDoc.id);
-    
-    const updatedTeam = [...spaceData.team, user];
-    const updatedMemberIds = [...spaceData.memberIds, userId];
-
-    const newInviteToken = updatedMemberIds.length < 3
-        ? generateRandomToken()
-        : null;
-
-    await updateDoc(spaceRef, {
-        team: updatedTeam,
-        memberIds: updatedMemberIds,
-        inviteToken: newInviteToken
-    });
-
-    return getSpaceById(spaceDoc.id);
-}
-
 
 // Add a new Post to a space
 export const addPost = async (spaceId: string, postData: Omit<Post, 'id' | 'spaceId' | 'spaceName'>): Promise<Post> => {

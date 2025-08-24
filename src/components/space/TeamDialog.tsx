@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type ReactNode, useEffect } from 'react';
-import { Copy, Check, LogOut, Trash2, Loader2, RefreshCw } from 'lucide-react';
+import { LogOut, Trash2, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,7 +32,7 @@ import { Separator } from '../ui/separator';
 import type { Space } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-import { leaveSpace, deleteSpace, updateSpace, regenerateInviteToken } from '@/lib/services';
+import { leaveSpace, deleteSpace, updateSpace } from '@/lib/services';
 import { Textarea } from '../ui/textarea';
 
 
@@ -45,12 +45,10 @@ interface TeamDialogProps {
 export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: TeamDialogProps) {
   const [open, setOpen] = useState(false);
   const [space, setSpace] = useState(initialSpace);
-  const [hasCopied, setHasCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(initialSpace.name);
   const [editedDescription, setEditedDescription] = useState(initialSpace.description);
   const [isSaving, setIsSaving] = useState(false);
-  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const { toast } = useToast();
   const { user } = useAuth();
@@ -67,27 +65,6 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
       setIsEditing(false);
     }
   }, [open, space]);
-
-  const copyToClipboard = () => {
-    if (!space.inviteToken) return;
-    navigator.clipboard.writeText(space.inviteToken);
-    setHasCopied(true);
-    toast({ title: "تم نسخ الرمز إلى الحافظة!" });
-    setTimeout(() => setHasCopied(false), 2000);
-  };
-  
-  const handleRegenerateToken = async () => {
-    setIsRegenerating(true);
-    try {
-        const newToken = await regenerateInviteToken(space.id);
-        setSpace(prevSpace => ({ ...prevSpace, inviteToken: newToken }));
-        toast({ title: "تم إنشاء رمز دعوة جديد!" });
-    } catch (error: any) {
-        toast({ variant: 'destructive', title: "خطأ", description: "فشل إنشاء رمز جديد."});
-    } finally {
-        setIsRegenerating(false);
-    }
-  }
 
   const isCurrentUserOwner = user?.uid === space.team[0]?.id;
 
@@ -138,7 +115,7 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
         <DialogHeader>
           <DialogTitle className="font-headline text-start">إدارة الفريق</DialogTitle>
           <DialogDescription className="text-start">
-            {isCurrentUserOwner ? "عدّل تفاصيل المساحة، ادعُ الآخرين، أو قم بإدارة عضويتك." : "ادعُ الآخرين أو قم بإدارة عضويتك في هذه المساحة."}
+            {isCurrentUserOwner ? "عدّل تفاصيل المساحة أو قم بإدارة عضويتك." : "قم بإدارة عضويتك في هذه المساحة."}
           </DialogDescription>
         </DialogHeader>
 
@@ -197,22 +174,6 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
         </div>
         
         <Separator />
-
-        {isCurrentUserOwner && space.team.length < 3 && (
-            <div className="space-y-2 pt-2 text-start">
-            <Label htmlFor="link" className="font-medium">الدعوة باستخدام الرمز</Label>
-            <p className='text-xs text-muted-foreground'>يتم تجديد هذا الرمز تلقائيًا بعد كل استخدام.</p>
-            <div className="flex items-center space-x-2 space-x-reverse">
-                <Input id="link" value={space.inviteToken || "مساحة العمل ممتلئة"} readOnly className="font-mono text-center tracking-widest" />
-                 <Button size="icon" onClick={handleRegenerateToken} disabled={!space.inviteToken || isRegenerating}>
-                    {isRegenerating ? <Loader2 className='animate-spin' /> : <RefreshCw />}
-                </Button>
-                <Button size="icon" onClick={copyToClipboard} disabled={!space.inviteToken}>
-                    {hasCopied ? <Check /> : <Copy />}
-                </Button>
-            </div>
-            </div>
-        )}
 
         <DialogFooter className="sm:flex-col sm:items-stretch sm:gap-2 pt-4">
             <AlertDialog>

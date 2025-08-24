@@ -2,11 +2,10 @@
 "use client";
 
 import Link from 'next/link';
-import { PlusCircle, Loader2, UserPlus } from 'lucide-react';
+import { PlusCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SpaceCard } from '@/components/dashboard/SpaceCard';
 import { CreateSpaceDialog } from '@/components/dashboard/CreateSpaceDialog';
-import { JoinSpaceDialog } from '@/components/dashboard/JoinSpaceDialog';
 import { getSpaces } from '@/lib/services';
 import type { Space } from '@/lib/types';
 import { useState, useEffect } from 'react';
@@ -43,13 +42,6 @@ export default function DashboardPage() {
   const handleSpaceCreated = (newSpace: Space) => {
     setSpaces(prevSpaces => [...prevSpaces, newSpace]);
   }
-  
-  const handleSpaceJoined = (joinedSpace: Space) => {
-    if (!spaces.find(s => s.id === joinedSpace.id)) {
-      setSpaces(prevSpaces => [...prevSpaces, joinedSpace]);
-    }
-    fetchSpaces();
-  }
 
   return (
     <main className="flex-1 p-4 md:p-8">
@@ -59,12 +51,6 @@ export default function DashboardPage() {
             مساحات العمل الخاصة بك
           </h1>
           <div className='flex items-center gap-2'>
-            <JoinSpaceDialog onSpaceJoined={handleSpaceJoined}>
-              <Button variant="outline">
-                <UserPlus />
-                <span className="hidden sm:inline-block">انضم</span>
-              </Button>
-            </JoinSpaceDialog>
             <CreateSpaceDialog onSpaceCreated={handleSpaceCreated}>
               <Button>
                 <PlusCircle />
@@ -94,14 +80,8 @@ export default function DashboardPage() {
         ) : (
           <div className="text-center py-16 border-2 border-dashed rounded-lg">
             <h2 className="text-xl font-semibold text-muted-foreground">لا توجد مساحات عمل حتى الآن.</h2>
-            <p className="text-muted-foreground mt-2">ابدأ بإنشاء مساحة عمل جديدة أو الانضمام إلى واحدة موجودة.</p>
+            <p className="text-muted-foreground mt-2">ابدأ بإنشاء مساحة عمل جديدة للتعاون مع فريقك.</p>
             <div className="flex justify-center gap-4 mt-4">
-              <JoinSpaceDialog onSpaceJoined={handleSpaceJoined}>
-                <Button variant="outline">
-                  <UserPlus />
-                  انضم إلى مساحة عمل
-                </Button>
-              </JoinSpaceDialog>
               <CreateSpaceDialog onSpaceCreated={handleSpaceCreated}>
                 <Button>
                   <PlusCircle />

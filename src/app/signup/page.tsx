@@ -11,14 +11,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LayoutGrid } from 'lucide-react';
-import { joinSpaceWithToken } from '@/lib/services';
 import { FirebaseError } from 'firebase/app';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [inviteToken, setInviteToken] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
   const router = useRouter();
@@ -28,29 +26,11 @@ export default function SignupPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const newUser = await signUp(email, password, name);
-      
-      if (inviteToken.trim()) {
-        try {
-          await joinSpaceWithToken(newUser.uid, inviteToken.trim());
-          toast({
-            title: "تم إنشاء الحساب والانضمام إلى مساحة العمل!",
-            description: "لقد تم إضافتك بنجاح إلى مساحة العمل.",
-          });
-        } catch (joinError: any) {
-           toast({
-            title: "تم إنشاء الحساب ولكن فشل الانضمام",
-            description: joinError.message || "لم يتم العثور على رمز الدعوة أو أنه غير صالح.",
-            variant: "destructive"
-          });
-        }
-      } else {
-        toast({
-          title: "تم إنشاء الحساب!",
-          description: "يمكنك الآن إنشاء مساحات العمل الخاصة بك.",
-        });
-      }
-
+      await signUp(email, password, name);
+      toast({
+        title: "تم إنشاء الحساب!",
+        description: "يمكنك الآن إنشاء مساحات العمل الخاصة بك.",
+      });
       router.push('/dashboard');
 
     } catch (error: any) {
@@ -123,16 +103,6 @@ export default function SignupPage() {
                   minLength={6}
                 />
                 <p className="text-xs text-muted-foreground">يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.</p>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="invite-token">رمز الدعوة (اختياري)</Label>
-                <Input
-                  id="invite-token"
-                  placeholder="أدخل الرمز للانضمام إلى فريق"
-                  value={inviteToken}
-                  onChange={(e) => setInviteToken(e.target.value)}
-                  disabled={isLoading}
-                />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? <Loader2 className="animate-spin" /> : 'إنشاء حساب'}

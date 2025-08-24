@@ -58,7 +58,6 @@ export type Space = {
   memberIds: string[];
   posts: Post[];
   ideas: Idea[];
-  inviteToken?: string | null;
 };
 
 export type Notification = {
