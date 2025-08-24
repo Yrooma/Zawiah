@@ -117,13 +117,13 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
     <Dialog open={open} onOpenChange={handleOpenChange}>
       {children}
       <DialogContent className="sm:max-w-[525px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="font-headline text-start">{isEditing ? 'تعديل المنشور' : 'إنشاء منشور جديد'}</DialogTitle>
-          <DialogDescription className="text-start">
+        <DialogHeader className="text-start">
+          <DialogTitle className="font-headline">{isEditing ? 'تعديل المنشور' : 'إنشاء منشور جديد'}</DialogTitle>
+          <DialogDescription>
             {isEditing ? 'عدّل تفاصيل المنشور أدناه.' : 'املأ التفاصيل أدناه لإنشاء مسودة منشور جديدة.'}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 py-4 text-start">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="title" className="text-start">
               العنوان
@@ -184,7 +184,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
                   )}
                   disabled={isLoading}
                 >
-                  <CalendarIcon className="me-2 h-4 w-4" />
+                  <CalendarIcon className="ms-2 h-4 w-4" />
                   {scheduledAt ? format(scheduledAt, 'PPP') : <span>اختر تاريخًا</span>}
                 </Button>
               </PopoverTrigger>

@@ -58,8 +58,8 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg p-0 flex flex-col" side="left">
-        <SheetHeader className="p-6 pb-4">
+      <SheetContent className="w-full sm:max-w-lg p-0 flex flex-col">
+        <SheetHeader className="p-6 pb-4 text-start">
           <div className="flex justify-between items-start">
             <SheetTitle className="font-headline text-2xl">{post.title}</SheetTitle>
             <Button variant="outline" size="icon" onClick={() => onEdit(post)}>
@@ -72,7 +72,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
             <div className="text-muted-foreground">{format(post.scheduledAt, 'PPP', { locale: ar })}</div>
           </div>
         </SheetHeader>
-        <div className="flex-grow overflow-y-auto p-6 pt-2 space-y-6">
+        <div className="flex-grow overflow-y-auto p-6 pt-2 space-y-6 text-start">
             { post.spaceName && (
               <div>
                 <h3 className="font-semibold mb-2">مساحة العمل</h3>
@@ -80,8 +80,8 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
                     <span>{post.spaceName}</span>
                     <Button asChild variant="ghost" size="sm">
                       <Link href={`/spaces/${post.spaceId}`}>
-                        <ExternalLink className="h-4 w-4" />
                         افتح
+                        <ExternalLink className="h-4 w-4" />
                       </Link>
                     </Button>
                 </div>
@@ -130,7 +130,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
                                 <span className="font-medium">{log.user.name}</span>
                                 <span className="text-muted-foreground"> {log.action.toLowerCase()}</span>
                             </div>
-                            <span className="ms-auto text-xs text-muted-foreground">{log.date}</span>
+                            <span className="me-auto text-xs text-muted-foreground">{log.date}</span>
                         </li>
                     ))}
                 </ul>

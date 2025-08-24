@@ -26,16 +26,16 @@ export function SpaceHeader({ spaceName, onNewPostClick, space, onSpaceUpdate }:
                 <h1 className="text-xl md:text-2xl font-headline font-semibold truncate">{spaceName}</h1>
             </div>
             <div className="flex items-center gap-2 md:gap-4">
-                <Button onClick={onNewPostClick}>
-                    <PlusCircle />
-                    <span className="hidden md:inline-block">منشور جديد</span>
-                </Button>
                  <TeamDialog space={space} onSpaceUpdate={onSpaceUpdate}>
                     <Button variant="outline">
                     <Users />
                     <span className="hidden md:inline-block">إدارة الفريق</span>
                     </Button>
                 </TeamDialog>
+                <Button onClick={onNewPostClick}>
+                    <PlusCircle />
+                    <span className="hidden md:inline-block">منشور جديد</span>
+                </Button>
             </div>
         </div>
     </div>

@@ -144,7 +144,7 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
 
         {isCurrentUserOwner && (
             <>
-                <div className="py-2">
+                <div className="py-2 text-start">
                     <Label className='font-medium'>تفاصيل المساحة</Label>
                     {!isEditing ? (
                         <div className="p-2 mt-2">
@@ -154,11 +154,11 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
                         </div>
                     ) : (
                         <div className='space-y-3 mt-2'>
-                           <div>
+                           <div className="text-start">
                              <Label htmlFor='spaceName' className='text-xs'>اسم المساحة</Label>
                              <Input id="spaceName" value={editedName} onChange={(e) => setEditedName(e.target.value)} disabled={isSaving} />
                            </div>
-                           <div>
+                           <div className="text-start">
                              <Label htmlFor='spaceDesc' className='text-xs'>وصف المساحة</Label>
                              <Textarea id="spaceDesc" value={editedDescription} onChange={(e) => setEditedDescription(e.target.value)} className='min-h-[60px]' disabled={isSaving}/>
                            </div>
@@ -176,7 +176,7 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
             </>
         )}
         
-        <div className="py-2">
+        <div className="py-2 text-start">
             <h3 className="text-sm font-medium mb-3">الأعضاء الحاليون ({space.team.length}/3)</h3>
             <div className="space-y-3">
             {space.team.map((member) => (
@@ -199,7 +199,7 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
         <Separator />
 
         {isCurrentUserOwner && space.team.length < 3 && (
-            <div className="space-y-2 pt-2">
+            <div className="space-y-2 pt-2 text-start">
             <Label htmlFor="link" className="font-medium">الدعوة باستخدام الرمز</Label>
             <p className='text-xs text-muted-foreground'>يتم تجديد هذا الرمز تلقائيًا بعد كل استخدام.</p>
             <div className="flex items-center space-x-2 space-x-reverse">

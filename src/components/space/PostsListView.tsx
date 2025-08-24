@@ -46,7 +46,7 @@ export function PostsListView({ posts, onEditPost }: PostsListViewProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px] text-right">العنوان</TableHead>
+              <TableHead className="text-right">العنوان</TableHead>
               <TableHead className="text-right">المنصة</TableHead>
               <TableHead className="text-right">الحالة</TableHead>
               <TableHead className="text-right">تاريخ النشر</TableHead>
@@ -57,9 +57,9 @@ export function PostsListView({ posts, onEditPost }: PostsListViewProps) {
               <TableRow key={post.id} onClick={() => setSelectedPost(post)} className="cursor-pointer">
                 <TableCell className="font-medium">{post.title}</TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <PlatformIcon platform={post.platform} className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center justify-end gap-2">
                     <span className="capitalize">{post.platform}</span>
+                    <PlatformIcon platform={post.platform} className="h-4 w-4 text-muted-foreground" />
                   </div>
                 </TableCell>
                 <TableCell>
