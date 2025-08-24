@@ -9,10 +9,9 @@ import { DashboardHeader } from "../dashboard/DashboardHeader";
 
 interface AppLayoutProps {
     children: React.ReactNode;
-    showHeader?: boolean;
 }
 
-export function AppLayout({ children, showHeader = true }: AppLayoutProps) {
+export function AppLayout({ children }: AppLayoutProps) {
     const { user, loading } = useAuth();
     const router = useRouter();
 
@@ -32,7 +31,7 @@ export function AppLayout({ children, showHeader = true }: AppLayoutProps) {
     
     return (
         <div className="flex flex-col min-h-screen">
-            {showHeader && <DashboardHeader />}
+            <DashboardHeader />
             <div className="flex-1 pb-20 md:pb-0">{children}</div>
         </div>
     )

@@ -188,7 +188,7 @@ export default function SpacePage() {
 
   if (isLoading || authLoading || !user) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)]">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
@@ -196,7 +196,7 @@ export default function SpacePage() {
 
   if (error || !space) {
      return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
         <h1 className="text-2xl font-bold text-destructive mb-4">خطأ</h1>
         <p className="text-muted-foreground">{error || "تعذر العثور على المساحة المطلوبة."}</p>
         <Button onClick={() => router.push('/dashboard')} className="mt-4">العودة إلى لوحة التحكم</Button>
