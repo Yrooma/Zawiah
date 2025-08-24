@@ -54,13 +54,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     const avatarText = name.charAt(0).toUpperCase();
     const avatarColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
-    const avatarUrl = `https://placehold.co/100x100/${avatarColor.substring(1)}/FFFFFF?text=${encodeURIComponent(avatarText)}`;
-
+    
     const newUser: AppUser = {
       uid: firebaseUser.uid,
       email: firebaseUser.email,
       name,
-      avatarUrl,
+      avatarUrl: '', // This is no longer a URL
       avatarText,
       avatarColor
     };

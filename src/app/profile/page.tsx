@@ -66,12 +66,11 @@ export default function ProfilePage() {
     const onProfileSubmit = async (values: z.infer<typeof profileFormSchema>) => {
         if (!user) return;
         try {
-            const avatarUrl = `https://placehold.co/100x100/${values.avatarColor.substring(1)}/FFFFFF?text=${encodeURIComponent(values.avatarText)}`;
             await updateProfile(user.uid, { 
                 name: values.name, 
                 avatarText: values.avatarText,
                 avatarColor: values.avatarColor,
-                avatarUrl
+                avatarUrl: '', // Not used anymore, but good to be explicit
             });
             await refreshUser();
             toast({ title: "تم تحديث الملف الشخصي بنجاح!" });
@@ -104,9 +103,9 @@ export default function ProfilePage() {
     }
     
     if (!user) return null;
-
-    const avatarPreviewUrl = `https://placehold.co/100x100/${profileForm.watch('avatarColor').substring(1)}/FFFFFF?text=${encodeURIComponent(profileForm.watch('avatarText'))}`;
-
+    
+    const watchedAvatarText = profileForm.watch('avatarText');
+    const watchedAvatarColor = profileForm.watch('avatarColor');
 
     return (
         <main className="flex-1 p-4 md:p-8 max-w-3xl mx-auto">
@@ -128,10 +127,9 @@ export default function ProfilePage() {
                     <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
                         <CardContent className="space-y-4">
                             <div className="flex items-center gap-6">
-                                <Avatar className="h-24 w-24">
-                                    <AvatarImage src={isEditing ? avatarPreviewUrl : user.avatarUrl} />
-                                    <AvatarFallback style={{backgroundColor: profileForm.getValues('avatarColor')}}>
-                                        {profileForm.getValues('avatarText')}
+                                <Avatar className="h-24 w-24 text-4xl font-headline">
+                                    <AvatarFallback style={{backgroundColor: isEditing ? watchedAvatarColor : user.avatarColor }}>
+                                        {isEditing ? watchedAvatarText : user.avatarText}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1">

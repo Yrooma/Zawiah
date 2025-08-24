@@ -43,15 +43,21 @@ export const getUserProfile = async (userId: string): Promise<AppUser | null> =>
 export const updateProfile = async (userId: string, data: Partial<Pick<AppUser, 'name' | 'avatarUrl' | 'avatarColor' | 'avatarText'>>) => {
     const currentUser = auth.currentUser;
     if (currentUser && currentUser.uid === userId) {
-        // Update Firebase Auth profile
+        // We only update displayName in auth, photoURL is no longer used from a URL.
         await firebaseUpdateProfile(currentUser, {
             displayName: data.name,
-            photoURL: data.avatarUrl
+            photoURL: '', // Clear out photoURL
         });
 
         // Update Firestore user document
         const userRef = doc(db, "users", userId);
-        await updateDoc(userRef, data);
+        const updateData: Partial<AppUser> = {
+            name: data.name,
+            avatarColor: data.avatarColor,
+            avatarText: data.avatarText,
+            avatarUrl: '' // Ensure avatarUrl is empty
+        };
+        await updateDoc(userRef, updateData);
     } else {
         throw new Error("User not authenticated or mismatch.");
     }
@@ -185,7 +191,7 @@ export const joinSpaceWithToken = async (userId: string, token: string): Promise
         throw new Error("لم يتم العثور على ملف تعريف المستخدم.");
     }
 
-    const user: User = { id: userProfile.uid, name: userProfile.name, avatarUrl: userProfile.avatarUrl };
+    const user: User = { id: userProfile.uid, name: userProfile.name, avatarUrl: userProfile.avatarUrl || '', avatarText: userProfile.avatarText, avatarColor: userProfile.avatarColor };
     
     const spaceRef = doc(db, 'spaces', spaceDoc.id);
     
