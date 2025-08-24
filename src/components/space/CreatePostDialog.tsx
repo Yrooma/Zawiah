@@ -115,7 +115,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       {children}
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[525px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-headline">{isEditing ? 'تعديل المنشور' : 'إنشاء منشور جديد'}</DialogTitle>
           <DialogDescription>

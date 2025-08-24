@@ -114,7 +114,7 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-headline">إدارة الفريق</DialogTitle>
           <DialogDescription>

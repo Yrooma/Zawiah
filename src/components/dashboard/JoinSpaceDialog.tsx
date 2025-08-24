@@ -66,7 +66,7 @@ export function JoinSpaceDialog({ children, onSpaceJoined }: JoinSpaceDialogProp
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-headline">الانضمام إلى مساحة عمل</DialogTitle>
           <DialogDescription>

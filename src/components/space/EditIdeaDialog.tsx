@@ -60,7 +60,7 @@ export function EditIdeaDialog({ idea, open, onOpenChange, onUpdateIdea }: EditI
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-headline">تعديل الفكرة</DialogTitle>
           <DialogDescription>
