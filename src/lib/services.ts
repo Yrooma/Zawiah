@@ -40,7 +40,7 @@ export const getUserProfile = async (userId: string): Promise<AppUser | null> =>
 }
 
 // Update user profile in Auth and Firestore
-export const updateProfile = async (userId: string, data: { name?: string; avatarUrl?: string }) => {
+export const updateProfile = async (userId: string, data: Partial<Pick<AppUser, 'name' | 'avatarUrl' | 'avatarColor' | 'avatarText'>>) => {
     const currentUser = auth.currentUser;
     if (currentUser && currentUser.uid === userId) {
         // Update Firebase Auth profile
@@ -51,11 +51,7 @@ export const updateProfile = async (userId: string, data: { name?: string; avata
 
         // Update Firestore user document
         const userRef = doc(db, "users", userId);
-        const updateData: { name?: string, avatarUrl?: string } = {};
-        if (data.name) updateData.name = data.name;
-        if (data.avatarUrl) updateData.avatarUrl = data.avatarUrl;
-
-        await updateDoc(userRef, updateData);
+        await updateDoc(userRef, data);
     } else {
         throw new Error("User not authenticated or mismatch.");
     }

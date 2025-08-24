@@ -8,6 +8,7 @@ import { auth, db } from '@/lib/firebase';
 import type { AppUser } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { getUserProfile } from '@/lib/services';
+import { AVATAR_COLORS } from '@/lib/config';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -51,17 +52,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const firebaseUser = userCredential.user;
     
+    const avatarText = name.charAt(0).toUpperCase();
+    const avatarColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
+    const avatarUrl = `https://placehold.co/100x100/${avatarColor.substring(1)}/FFFFFF?text=${encodeURIComponent(avatarText)}`;
+
     const newUser: AppUser = {
       uid: firebaseUser.uid,
       email: firebaseUser.email,
       name,
-      avatarUrl: `https://placehold.co/100x100/EFEFEFF/333333?text=${encodeURIComponent(name.charAt(0))}`
+      avatarUrl,
+      avatarText,
+      avatarColor
     };
 
     await setDoc(doc(db, "users", firebaseUser.uid), {
         name: newUser.name,
         email: newUser.email,
         avatarUrl: newUser.avatarUrl,
+        avatarText: newUser.avatarText,
+        avatarColor: newUser.avatarColor,
     });
     
     setUser(newUser);

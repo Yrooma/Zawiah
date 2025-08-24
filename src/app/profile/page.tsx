@@ -1,13 +1,14 @@
 
 "use client";
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { updateProfile, updateUserPassword } from '@/lib/services';
+import { AVATAR_COLORS } from '@/lib/config';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -17,10 +18,12 @@ import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Loader2 } from 'lucide-react';
 import { FirebaseError } from 'firebase/app';
+import { cn } from '@/lib/utils';
 
 const profileFormSchema = z.object({
   name: z.string().min(2, { message: "يجب أن يكون الاسم حرفين على الأقل." }),
-  avatarUrl: z.string().url({ message: "الرجاء إدخال رابط صالح." }).optional().or(z.literal('')),
+  avatarText: z.string().refine(val => Array.from(val).length === 1, { message: 'يجب أن يكون حرفًا واحدًا أو رمزًا تعبيريًا.' }),
+  avatarColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, { message: 'لون غير صالح.' })
 });
 
 const passwordFormSchema = z.object({
@@ -37,7 +40,8 @@ export default function ProfilePage() {
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
             name: user?.name || '',
-            avatarUrl: user?.avatarUrl || '',
+            avatarText: user?.avatarText || user?.name.charAt(0) || 'A',
+            avatarColor: user?.avatarColor || AVATAR_COLORS[0],
         },
     });
 
@@ -49,14 +53,26 @@ export default function ProfilePage() {
         },
     });
 
-    if (user && profileForm.getValues('name') !== user.name) {
-        profileForm.reset({ name: user.name, avatarUrl: user.avatarUrl });
-    }
+    useEffect(() => {
+        if (user) {
+            profileForm.reset({
+                name: user.name,
+                avatarText: user.avatarText || user.name.charAt(0),
+                avatarColor: user.avatarColor || AVATAR_COLORS[0],
+            });
+        }
+    }, [user, profileForm]);
 
     const onProfileSubmit = async (values: z.infer<typeof profileFormSchema>) => {
         if (!user) return;
         try {
-            await updateProfile(user.uid, values);
+            const avatarUrl = `https://placehold.co/100x100/${values.avatarColor.substring(1)}/FFFFFF?text=${encodeURIComponent(values.avatarText)}`;
+            await updateProfile(user.uid, { 
+                name: values.name, 
+                avatarText: values.avatarText,
+                avatarColor: values.avatarColor,
+                avatarUrl
+            });
             await refreshUser();
             toast({ title: "تم تحديث الملف الشخصي بنجاح!" });
             setIsEditing(false);
@@ -89,6 +105,9 @@ export default function ProfilePage() {
     
     if (!user) return null;
 
+    const avatarPreviewUrl = `https://placehold.co/100x100/${profileForm.watch('avatarColor').substring(1)}/FFFFFF?text=${encodeURIComponent(profileForm.watch('avatarText'))}`;
+
+
     return (
         <main className="flex-1 p-4 md:p-8 max-w-3xl mx-auto">
             <h1 className="text-3xl font-headline font-bold text-foreground mb-6 text-start">
@@ -110,8 +129,10 @@ export default function ProfilePage() {
                         <CardContent className="space-y-4">
                             <div className="flex items-center gap-6">
                                 <Avatar className="h-24 w-24">
-                                    <AvatarImage src={profileForm.watch('avatarUrl') || user.avatarUrl} />
-                                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                    <AvatarImage src={isEditing ? avatarPreviewUrl : user.avatarUrl} />
+                                    <AvatarFallback style={{backgroundColor: profileForm.getValues('avatarColor')}}>
+                                        {profileForm.getValues('avatarText')}
+                                    </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1">
                                     <h2 className="text-2xl font-bold">{user.name}</h2>
@@ -134,27 +155,55 @@ export default function ProfilePage() {
                                             </FormItem>
                                         )}
                                     />
-                                    <FormField
-                                        control={profileForm.control}
-                                        name="avatarUrl"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>رابط الصورة الرمزية</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="https://example.com/avatar.png" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="avatarText"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>الحرف / الرمز</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="A" {...field} maxLength={2} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="avatarColor"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>اللون</FormLabel>
+                                                    <FormControl>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {AVATAR_COLORS.map(color => (
+                                                                <button
+                                                                    key={color}
+                                                                    type="button"
+                                                                    className={cn(
+                                                                        'h-8 w-8 rounded-full border-2 transition-transform hover:scale-110',
+                                                                        field.value === color ? 'border-primary ring-2 ring-ring' : 'border-transparent'
+                                                                    )}
+                                                                    style={{ backgroundColor: color }}
+                                                                    onClick={() => field.onChange(color)}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </FormControl>
+                                                     <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
                                 </div>
                             )}
                         </CardContent>
                         {isEditing && (
                             <CardFooter className="justify-end gap-2">
-                                <Button variant="ghost" onClick={() => { setIsEditing(false); profileForm.reset({name: user.name, avatarUrl: user.avatarUrl}); }}>إلغاء</Button>
+                                <Button variant="ghost" onClick={() => { setIsEditing(false); profileForm.reset({name: user.name, avatarText: user.avatarText || user.name.charAt(0), avatarColor: user.avatarColor || AVATAR_COLORS[0] }); }}>إلغاء</Button>
                                 <Button type="submit" disabled={profileForm.formState.isSubmitting}>
-                                     {profileForm.formState.isSubmitting && <Loader2 className="animate-spin" />}
+                                     {profileForm.formState.isSubmitting && <Loader2 className="animate-spin me-2" />}
                                     حفظ التغييرات
                                 </Button>
                             </CardFooter>
@@ -200,7 +249,7 @@ export default function ProfilePage() {
                         </CardContent>
                         <CardFooter className="justify-end">
                             <Button type="submit" disabled={passwordForm.formState.isSubmitting}>
-                                {passwordForm.formState.isSubmitting && <Loader2 className="animate-spin" />}
+                                {passwordForm.formState.isSubmitting && <Loader2 className="animate-spin me-2" />}
                                 تغيير كلمة المرور
                             </Button>
                         </CardFooter>

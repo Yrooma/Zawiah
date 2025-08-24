@@ -12,6 +12,8 @@ export type AppUser = {
   email: string | null;
   name: string;
   avatarUrl: string;
+  avatarColor?: string;
+  avatarText?: string;
 }
 
 export type Platform = 'instagram' | 'x' | 'facebook' | 'linkedin' | 'threads' | 'tiktok' | 'snapchat' | 'email';
