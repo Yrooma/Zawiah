@@ -46,10 +46,10 @@ export function PostsListView({ posts, onEditPost }: PostsListViewProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px]">العنوان</TableHead>
-              <TableHead>المنصة</TableHead>
-              <TableHead>الحالة</TableHead>
-              <TableHead>تاريخ النشر</TableHead>
+              <TableHead className="w-[200px] text-right">العنوان</TableHead>
+              <TableHead className="text-right">المنصة</TableHead>
+              <TableHead className="text-right">الحالة</TableHead>
+              <TableHead className="text-right">تاريخ النشر</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

@@ -202,8 +202,8 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
             <div className="space-y-2 pt-2">
             <Label htmlFor="link" className="font-medium">الدعوة باستخدام الرمز</Label>
             <p className='text-xs text-muted-foreground'>يتم تجديد هذا الرمز تلقائيًا بعد كل استخدام.</p>
-            <div className="flex items-center space-x-2">
-                <Input id="link" value={space.inviteToken || "مساحة العمل ممتلئة"} readOnly className="font-mono text-center tracking-widest" dir="ltr" />
+            <div className="flex items-center space-x-2 space-x-reverse">
+                <Input id="link" value={space.inviteToken || "مساحة العمل ممتلئة"} readOnly className="font-mono text-center tracking-widest" />
                  <Button size="icon" onClick={handleRegenerateToken} disabled={!space.inviteToken || isRegenerating}>
                     {isRegenerating ? <Loader2 className='animate-spin' /> : <RefreshCw />}
                 </Button>

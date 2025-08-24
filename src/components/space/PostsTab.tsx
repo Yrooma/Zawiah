@@ -17,7 +17,7 @@ export function PostsTab({ posts, onEditPost }: PostsTabProps) {
 
   return (
     <Tabs defaultValue="post-view" className="w-full">
-      <div className="flex justify-end">
+      <div className="flex justify-start">
         <TabsList>
           <TabsTrigger value="post-view">عرض المنشورات</TabsTrigger>
           <TabsTrigger value="app-view">عرض التطبيقات</TabsTrigger>
