@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, type User as FirebaseUser } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
@@ -15,6 +15,7 @@ interface AuthContextType {
   signIn: (email: string, pass: string) => Promise<void>;
   signUp: (email: string, pass: string, name: string) => Promise<AppUser>;
   signOut: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,11 +25,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  const fetchUser = useCallback(async (firebaseUser: FirebaseUser) => {
+      const profile = await getUserProfile(firebaseUser.uid);
+      setUser(profile);
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const profile = await getUserProfile(firebaseUser.uid);
-        setUser(profile);
+        await fetchUser(firebaseUser);
       } else {
         setUser(null);
       }
@@ -36,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [fetchUser]);
 
   const signIn = async (email: string, pass: string) => {
     await signInWithEmailAndPassword(auth, email, pass);
@@ -68,8 +73,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     router.push('/');
   };
 
+  const refreshUser = async () => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+          await fetchUser(currentUser);
+      }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -18,7 +18,7 @@ export default function MorePage() {
 
     return (
         <main className="flex-1 p-4 md:p-8 max-w-2xl mx-auto">
-            <h1 className="text-3xl font-headline font-bold text-foreground mb-6">
+            <h1 className="text-3xl font-headline font-bold text-foreground mb-6 text-start">
                 المزيد
             </h1>
             <div className="flex flex-col items-center gap-4 mb-8">
@@ -36,7 +36,7 @@ export default function MorePage() {
                 <CardContent className="p-2">
                    <ul className="space-y-1">
                         <li>
-                            <Button variant="ghost" className="w-full justify-start gap-3">
+                            <Button variant="ghost" className="w-full justify-start gap-3" onClick={() => router.push('/profile')}>
                                 <User className="h-5 w-5 text-muted-foreground" />
                                 <span>الملف الشخصي</span>
                             </Button>

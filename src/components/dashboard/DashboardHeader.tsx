@@ -90,7 +90,7 @@ export function DashboardHeader() {
                 const isActive = pathname === item.href;
                 return (
                   <Button key={item.href} variant={isActive ? 'secondary' : 'ghost'} size="sm" asChild>
-                    <Link href={item.href}>
+                    <Link href={item.href} className="flex items-center gap-2">
                       <item.icon />
                       {item.label}
                     </Link>
@@ -154,7 +154,7 @@ export function DashboardHeader() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={() => router.push('/more')}>
+                  <DropdownMenuItem onClick={() => router.push('/profile')}>
                     <User />
                     <span>الملف الشخصي</span>
                   </DropdownMenuItem>
@@ -176,7 +176,7 @@ export function DashboardHeader() {
        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-background border-t z-50">
             <div className="grid grid-cols-5 items-center h-full max-w-lg mx-auto px-2">
                 {mobileNavItems.slice(0, 2).map((item) => {
-                    const isActive = pathname === item.href;
+                    const isActive = pathname.startsWith(item.href);
                     return (
                         <Link href={item.href} key={item.href} className={cn(
                             "flex flex-col items-center justify-center text-xs gap-1 transition-colors",
@@ -198,7 +198,7 @@ export function DashboardHeader() {
                     </Button>
                 </div>
                 {mobileNavItems.slice(2).map((item) => {
-                     const isActive = pathname === item.href;
+                     const isActive = pathname.startsWith(item.href);
                      return (
                          <Link href={item.href} key={item.href} className={cn(
                              "flex flex-col items-center justify-center text-xs gap-1 transition-colors",
