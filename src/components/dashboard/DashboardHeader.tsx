@@ -46,6 +46,14 @@ export function DashboardHeader() {
   const navItems = [
     { href: "/dashboard", icon: Home, label: "المساحات" },
     { href: "/calendar", icon: Calendar, label: "التقويم" },
+    { href: "/guide", icon: LifeBuoy, label: "الدليل" },
+  ];
+  
+  const mobileNavItems = [
+     { href: "/dashboard", icon: Home, label: "المساحات" },
+     { href: "/calendar", icon: Calendar, label: "التقويم" },
+     { href: "/guide", icon: LifeBuoy, label: "الدليل" },
+     { href: "/more", icon: User, label: "المزيد" },
   ];
 
   useEffect(() => {
@@ -150,10 +158,6 @@ export function DashboardHeader() {
                     <User />
                     <span>الملف الشخصي</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/guide')}>
-                    <LifeBuoy />
-                    <span>الدليل</span>
-                  </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Settings />
                     <span>الإعدادات</span>
@@ -170,12 +174,12 @@ export function DashboardHeader() {
         </div>
       </header>
        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-background border-t z-50">
-            <div className="flex justify-around items-center h-full max-w-md mx-auto px-2">
-                {navItems.map((item) => {
+            <div className="grid grid-cols-5 items-center h-full max-w-lg mx-auto px-2">
+                {mobileNavItems.slice(0, 2).map((item) => {
                     const isActive = pathname === item.href;
                     return (
                         <Link href={item.href} key={item.href} className={cn(
-                            "flex flex-col items-center justify-center text-xs gap-1 transition-colors w-16",
+                            "flex flex-col items-center justify-center text-xs gap-1 transition-colors",
                             isActive ? "text-primary" : "text-muted-foreground hover:text-primary"
                         )}>
                             <item.icon className="h-5 w-5" />
@@ -183,23 +187,28 @@ export function DashboardHeader() {
                         </Link>
                     );
                 })}
-                <div className="relative">
+                 <div className="relative flex justify-center">
                     <Button
                         size="icon"
-                        className="h-14 w-14 rounded-full bg-primary shadow-lg hover:bg-primary/90 flex flex-col items-center justify-center gap-1 -translate-y-3"
+                        className="h-14 w-14 rounded-full bg-primary shadow-lg hover:bg-primary/90 flex flex-col items-center justify-center gap-1 -translate-y-4"
                         onClick={() => setCreateItemOpen(true)}
                     >
                         <PlusCircle className="h-6 w-6" />
                         <span className="text-xs">إضافة</span>
                     </Button>
                 </div>
-                 <Link href="/more" className={cn(
-                        "flex flex-col items-center justify-center text-xs gap-1 transition-colors w-16",
-                        pathname === '/more' ? "text-primary" : "text-muted-foreground hover:text-primary"
-                    )}>
-                    <User className="h-5 w-5" />
-                    <span>المزيد</span>
-                 </Link>
+                {mobileNavItems.slice(2).map((item) => {
+                     const isActive = pathname === item.href;
+                     return (
+                         <Link href={item.href} key={item.href} className={cn(
+                             "flex flex-col items-center justify-center text-xs gap-1 transition-colors",
+                             isActive ? "text-primary" : "text-muted-foreground hover:text-primary"
+                         )}>
+                             <item.icon className="h-5 w-5" />
+                             <span>{item.label}</span>
+                         </Link>
+                     );
+                })}
             </div>
         </nav>
       <CreateItemDialog open={isCreateItemOpen} onOpenChange={setCreateItemOpen} />
