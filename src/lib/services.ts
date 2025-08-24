@@ -83,7 +83,7 @@ export const getSpaceById = async (spaceId: string): Promise<Space | null> => {
 };
 
 // Add a new space
-export const addSpace = async (spaceData: { name: string; team: User[], memberIds: string[] }): Promise<Space> => {
+export const addSpace = async (spaceData: { name: string; description: string; team: User[], memberIds: string[] }): Promise<Space> => {
     const spacesCol = collection(db, 'spaces');
     const docRef = await addDoc(spacesCol, {
         ...spaceData,
@@ -100,6 +100,12 @@ export const addSpace = async (spaceData: { name: string; team: User[], memberId
         posts: [],
         ideas: [],
     } as Space;
+};
+
+// Update space details
+export const updateSpace = async (spaceId: string, name: string, description: string): Promise<void> => {
+    const spaceRef = doc(db, 'spaces', spaceId);
+    await updateDoc(spaceRef, { name, description });
 };
 
 // Add a user to a space using an invite token and regenerate the token
@@ -256,5 +262,3 @@ export const markNotificationsAsRead = async (notificationIds: string[]): Promis
     });
     await batch.commit();
 };
-
-    

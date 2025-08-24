@@ -47,6 +47,7 @@ export type Post = {
 export type Space = {
   id: string;
   name: string;
+  description: string;
   team: User[];
   memberIds: string[];
   posts: Post[];

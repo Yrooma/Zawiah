@@ -1,12 +1,11 @@
 
 "use client";
 
-import { useState, type ReactNode } from 'react';
-import { Copy, Check, LogOut, Trash2 } from 'lucide-react';
+import { useState, type ReactNode, useEffect } from 'react';
+import { Copy, Check, LogOut, Trash2, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -33,7 +32,8 @@ import { Separator } from '../ui/separator';
 import type { Space } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-import { leaveSpace, deleteSpace } from '@/lib/services';
+import { leaveSpace, deleteSpace, updateSpace } from '@/lib/services';
+import { Textarea } from '../ui/textarea';
 
 
 interface TeamDialogProps {
@@ -45,9 +45,22 @@ interface TeamDialogProps {
 export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) {
   const [open, setOpen] = useState(false);
   const [hasCopied, setHasCopied] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(space.name);
+  const [editedDescription, setEditedDescription] = useState(space.description);
+  const [isSaving, setIsSaving] = useState(false);
+
   const { toast } = useToast();
   const { user } = useAuth();
   const router = useRouter();
+  
+  useEffect(() => {
+    if (open) {
+      setEditedName(space.name);
+      setEditedDescription(space.description);
+      setIsEditing(false);
+    }
+  }, [open, space]);
 
   const copyToClipboard = () => {
     if (!space.inviteToken) return;
@@ -79,6 +92,24 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
           toast({ variant: 'destructive', title: "خطأ في حذف المساحة", description: error.message });
       }
   }
+  
+  const handleSaveChanges = async () => {
+    if (!editedName.trim()) {
+        toast({ variant: 'destructive', title: "الاسم مطلوب" });
+        return;
+    }
+    setIsSaving(true);
+    try {
+        await updateSpace(space.id, editedName, editedDescription);
+        toast({ title: "تم تحديث المساحة بنجاح!"});
+        onSpaceUpdate();
+        setIsEditing(false);
+    } catch(error: any) {
+        toast({ variant: 'destructive', title: "خطأ في تحديث المساحة", description: error.message });
+    } finally {
+        setIsSaving(false);
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -87,9 +118,44 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
         <DialogHeader>
           <DialogTitle className="font-headline">إدارة الفريق</DialogTitle>
           <DialogDescription>
-            ادعُ الآخرين أو قم بإدارة عضويتك في هذه المساحة.
+            {isCurrentUserOwner ? "عدّل تفاصيل المساحة، ادعُ الآخرين، أو قم بإدارة عضويتك." : "ادعُ الآخرين أو قم بإدارة عضويتك في هذه المساحة."}
           </DialogDescription>
         </DialogHeader>
+
+        {isCurrentUserOwner && (
+            <>
+                <div className="py-2">
+                    <Label className='font-medium'>تفاصيل المساحة</Label>
+                    {!isEditing ? (
+                        <div className="p-2 mt-2">
+                             <p className="font-semibold">{space.name}</p>
+                             <p className="text-sm text-muted-foreground">{space.description}</p>
+                             <Button variant="outline" size="sm" className='mt-2' onClick={() => setIsEditing(true)}>تعديل</Button>
+                        </div>
+                    ) : (
+                        <div className='space-y-3 mt-2'>
+                           <div>
+                             <Label htmlFor='spaceName' className='text-xs'>اسم المساحة</Label>
+                             <Input id="spaceName" value={editedName} onChange={(e) => setEditedName(e.target.value)} disabled={isSaving} />
+                           </div>
+                           <div>
+                             <Label htmlFor='spaceDesc' className='text-xs'>وصف المساحة</Label>
+                             <Textarea id="spaceDesc" value={editedDescription} onChange={(e) => setEditedDescription(e.target.value)} className='min-h-[60px]' disabled={isSaving}/>
+                           </div>
+                           <div className='flex gap-2 justify-end'>
+                             <Button variant="ghost" onClick={() => setIsEditing(false)} disabled={isSaving}>إلغاء</Button>
+                             <Button onClick={handleSaveChanges} disabled={isSaving}>
+                                {isSaving && <Loader2 className="animate-spin" />}
+                                حفظ التغييرات
+                             </Button>
+                           </div>
+                        </div>
+                    )}
+                </div>
+                <Separator />
+            </>
+        )}
+        
         <div className="py-2">
             <h3 className="text-sm font-medium mb-3">الأعضاء الحاليون ({space.team.length}/3)</h3>
             <div className="space-y-3">
@@ -151,13 +217,8 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-            <DialogClose asChild>
-                <Button variant="outline">إغلاق</Button>
-            </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
-    

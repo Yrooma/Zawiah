@@ -18,6 +18,7 @@ import { addSpace } from '@/lib/services';
 import type { Space, User } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
+import { Textarea } from '../ui/textarea';
 
 interface CreateSpaceDialogProps {
   children: ReactNode;
@@ -27,6 +28,7 @@ interface CreateSpaceDialogProps {
 export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialogProps) {
   const [open, setOpen] = useState(false);
   const [spaceName, setSpaceName] = useState("");
+  const [spaceDescription, setSpaceDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user: authUser } = useAuth();
@@ -42,6 +44,7 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
         };
         const newSpaceData = {
           name: spaceName,
+          description: spaceDescription || 'مساحة تعاونية لإنشاء المحتوى.',
           team: [owner],
           memberIds: [owner.id],
         };
@@ -55,6 +58,7 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
         });
 
         setSpaceName("");
+        setSpaceDescription("");
         setOpen(false);
 
       } catch (error) {
@@ -77,7 +81,7 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
         <DialogHeader>
           <DialogTitle className="font-headline">إنشاء مساحة جديدة</DialogTitle>
           <DialogDescription>
-            أعط مساحة التعاون الجديدة اسمًا. يمكنك دعوة أعضاء الفريق لاحقًا.
+            أعط مساحة التعاون الجديدة اسمًا ووصفًا. يمكنك دعوة أعضاء الفريق لاحقًا.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -91,6 +95,19 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
               onChange={(e) => setSpaceName(e.target.value)}
               placeholder="مثال: 'حملة متجر الأزياء'"
               className="col-span-3"
+              disabled={isLoading}
+            />
+          </div>
+           <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="description" className="text-right pt-2">
+              الوصف
+            </Label>
+            <Textarea
+              id="description"
+              value={spaceDescription}
+              onChange={(e) => setSpaceDescription(e.target.value)}
+              placeholder="مثال: 'مساحة عمل مخصصة لحملتنا على وسائل التواصل الاجتماعي...'"
+              className="col-span-3 min-h-[80px]"
               disabled={isLoading}
             />
           </div>

@@ -16,7 +16,7 @@ export function SpaceCard({ space }: SpaceCardProps) {
     <Card className="h-full flex flex-col hover:border-primary/50 hover:shadow-lg transition-all duration-200">
       <CardHeader>
         <CardTitle className="font-headline">{space.name}</CardTitle>
-        <CardDescription>مساحة تعاونية لإنشاء المحتوى.</CardDescription>
+        <CardDescription>{space.description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="flex items-center space-x-2">
