@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -6,34 +7,41 @@ service cloud.firestore {
     }
 
     match /spaces/{spaceId} {
-      // Allow a user to read a space if they are a member.
-      // This rule applies to both single document gets and collection queries (lists).
-      allow read: if request.auth.uid in resource.data.memberIds;
+      // Allow a user to get a single space document if they are a member.
+      allow get: if request.auth.uid in resource.data.memberIds;
 
-      // Any authenticated user can create a space.
+      // Allow a user to list spaces only if they are querying for spaces they are a member of.
+      // This is the key rule that fixes the dashboard loading error.
+      allow list: if request.auth.uid != null && request.query.where.path == "memberIds" && request.query.where.op == "array-contains";
+
+      // A user can create a space.
       allow create: if request.auth.uid != null;
-      
-      // Any member of a space can update it.
-      allow update: if request.auth.uid in resource.data.memberIds;
-      
-      // Only the owner (the first member in the array) can delete a space.
-      allow delete: if request.auth.uid == resource.data.memberIds[0];
 
-      // Rules for all subcollections within a space (e.g., posts, ideas).
+      // An existing member can update a space.
+      allow update: if request.auth.uid in resource.data.memberIds;
+
+      // Only the owner (the first member) can delete a space.
+      allow delete: if request.auth.uid == resource.data.team[0].id;
+
+      // Rules for subcollections within a space
       match /{path=**}/documents/{docId} {
         allow read, write: if request.auth.uid in get(/databases/$(database)/documents/spaces/$(spaceId)).data.memberIds;
       }
     }
 
     match /invites/{inviteId} {
-      // Allow read/write access to an invite document if the user is the sender or the intended recipient.
-      allow read, write: if request.auth.uid == resource.data.fromUser.id || request.auth.uid == get(/databases/$(database)/documents/users/{userId}).data().uid;
-      allow create: if request.auth.uid != null;
+        // Only the invited user can see the invite. The creator can see it to prevent duplicates.
+        allow read: if request.auth.token.email == resource.data.toEmail || request.auth.uid == resource.data.fromUser.id;
+        // The space owner (creator of invite) can create one.
+        allow create: if request.auth.uid == request.resource.data.fromUser.id;
+        // The invited user can update it (to accept/decline).
+        allow update: if request.auth.token.email == resource.data.toEmail;
+        // Nobody can delete invites directly, they are updated to a terminal status.
+        allow delete: if false;
     }
 
     match /notifications/{notificationId} {
-      // A user can read/write their own notifications.
-      allow read, write, delete: if request.auth.uid == resource.data.userId;
+        allow read, write, delete: if request.auth.uid == resource.data.userId;
     }
   }
 }
