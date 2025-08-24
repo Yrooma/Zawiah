@@ -42,18 +42,23 @@ interface TeamDialogProps {
   onSpaceUpdate: () => void;
 }
 
-export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) {
+export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: TeamDialogProps) {
   const [open, setOpen] = useState(false);
+  const [space, setSpace] = useState(initialSpace);
   const [hasCopied, setHasCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState(space.name);
-  const [editedDescription, setEditedDescription] = useState(space.description);
+  const [editedName, setEditedName] = useState(initialSpace.name);
+  const [editedDescription, setEditedDescription] = useState(initialSpace.description);
   const [isSaving, setIsSaving] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   const { toast } = useToast();
   const { user } = useAuth();
   const router = useRouter();
+  
+  useEffect(() => {
+    setSpace(initialSpace);
+  }, [initialSpace]);
   
   useEffect(() => {
     if (open) {
@@ -74,8 +79,8 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
   const handleRegenerateToken = async () => {
     setIsRegenerating(true);
     try {
-        await regenerateInviteToken(space.id);
-        onSpaceUpdate();
+        const newToken = await regenerateInviteToken(space.id);
+        setSpace(prevSpace => ({ ...prevSpace, inviteToken: newToken }));
         toast({ title: "تم إنشاء رمز دعوة جديد!" });
     } catch (error: any) {
         toast({ variant: 'destructive', title: "خطأ", description: "فشل إنشاء رمز جديد."});
@@ -115,8 +120,9 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
     setIsSaving(true);
     try {
         await updateSpace(space.id, editedName, editedDescription);
+        setSpace(prev => ({...prev, name: editedName, description: editedDescription }));
+        onSpaceUpdate(); // Refresh parent state
         toast({ title: "تم تحديث المساحة بنجاح!"});
-        onSpaceUpdate();
         setIsEditing(false);
     } catch(error: any) {
         toast({ variant: 'destructive', title: "خطأ في تحديث المساحة", description: error.message });

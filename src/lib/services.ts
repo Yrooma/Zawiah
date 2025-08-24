@@ -119,9 +119,11 @@ export const updateSpace = async (spaceId: string, name: string, description: st
 };
 
 // Manually regenerate the invite token for a space (owner only)
-export const regenerateInviteToken = async (spaceId: string): Promise<void> => {
+export const regenerateInviteToken = async (spaceId: string): Promise<string> => {
     const spaceRef = doc(db, 'spaces', spaceId);
-    await updateDoc(spaceRef, { inviteToken: generateRandomToken() });
+    const newInviteToken = generateRandomToken();
+    await updateDoc(spaceRef, { inviteToken: newInviteToken });
+    return newInviteToken;
 };
 
 
@@ -138,12 +140,12 @@ export const joinSpaceWithToken = async (userId: string, token: string): Promise
     const spaceDoc = spaceSnapshot.docs[0];
     const spaceData = spaceDoc.data() as Space;
 
-    if (spaceData.memberIds.length >= 3) {
-        throw new Error("مساحة العمل هذه ممتلئة بالفعل.");
-    }
-    
     if (spaceData.memberIds.includes(userId)) {
         throw new Error("أنت عضو بالفعل في مساحة العمل هذه.");
+    }
+
+    if (spaceData.memberIds.length >= 3) {
+        throw new Error("مساحة العمل هذه ممتلئة بالفعل.");
     }
 
     const userProfile = await getUserProfile(userId);
