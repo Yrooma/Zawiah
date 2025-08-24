@@ -345,9 +345,9 @@ export const acceptInvite = async (inviteId: string, user: AppUser): Promise<voi
         throw new Error("The invited space no longer exists.");
     }
 
-    const space = spaceDoc.data() as Space;
+    const spaceData = spaceDoc.data() as Space;
 
-    if (space.team.length >= 3) {
+    if (spaceData.team.length >= 3) {
       throw new Error("This space is full.");
     }
 
@@ -361,8 +361,8 @@ export const acceptInvite = async (inviteId: string, user: AppUser): Promise<voi
     
     // Update space and invite in a transaction
     transaction.update(spaceRef, {
-        memberIds: [...space.memberIds, user.uid],
-        team: [...space.team, newUser]
+        memberIds: [...spaceData.memberIds, user.uid],
+        team: [...spaceData.team, newUser]
     });
     transaction.update(inviteRef, { status: 'accepted' });
 

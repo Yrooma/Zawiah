@@ -16,11 +16,11 @@ export function PostsTab({ posts, onEditPost }: PostsTabProps) {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   return (
-    <Tabs defaultValue="post-view" className="w-full">
+    <Tabs defaultValue="app-view" className="w-full">
       <div className="flex justify-start">
         <TabsList>
-          <TabsTrigger value="post-view">عرض المنشورات</TabsTrigger>
           <TabsTrigger value="app-view">عرض التطبيقات</TabsTrigger>
+          <TabsTrigger value="post-view">عرض المنشورات</TabsTrigger>
         </TabsList>
       </div>
       <TabsContent value="post-view" className="mt-4">

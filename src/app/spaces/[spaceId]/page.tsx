@@ -78,7 +78,7 @@ export default function SpacePage() {
   const handleAddOrUpdatePost = async (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }, id?: string) => {
     if (!space || !user) return;
     
-    const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl };
+    const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl, avatarColor: user.avatarColor, avatarText: user.avatarText };
 
     try {
       if (id) {
@@ -118,7 +118,7 @@ export default function SpacePage() {
         const postToUpdate = space.posts.find(p => p.id === postId);
         if (!postToUpdate) return;
         
-        const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl };
+        const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl, avatarColor: user.avatarColor, avatarText: user.avatarText };
         const statusMessages = {
             draft: 'مسودة',
             ready: 'جاهز للنشر',
@@ -144,7 +144,7 @@ export default function SpacePage() {
   const handleAddIdea = async (content: string) => {
     if (!space || !user) return;
     try {
-      const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl };
+      const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl, avatarColor: user.avatarColor, avatarText: user.avatarText };
       const newIdeaData: Omit<Idea, 'id'> = {
         content,
         createdBy: currentUser,
@@ -215,7 +215,7 @@ export default function SpacePage() {
       />
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <Tabs defaultValue="calendar" className="w-full">
+          <Tabs defaultValue="posts" className="w-full">
             <TabsList className="grid w-full grid-cols-3 md:w-[400px]">
               <TabsTrigger value="calendar">التقويم</TabsTrigger>
               <TabsTrigger value="posts">المنشورات</TabsTrigger>
@@ -243,7 +243,7 @@ export default function SpacePage() {
         spaceId={space.id}
         open={isCreatePostOpen}
         onOpenChange={setCreatePostOpen}
-        initialContent={initialPostContent}
+        initialContent={initialContent}
         postToEdit={postToEdit}
         onSavePost={handleAddOrUpdatePost}
       />
