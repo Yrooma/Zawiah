@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LayoutGrid } from 'lucide-react';
 import { joinSpaceWithToken } from '@/lib/services';
+import { FirebaseError } from 'firebase/app';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -30,11 +31,19 @@ export default function SignupPage() {
       const newUser = await signUp(email, password, name);
       
       if (inviteToken.trim()) {
-        await joinSpaceWithToken(newUser.uid, inviteToken.trim());
-        toast({
-          title: "تم إنشاء الحساب والانضمام إلى مساحة العمل!",
-          description: "لقد تم إضافتك بنجاح إلى مساحة العمل.",
-        });
+        try {
+          await joinSpaceWithToken(newUser.uid, inviteToken.trim());
+          toast({
+            title: "تم إنشاء الحساب والانضمام إلى مساحة العمل!",
+            description: "لقد تم إضافتك بنجاح إلى مساحة العمل.",
+          });
+        } catch (joinError: any) {
+           toast({
+            title: "تم إنشاء الحساب ولكن فشل الانضمام",
+            description: joinError.message || "لم يتم العثور على رمز الدعوة أو أنه غير صالح.",
+            variant: "destructive"
+          });
+        }
       } else {
         toast({
           title: "تم إنشاء الحساب!",
@@ -45,11 +54,26 @@ export default function SignupPage() {
       router.push('/dashboard');
 
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "فشل إنشاء الحساب",
-        description: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
-      });
+       if (error instanceof FirebaseError && error.code === 'auth/weak-password') {
+         toast({
+            variant: "destructive",
+            title: "كلمة المرور ضعيفة",
+            description: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+          });
+       } else if (error instanceof FirebaseError && error.code === 'auth/email-already-in-use') {
+         toast({
+            variant: "destructive",
+            title: "البريد الإلكتروني مستخدم بالفعل",
+            description: "هذا البريد الإلكتروني مسجل بالفعل. يرجى تسجيل الدخول أو استخدام بريد إلكتروني آخر.",
+          });
+       }
+       else {
+        toast({
+            variant: "destructive",
+            title: "فشل إنشاء الحساب",
+            description: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
+        });
+       }
       setIsLoading(false);
     }
   };
@@ -98,6 +122,7 @@ export default function SignupPage() {
                   disabled={isLoading}
                   minLength={6}
                 />
+                <p className="text-xs text-muted-foreground">يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.</p>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="invite-token">رمز الدعوة (اختياري)</Label>
