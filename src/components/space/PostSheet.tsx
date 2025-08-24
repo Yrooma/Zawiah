@@ -123,8 +123,8 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
                     {post.activityLog.map((log, index) => (
                         <li key={index} className="flex items-center gap-3">
                             <Avatar className="h-8 w-8">
-                                <AvatarImage src={log.user.avatarUrl} />
-                                <AvatarFallback>{log.user.name.slice(0, 2)}</AvatarFallback>
+                                {log.user.avatarUrl && <AvatarImage src={log.user.avatarUrl} />}
+                                <AvatarFallback style={{backgroundColor: log.user.avatarColor}}>{log.user.avatarText}</AvatarFallback>
                             </Avatar>
                             <div>
                                 <span className="font-medium">{log.user.name}</span>

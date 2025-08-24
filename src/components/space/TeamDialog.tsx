@@ -183,8 +183,8 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
                 <div key={member.id} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Avatar>
-                        <AvatarImage src={member.avatarUrl} />
-                        <AvatarFallback>{member.name.slice(0, 2)}</AvatarFallback>
+                            {member.avatarUrl && <AvatarImage src={member.avatarUrl} />}
+                            <AvatarFallback style={{backgroundColor: member.avatarColor}}>{member.avatarText}</AvatarFallback>
                         </Avatar>
                         <div>
                         <p className="font-semibold">{member.name}</p>

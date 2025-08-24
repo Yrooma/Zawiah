@@ -140,8 +140,8 @@ export function DashboardHeader() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                   <Avatar>
-                    <AvatarImage src={user?.avatarUrl} alt="صورة المستخدم" />
-                    <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                    {user?.avatarUrl && <AvatarImage src={user.avatarUrl} alt="صورة المستخدم" />}
+                    <AvatarFallback style={{backgroundColor: user?.avatarColor}}>{user?.avatarText}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>

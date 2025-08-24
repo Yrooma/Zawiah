@@ -5,6 +5,8 @@ export type User = {
   id: string;
   name: string;
   avatarUrl: string;
+  avatarColor?: string;
+  avatarText?: string;
 };
 
 export type AppUser = {

@@ -23,8 +23,8 @@ export default function MorePage() {
             </h1>
             <div className="flex flex-col items-center gap-4 mb-8">
                 <Avatar className="h-24 w-24 border-4 border-primary/20">
-                    <AvatarImage src={user.avatarUrl} alt={user.name} />
-                    <AvatarFallback className="text-3xl">{user.name.charAt(0)}</AvatarFallback>
+                    {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name} />}
+                    <AvatarFallback className="text-3xl" style={{backgroundColor: user.avatarColor}}>{user.avatarText}</AvatarFallback>
                 </Avatar>
                 <div className="text-center">
                     <h2 className="text-2xl font-bold">{user.name}</h2>

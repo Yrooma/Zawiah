@@ -26,8 +26,8 @@ export function SpaceCard({ space }: SpaceCardProps) {
                 <Tooltip key={member.id}>
                   <TooltipTrigger asChild>
                     <Avatar className="border-2 border-background">
-                      <AvatarImage src={member.avatarUrl} />
-                      <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                      {member.avatarUrl && <AvatarImage src={member.avatarUrl} />}
+                      <AvatarFallback style={{backgroundColor: member.avatarColor}}>{member.avatarText}</AvatarFallback>
                     </Avatar>
                   </TooltipTrigger>
                   <TooltipContent>

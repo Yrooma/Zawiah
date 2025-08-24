@@ -72,8 +72,8 @@ export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea, onUp
             <CardFooter className="p-4 bg-muted/50 flex justify-between items-center">
               <div className='flex items-center gap-2'>
                 <Avatar className="h-6 w-6">
-                    <AvatarImage src={idea.createdBy.avatarUrl} />
-                    <AvatarFallback>{idea.createdBy.name.charAt(0)}</AvatarFallback>
+                    {idea.createdBy.avatarUrl && <AvatarImage src={idea.createdBy.avatarUrl} />}
+                    <AvatarFallback style={{backgroundColor: idea.createdBy.avatarColor}}>{idea.createdBy.avatarText}</AvatarFallback>
                 </Avatar>
                 <span className='text-xs text-muted-foreground'>بواسطة {idea.createdBy.name}</span>
               </div>
