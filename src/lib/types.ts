@@ -42,6 +42,8 @@ export type Post = {
   lastModifiedBy: User;
   imageUrl?: string;
   activityLog: ActivityLog[];
+  spaceId?: string;
+  spaceName?: string;
 };
 
 export type Space = {
@@ -61,5 +63,5 @@ export type Notification = {
   message: string;
   link: string; // e.g., `/spaces/{spaceId}`
   read: boolean;
-  createdAt: Timestamp;
+  createdAt: Timestamp | Date;
 };

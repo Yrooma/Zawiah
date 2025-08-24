@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -14,7 +15,7 @@ const WEEKDAYS = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خم�
 
 interface CalendarTabProps {
   posts: Post[];
-  onUpdatePostStatus: (postId: string, newStatus: PostStatus) => void;
+  onUpdatePostStatus: (postId: string, newStatus: PostStatus, spaceId: string) => void;
   onEditPost: (post: Post) => void;
 }
 
@@ -61,7 +62,7 @@ export function CalendarTab({ posts, onUpdatePostStatus, onEditPost }: CalendarT
       </div>
       <div className="grid grid-cols-7 border-t border-l rounded-t-lg">
         {WEEKDAYS.map((day) => (
-          <div key={day} className="text-center font-medium text-muted-foreground p-2 border-r border-b bg-muted/50">
+          <div key={day} className="text-center font-medium text-muted-foreground p-2 border-r border-b bg-muted/50 text-xs sm:text-sm">
             {day}
           </div>
         ))}
@@ -74,15 +75,15 @@ export function CalendarTab({ posts, onUpdatePostStatus, onEditPost }: CalendarT
             <div
               key={day.toString()}
               className={cn(
-                'relative min-h-[120px] p-2 border-r border-b',
+                'relative min-h-[100px] p-1 sm:p-2 border-r border-b',
                 !isSameMonth(day, currentDate) && 'bg-muted/30',
                 isToday(day) && 'bg-blue-100 dark:bg-blue-900/30'
               )}
             >
-              <span className={cn('font-semibold', isToday(day) && 'text-primary font-bold')}>
+              <span className={cn('text-xs sm:text-base font-semibold', isToday(day) && 'text-primary font-bold')}>
                 {format(day, 'd')}
               </span>
-              <div className="mt-2 space-y-1">
+              <div className="mt-1 sm:mt-2 space-y-1">
                 {postsForDay.map(post => (
                   <PostPill key={post.id} post={post} onClick={() => setSelectedPost(post)} />
                 ))}

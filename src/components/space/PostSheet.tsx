@@ -3,57 +3,22 @@
 
 import type { Post, Platform, PostStatus } from "@/lib/types";
 import Image from "next/image";
+import Link from "next/link";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Instagram, Facebook, Copy, CheckCircle, Pencil, Mail, MessageSquare } from 'lucide-react';
+import { Instagram, Facebook, Copy, CheckCircle, Pencil, Mail, MessageSquare, ExternalLink } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { format } from "date-fns";
 import { ar } from 'date-fns/locale';
-
-const TikTokIcon = () => (
-    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 fill-white">
-        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.28-1.1-.63-1.6-1.03V16.5c0 1.96-.35 3.93-1.06 5.8l-1.84.18c-.33-.52-.63-1.07-.9-1.64-.17-3.4-1.35-6.69-3.46-9.49l-1.82-2.35V.02h3.81z"/>
-    </svg>
-)
-
-const PlatformDisplay = ({ platform }: { platform: Platform }) => {
-    const platformDetails = {
-        instagram: { name: 'انستغرام', Icon: Instagram, color: 'bg-pink-500' },
-        x: { 
-            name: 'إكس (تويتر)', 
-            Icon: () => (
-                <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 fill-white">
-                    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
-                </svg>
-            ),
-            color: 'bg-black' 
-        },
-        facebook: { name: 'فيسبوك', Icon: Facebook, color: 'bg-blue-600' },
-        linkedin: { name: 'لينكدإن', Icon: () => <span className="font-bold text-sm">in</span>, color: 'bg-sky-700' },
-        threads: { name: 'ثريدز', Icon: () => <span className="font-bold text-xl">@</span>, color: 'bg-gray-800' },
-        tiktok: { name: 'تيك توك', Icon: TikTokIcon, color: 'bg-black' },
-        snapchat: { name: 'سناب شات', Icon: MessageSquare, color: 'bg-yellow-400' },
-        email: { name: 'بريد إلكتروني', Icon: Mail, color: 'bg-gray-500' },
-    };
-    const details = platformDetails[platform];
-
-    return (
-        <div className="flex items-center gap-2">
-            <div className={`p-1.5 rounded-md ${details.color} flex items-center justify-center text-white`}>
-                <details.Icon />
-            </div>
-            <span className="font-semibold">{details.name}</span>
-        </div>
-    )
-}
+import { PlatformIcon } from "./PlatformIcon";
 
 interface PostSheetProps {
     post: Post | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onUpdateStatus: (postId: string, newStatus: PostStatus) => void;
+    onUpdateStatus: (postId: string, newStatus: PostStatus, spaceId: string) => void;
     onEdit: (post: Post) => void;
 }
 
@@ -68,7 +33,8 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
   };
   
   const handleMarkAsPublished = () => {
-    onUpdateStatus(post.id, 'published');
+    if (!post.spaceId) return;
+    onUpdateStatus(post.id, 'published', post.spaceId);
     onOpenChange(false);
     toast({
         title: "تم تحديث الحالة!",
@@ -107,10 +73,25 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
           </div>
         </SheetHeader>
         <div className="flex-grow overflow-y-auto p-6 pt-2 space-y-6">
+            { post.spaceName && (
+              <div>
+                <h3 className="font-semibold mb-2">مساحة العمل</h3>
+                <div className="p-3 rounded-lg bg-secondary flex justify-between items-center">
+                    <span>{post.spaceName}</span>
+                    <Button asChild variant="ghost" size="sm">
+                      <Link href={`/spaces/${post.spaceId}`}>
+                        <ExternalLink className="h-4 w-4" />
+                        افتح
+                      </Link>
+                    </Button>
+                </div>
+              </div>
+            )}
             <div>
                 <h3 className="font-semibold mb-2">المنصة</h3>
-                <div className="p-3 rounded-lg bg-secondary">
-                    <PlatformDisplay platform={post.platform} />
+                <div className="p-3 rounded-lg bg-secondary flex items-center gap-2">
+                    <PlatformIcon platform={post.platform} className="h-5 w-5" />
+                    <span className="font-semibold capitalize">{post.platform}</span>
                 </div>
             </div>
 

@@ -175,7 +175,7 @@ export const joinSpaceWithToken = async (userId: string, token: string): Promise
 
 
 // Add a new Post to a space
-export const addPost = async (spaceId: string, postData: Omit<Post, 'id'>): Promise<Post> => {
+export const addPost = async (spaceId: string, postData: Omit<Post, 'id' | 'spaceId' | 'spaceName'>): Promise<Post> => {
     const postsCol = collection(db, 'spaces', spaceId, 'posts');
     const docRef = await addDoc(postsCol, { ...postData, scheduledAt: Timestamp.fromDate(postData.scheduledAt as Date) });
     const newPostDoc = await getDoc(docRef);
@@ -185,10 +185,14 @@ export const addPost = async (spaceId: string, postData: Omit<Post, 'id'>): Prom
 // Update an existing Post
 export const updatePost = async (spaceId: string, postId: string, postData: Partial<Post>): Promise<void> => {
     const postRef = doc(db, 'spaces', spaceId, 'posts', postId);
-    const dataToUpdate = { ...postData };
+    const dataToUpdate: { [key: string]: any } = { ...postData };
     if (dataToUpdate.scheduledAt instanceof Date) {
         dataToUpdate.scheduledAt = Timestamp.fromDate(dataToUpdate.scheduledAt);
     }
+    // Remove space identifiers before updating subcollection document
+    delete dataToUpdate.spaceId;
+    delete dataToUpdate.spaceName;
+
     await updateDoc(postRef, dataToUpdate);
 }
 
@@ -219,7 +223,7 @@ export const addIdea = async (spaceId: string, ideaData: Omit<Idea, 'id'>): Prom
     return {
         id: docRef.id,
         ...ideaData
-    }
+    } as Idea
 }
 
 // Update an existing Idea

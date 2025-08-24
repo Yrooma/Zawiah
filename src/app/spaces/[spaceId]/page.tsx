@@ -94,7 +94,7 @@ export default function SpacePage() {
         const updatedPosts = space.posts.map(p => p.id === id ? { ...p, ...updatedPostData, scheduledAt: postDetails.scheduledAt } : p);
         setSpace({...space, posts: updatedPosts});
       } else {
-        const newPostData: Omit<Post, 'id'> = {
+        const newPostData: Omit<Post, 'id' | 'spaceId' | 'spaceName'> = {
             ...postDetails,
             status: 'draft',
             createdBy: currentUser, 
@@ -206,7 +206,7 @@ export default function SpacePage() {
 
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <>
       <SpaceHeader 
         spaceName={space.name} 
         onNewPostClick={() => handleOpenCreatePostDialog()}
@@ -233,19 +233,20 @@ export default function SpacePage() {
                 onConvertToPost={handleOpenCreatePostDialog}
                 onAddIdea={handleAddIdea}
                 onDeleteIdea={handleDeleteIdea}
-                onUpdateIdea={handleUpdateIdea}
+                onUpdateIdea={onUpdateIdea}
               />
             </TabsContent>
           </Tabs>
         </div>
       </main>
       <CreatePostDialog
+        spaceId={space.id}
         open={isCreatePostOpen}
         onOpenChange={setCreatePostOpen}
         initialContent={initialPostContent}
         postToEdit={postToEdit}
         onSavePost={handleAddOrUpdatePost}
       />
-    </div>
+    </>
   );
 }

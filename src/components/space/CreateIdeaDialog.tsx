@@ -19,16 +19,22 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
 interface CreateIdeaDialogProps {
-  children: ReactNode;
   onAddIdea: (content: string) => Promise<void>;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  children?: ReactNode;
 }
 
-export function CreateIdeaDialog({ children, onAddIdea }: CreateIdeaDialogProps) {
-  const [open, setOpen] = useState(false);
+export function CreateIdeaDialog({ children, onAddIdea, open: controlledOpen, onOpenChange: controlledOnOpenChange }: CreateIdeaDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [ideaContent, setIdeaContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = controlledOnOpenChange !== undefined ? controlledOnOpenChange : setInternalOpen;
+
 
   const handleCreateIdea = async () => {
     if (ideaContent.trim() && user) {
@@ -53,10 +59,12 @@ export function CreateIdeaDialog({ children, onAddIdea }: CreateIdeaDialogProps)
       }
     }
   };
+  
+  const DialogTriggerComponent = children ? <DialogTrigger asChild>{children}</DialogTrigger> : null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {DialogTriggerComponent}
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-headline">إضافة فكرة جديدة</DialogTitle>

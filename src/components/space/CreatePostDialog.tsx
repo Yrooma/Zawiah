@@ -28,6 +28,7 @@ interface CreatePostDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSavePost: (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }, id?: string) => Promise<void>;
+  spaceId: string;
   initialContent?: string;
   postToEdit?: Post;
   children?: ReactNode;
