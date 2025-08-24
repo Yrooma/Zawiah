@@ -1,7 +1,8 @@
 
-import { db } from './firebase';
+import { db, auth } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp, query, where, writeBatch } from "firebase/firestore";
 import type { Space, Post, Idea, User, AppUser, Notification } from './types';
+import { updateProfile as firebaseUpdateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
 // Helper to convert Firestore timestamp to Date
 const convertTimestamp = (data: any) => {
@@ -36,6 +37,41 @@ export const getUserProfile = async (userId: string): Promise<AppUser | null> =>
         return { uid: userSnap.id, ...userSnap.data() } as AppUser;
     }
     return null;
+}
+
+// Update user profile in Auth and Firestore
+export const updateProfile = async (userId: string, data: { name?: string; avatarUrl?: string }) => {
+    const currentUser = auth.currentUser;
+    if (currentUser && currentUser.uid === userId) {
+        // Update Firebase Auth profile
+        await firebaseUpdateProfile(currentUser, {
+            displayName: data.name,
+            photoURL: data.avatarUrl
+        });
+
+        // Update Firestore user document
+        const userRef = doc(db, "users", userId);
+        const updateData: { name?: string, avatarUrl?: string } = {};
+        if (data.name) updateData.name = data.name;
+        if (data.avatarUrl) updateData.avatarUrl = data.avatarUrl;
+
+        await updateDoc(userRef, updateData);
+    } else {
+        throw new Error("User not authenticated or mismatch.");
+    }
+};
+
+// Update user password
+export const updateUserPassword = async (currentPassword: string, newPassword: string): Promise<void> => {
+    const user = auth.currentUser;
+    if (user && user.email) {
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        // Re-authenticate user before updating password
+        await reauthenticateWithCredential(user, credential);
+        await updatePassword(user, newPassword);
+    } else {
+         throw new Error("User not authenticated or email not available.");
+    }
 }
 
 // Fetch all spaces for the dashboard for a given user
