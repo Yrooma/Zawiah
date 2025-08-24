@@ -243,7 +243,7 @@ export default function SpacePage() {
         spaceId={space.id}
         open={isCreatePostOpen}
         onOpenChange={setCreatePostOpen}
-        initialContent={initialContent}
+        initialContent={initialPostContent}
         postToEdit={postToEdit}
         onSavePost={handleAddOrUpdatePost}
       />
