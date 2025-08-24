@@ -88,7 +88,7 @@ export const addSpace = async (spaceData: { name: string; description: string; t
     const docRef = await addDoc(spacesCol, {
         ...spaceData,
         createdAt: serverTimestamp(),
-        inviteToken: `${spaceData.name.slice(0,4).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+        inviteToken: Math.random().toString(36).substring(2, 10).toUpperCase()
     });
     
     const newSpaceDoc = await getDoc(docRef);
@@ -142,7 +142,7 @@ export const joinSpaceWithToken = async (userId: string, token: string): Promise
     const updatedMemberIds = [...spaceData.memberIds, userId];
 
     const newInviteToken = updatedMemberIds.length < 3
-        ? `${spaceData.name.slice(0,4).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+        ? Math.random().toString(36).substring(2, 10).toUpperCase()
         : null;
 
     await updateDoc(spaceRef, {
