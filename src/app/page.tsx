@@ -14,7 +14,7 @@ export default function LandingPage() {
             <span className="font-headline text-xl font-bold">زاوية</span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-            <Link href="#features" className="transition-colors hover:text-primary">الميزات</Link>
+            <Link href="/features" className="transition-colors hover:text-primary">الميزات</Link>
           </nav>
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild>
@@ -44,7 +44,7 @@ export default function LandingPage() {
           </Button>
         </section>
         
-        <section id="features" className="w-full bg-background py-12 md:py-24">
+        <section id="features-summary" className="w-full bg-background py-12 md:py-24">
             <div className="container mx-auto px-4">
                  <h2 className="text-3xl font-bold text-center font-headline mb-12">كل ما تحتاجه لنجاح المحتوى الخاص بك</h2>
                  <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -63,6 +63,13 @@ export default function LandingPage() {
                         <h3 className="text-xl font-bold font-headline mb-2">بنك الأفكار</h3>
                         <p className="text-muted-foreground">اجمع الأفكار وتبادلها مع فريقك، وحوّلها إلى منشورات بنقرة واحدة.</p>
                     </div>
+                 </div>
+                 <div className="text-center mt-12">
+                    <Button asChild>
+                        <Link href="/features">
+                            عرض كل الميزات <ArrowLeft className="h-4 w-4" />
+                        </Link>
+                    </Button>
                  </div>
             </div>
         </section>
