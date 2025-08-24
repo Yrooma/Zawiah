@@ -1,32 +1,50 @@
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
+    
+    // Users can only read and write their own data.
     match /users/{userId} {
       allow read, write: if request.auth.uid == userId;
     }
 
+    // Rules for the 'spaces' collection
     match /spaces/{spaceId} {
-      // Temporarily allow reads for any authenticated user to fix dashboard loading.
-      // This allows the list query to succeed.
-      allow read: if request.auth.uid != null;
+      // A user can read a space if their UID is in the memberIds list.
+      // This rule works for both getting single documents and for queries.
+      allow read: if request.auth.uid in resource.data.memberIds;
 
-      // Create, update, delete permissions remain more secure.
+      // Any authenticated user can create a space.
       allow create: if request.auth.uid != null;
+      
+      // Any member of a space can update it.
       allow update: if request.auth.uid in resource.data.memberIds;
+      
+      // Only the owner (first member in the list) can delete a space.
       allow delete: if request.auth.uid == resource.data.team[0].id;
-
-      match /{path=**} {
-        allow read, write: if request.auth.uid in get(/databases/$(database)/documents/spaces/$(spaceId)).data.memberIds;
+      
+      // Rules for subcollections within a space (posts, ideas)
+      match /{subcollection}/{docId} {
+          allow read, write: if request.auth.uid in get(/databases/$(database)/documents/spaces/$(spaceId)).data.memberIds;
       }
     }
-
+    
+    // Rules for the 'invites' collection
     match /invites/{inviteId} {
-      // Allow authenticated users to read and write to invites.
-      // Reads are needed for the dashboard, writes for accepting/declining.
-      allow read, write: if request.auth.uid != null;
+        // The user who sent the invite can read it.
+        allow read: if request.auth.uid == resource.data.fromUser.id;
+        // The user who received the invite (by email) can read it.
+        allow read: if request.auth.token.email == resource.data.toEmail;
+        
+        // Any authenticated user can create an invite (the service logic will validate if they are a member).
+        allow create: if request.auth.uid != null;
+        
+        // The invited user can update the status (accept/decline).
+        allow update: if request.auth.token.email == resource.data.toEmail;
     }
 
+    // Rules for the 'notifications' collection
     match /notifications/{notificationId} {
       allow read, write: if request.auth.uid == resource.data.userId;
     }
