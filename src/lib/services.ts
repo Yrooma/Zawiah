@@ -18,6 +18,16 @@ const convertTimestamp = (data: any) => {
     return convert(data);
 };
 
+// Helper to generate a random 8-character alphanumeric token
+const generateRandomToken = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let token = '';
+    for (let i = 0; i < 8; i++) {
+        token += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return token;
+};
+
 // Fetch user profile from Firestore
 export const getUserProfile = async (userId: string): Promise<AppUser | null> => {
     const userRef = doc(db, 'users', userId);
@@ -88,7 +98,7 @@ export const addSpace = async (spaceData: { name: string; description: string; t
     const docRef = await addDoc(spacesCol, {
         ...spaceData,
         createdAt: serverTimestamp(),
-        inviteToken: Math.random().toString(36).substring(2, 10).toUpperCase()
+        inviteToken: generateRandomToken()
     });
     
     const newSpaceDoc = await getDoc(docRef);
@@ -107,6 +117,13 @@ export const updateSpace = async (spaceId: string, name: string, description: st
     const spaceRef = doc(db, 'spaces', spaceId);
     await updateDoc(spaceRef, { name, description });
 };
+
+// Manually regenerate the invite token for a space (owner only)
+export const regenerateInviteToken = async (spaceId: string): Promise<void> => {
+    const spaceRef = doc(db, 'spaces', spaceId);
+    await updateDoc(spaceRef, { inviteToken: generateRandomToken() });
+};
+
 
 // Add a user to a space using an invite token and regenerate the token
 export const joinSpaceWithToken = async (userId: string, token: string): Promise<Space | null> => {
@@ -142,7 +159,7 @@ export const joinSpaceWithToken = async (userId: string, token: string): Promise
     const updatedMemberIds = [...spaceData.memberIds, userId];
 
     const newInviteToken = updatedMemberIds.length < 3
-        ? Math.random().toString(36).substring(2, 10).toUpperCase()
+        ? generateRandomToken()
         : null;
 
     await updateDoc(spaceRef, {

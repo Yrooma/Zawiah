@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type ReactNode, useEffect } from 'react';
-import { Copy, Check, LogOut, Trash2, Loader2 } from 'lucide-react';
+import { Copy, Check, LogOut, Trash2, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,7 +32,7 @@ import { Separator } from '../ui/separator';
 import type { Space } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-import { leaveSpace, deleteSpace, updateSpace } from '@/lib/services';
+import { leaveSpace, deleteSpace, updateSpace, regenerateInviteToken } from '@/lib/services';
 import { Textarea } from '../ui/textarea';
 
 
@@ -49,6 +49,7 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
   const [editedName, setEditedName] = useState(space.name);
   const [editedDescription, setEditedDescription] = useState(space.description);
   const [isSaving, setIsSaving] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const { toast } = useToast();
   const { user } = useAuth();
@@ -69,6 +70,19 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
     toast({ title: "تم نسخ الرمز إلى الحافظة!" });
     setTimeout(() => setHasCopied(false), 2000);
   };
+  
+  const handleRegenerateToken = async () => {
+    setIsRegenerating(true);
+    try {
+        await regenerateInviteToken(space.id);
+        onSpaceUpdate();
+        toast({ title: "تم إنشاء رمز دعوة جديد!" });
+    } catch (error: any) {
+        toast({ variant: 'destructive', title: "خطأ", description: "فشل إنشاء رمز جديد."});
+    } finally {
+        setIsRegenerating(false);
+    }
+  }
 
   const isCurrentUserOwner = user?.uid === space.team[0]?.id;
 
@@ -181,11 +195,14 @@ export function TeamDialog({ children, space, onSpaceUpdate }: TeamDialogProps) 
         {isCurrentUserOwner && space.team.length < 3 && (
             <div className="space-y-2 pt-2">
             <Label htmlFor="link" className="font-medium">الدعوة باستخدام الرمز</Label>
-            <p className='text-xs text-muted-foreground'>سيتم تجديد هذا الرمز بعد كل استخدام.</p>
-            <div className="flex items-center space-x-2">
+            <p className='text-xs text-muted-foreground'>يتم تجديد هذا الرمز تلقائيًا بعد كل استخدام.</p>
+            <div className="flex items-center space-x-2 space-x-reverse">
                 <Input id="link" value={space.inviteToken || "مساحة العمل ممتلئة"} readOnly className="font-mono text-center tracking-widest" />
+                 <Button size="icon" onClick={handleRegenerateToken} disabled={!space.inviteToken || isRegenerating}>
+                    {isRegenerating ? <Loader2 className='animate-spin' /> : <RefreshCw />}
+                </Button>
                 <Button size="icon" onClick={copyToClipboard} disabled={!space.inviteToken}>
-                {hasCopied ? <Check /> : <Copy />}
+                    {hasCopied ? <Check /> : <Copy />}
                 </Button>
             </div>
             </div>
