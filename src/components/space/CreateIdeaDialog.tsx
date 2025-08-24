@@ -67,8 +67,8 @@ export function CreateIdeaDialog({ children, onAddIdea, open: controlledOpen, on
       {DialogTriggerComponent}
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-headline">إضافة فكرة جديدة</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-headline text-start">إضافة فكرة جديدة</DialogTitle>
+          <DialogDescription className="text-start">
             اكتب فكرة المحتوى الخاصة بك. يمكن للفريق رؤيتها والبناء عليها.
           </DialogDescription>
         </DialogHeader>

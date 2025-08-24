@@ -80,14 +80,14 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-headline">إنشاء مساحة جديدة</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-headline text-start">إنشاء مساحة جديدة</DialogTitle>
+          <DialogDescription className="text-start">
             أعط مساحة التعاون الجديدة اسمًا ووصفًا. يمكنك دعوة أعضاء الفريق لاحقًا.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
+            <Label htmlFor="name" className="text-start">
               الاسم
             </Label>
             <Input
@@ -100,7 +100,7 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
             />
           </div>
            <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="description" className="text-right pt-2">
+            <Label htmlFor="description" className="text-start pt-2">
               الوصف
             </Label>
             <Textarea

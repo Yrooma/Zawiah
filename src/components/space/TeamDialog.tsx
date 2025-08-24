@@ -136,8 +136,8 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-headline">إدارة الفريق</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-headline text-start">إدارة الفريق</DialogTitle>
+          <DialogDescription className="text-start">
             {isCurrentUserOwner ? "عدّل تفاصيل المساحة، ادعُ الآخرين، أو قم بإدارة عضويتك." : "ادعُ الآخرين أو قم بإدارة عضويتك في هذه المساحة."}
           </DialogDescription>
         </DialogHeader>
@@ -202,8 +202,8 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
             <div className="space-y-2 pt-2">
             <Label htmlFor="link" className="font-medium">الدعوة باستخدام الرمز</Label>
             <p className='text-xs text-muted-foreground'>يتم تجديد هذا الرمز تلقائيًا بعد كل استخدام.</p>
-            <div className="flex items-center space-x-2 space-x-reverse">
-                <Input id="link" value={space.inviteToken || "مساحة العمل ممتلئة"} readOnly className="font-mono text-center tracking-widest" />
+            <div className="flex items-center space-x-2">
+                <Input id="link" value={space.inviteToken || "مساحة العمل ممتلئة"} readOnly className="font-mono text-center tracking-widest" dir="ltr" />
                  <Button size="icon" onClick={handleRegenerateToken} disabled={!space.inviteToken || isRegenerating}>
                     {isRegenerating ? <Loader2 className='animate-spin' /> : <RefreshCw />}
                 </Button>

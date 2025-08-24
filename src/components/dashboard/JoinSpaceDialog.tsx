@@ -68,14 +68,14 @@ export function JoinSpaceDialog({ children, onSpaceJoined }: JoinSpaceDialogProp
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-headline">الانضمام إلى مساحة عمل</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-headline text-start">الانضمام إلى مساحة عمل</DialogTitle>
+          <DialogDescription className="text-start">
             أدخل رمز الدعوة الذي تلقيته للانضمام إلى مساحة عمل جديدة.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="token" className="text-right">
+            <Label htmlFor="token" className="text-start">
               الرمز
             </Label>
             <Input

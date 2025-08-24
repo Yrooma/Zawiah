@@ -58,7 +58,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg p-0 flex flex-col" side="right">
+      <SheetContent className="w-full sm:max-w-lg p-0 flex flex-col" side="left">
         <SheetHeader className="p-6 pb-4">
           <div className="flex justify-between items-start">
             <SheetTitle className="font-headline text-2xl">{post.title}</SheetTitle>
@@ -130,7 +130,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
                                 <span className="font-medium">{log.user.name}</span>
                                 <span className="text-muted-foreground"> {log.action.toLowerCase()}</span>
                             </div>
-                            <span className="me-auto text-xs text-muted-foreground">{log.date}</span>
+                            <span className="ms-auto text-xs text-muted-foreground">{log.date}</span>
                         </li>
                     ))}
                 </ul>

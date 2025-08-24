@@ -60,14 +60,14 @@ export function CalendarTab({ posts, onUpdatePostStatus, onEditPost }: CalendarT
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-7 border-t border-l rounded-t-lg">
+      <div className="grid grid-cols-7 border-t border-e rounded-t-lg">
         {WEEKDAYS.map((day) => (
-          <div key={day} className="text-center font-medium text-muted-foreground p-2 border-r border-b bg-muted/50 text-xs sm:text-sm">
+          <div key={day} className="text-center font-medium text-muted-foreground p-2 border-s border-b bg-muted/50 text-xs sm:text-sm">
             {day}
           </div>
         ))}
         {Array.from({ length: startingDayIndex }).map((_, i) => (
-          <div key={`empty-${i}`} className="border-r border-b" />
+          <div key={`empty-${i}`} className="border-s border-b" />
         ))}
         {daysInMonth.map((day) => {
           const postsForDay = posts.filter(post => isSameDay(post.scheduledAt, day));
@@ -75,7 +75,7 @@ export function CalendarTab({ posts, onUpdatePostStatus, onEditPost }: CalendarT
             <div
               key={day.toString()}
               className={cn(
-                'relative min-h-[100px] p-1 sm:p-2 border-r border-b',
+                'relative min-h-[100px] p-1 sm:p-2 border-s border-b',
                 !isSameMonth(day, currentDate) && 'bg-muted/30',
                 isToday(day) && 'bg-blue-100 dark:bg-blue-900/30'
               )}

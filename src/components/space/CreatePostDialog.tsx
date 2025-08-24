@@ -118,14 +118,14 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
       {children}
       <DialogContent className="sm:max-w-[525px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-headline">{isEditing ? 'تعديل المنشور' : 'إنشاء منشور جديد'}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-headline text-start">{isEditing ? 'تعديل المنشور' : 'إنشاء منشور جديد'}</DialogTitle>
+          <DialogDescription className="text-start">
             {isEditing ? 'عدّل تفاصيل المنشور أدناه.' : 'املأ التفاصيل أدناه لإنشاء مسودة منشور جديدة.'}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="title" className="text-right">
+            <Label htmlFor="title" className="text-start">
               العنوان
             </Label>
             <Input
@@ -138,7 +138,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
             />
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="content" className="text-right pt-2">
+            <Label htmlFor="content" className="text-start pt-2">
               المحتوى
             </Label>
             <Textarea
@@ -151,7 +151,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="platform" className="text-right">
+            <Label htmlFor="platform" className="text-start">
               المنصة
             </Label>
             <Select value={platform} onValueChange={(value: Platform) => setPlatform(value)} disabled={isLoading}>
@@ -171,7 +171,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
             </Select>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-             <Label htmlFor="date" className="text-right">
+             <Label htmlFor="date" className="text-start">
               تاريخ النشر
             </Label>
              <Popover>
@@ -179,12 +179,12 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
                 <Button
                   variant={"outline"}
                   className={cn(
-                    "col-span-3 justify-start text-left font-normal",
+                    "col-span-3 justify-start text-start font-normal",
                     !scheduledAt && "text-muted-foreground"
                   )}
                   disabled={isLoading}
                 >
-                  <CalendarIcon className="ms-2 h-4 w-4" />
+                  <CalendarIcon className="me-2 h-4 w-4" />
                   {scheduledAt ? format(scheduledAt, 'PPP') : <span>اختر تاريخًا</span>}
                 </Button>
               </PopoverTrigger>
