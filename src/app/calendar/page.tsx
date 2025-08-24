@@ -7,9 +7,11 @@ import { getSpaces, updatePost } from '@/lib/services';
 import type { Space, Post, Platform, PostStatus, User } from '@/lib/types';
 import { CalendarTab } from '@/components/space/CalendarTab';
 import { CreatePostDialog } from '@/components/space/CreatePostDialog';
-import { Loader2 } from 'lucide-react';
+import { Loader2, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { Button } from '@/components/ui/button';
+import { CreateItemDialog } from '@/components/layout/CreateItemDialog';
 
 export default function PersonalCalendarPage() {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
@@ -19,6 +21,7 @@ export default function PersonalCalendarPage() {
   const router = useRouter();
 
   const [isCreatePostOpen, setCreatePostOpen] = useState(false);
+  const [isCreateItemOpen, setCreateItemOpen] = useState(false);
   const [postToEdit, setPostToEdit] = useState<Post | undefined>(undefined);
   const { toast } = useToast();
 
@@ -111,7 +114,7 @@ export default function PersonalCalendarPage() {
 
   if (isLoading || authLoading) {
     return (
-      <div className="flex justify-center items-center h-full">
+      <div className="flex justify-center items-center h-full pt-16">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
@@ -119,9 +122,16 @@ export default function PersonalCalendarPage() {
 
   return (
     <main className="flex-1 p-4 md:p-8">
-        <h1 className="text-3xl font-headline font-bold text-foreground mb-6">
-            التقويم الشخصي
-        </h1>
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <h1 className="text-3xl font-headline font-bold text-foreground">
+                التقويم الشخصي
+            </h1>
+            <Button onClick={() => setCreateItemOpen(true)}>
+                <PlusCircle />
+                <span>إنشاء جديد</span>
+            </Button>
+        </div>
         <CalendarTab 
             posts={allPosts} 
             onUpdatePostStatus={handleUpdatePostStatus} 
@@ -136,6 +146,8 @@ export default function PersonalCalendarPage() {
             onSavePost={handleAddOrUpdatePost}
           />
         )}
+        <CreateItemDialog open={isCreateItemOpen} onOpenChange={setCreateItemOpen} />
+      </div>
     </main>
   );
 }

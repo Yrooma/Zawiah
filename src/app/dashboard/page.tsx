@@ -58,17 +58,17 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-headline font-bold text-foreground">
             مساحات العمل الخاصة بك
           </h1>
-          <div className='hidden sm:flex items-center gap-2'>
+          <div className='flex items-center gap-2'>
             <JoinSpaceDialog onSpaceJoined={handleSpaceJoined}>
               <Button variant="outline">
                 <UserPlus />
-                <span className="hidden sm:inline-block">انضم إلى مساحة عمل</span>
+                <span className="hidden sm:inline-block">انضم</span>
               </Button>
             </JoinSpaceDialog>
             <CreateSpaceDialog onSpaceCreated={handleSpaceCreated}>
               <Button>
                 <PlusCircle />
-                <span className="hidden sm:inline-block">إنشاء مساحة جديدة</span>
+                <span className="hidden sm:inline-block">مساحة جديدة</span>
               </Button>
             </CreateSpaceDialog>
           </div>

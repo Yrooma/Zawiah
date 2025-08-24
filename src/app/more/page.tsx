@@ -4,18 +4,20 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Settings, User } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { LogOut, Settings, User, LifeBuoy } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function MorePage() {
     const { user, signOut } = useAuth();
+    const router = useRouter();
 
     if (!user) {
         return null;
     }
 
     return (
-        <main className="flex-1 p-4 md:p-8">
+        <main className="flex-1 p-4 md:p-8 max-w-2xl mx-auto">
             <h1 className="text-3xl font-headline font-bold text-foreground mb-6">
                 المزيد
             </h1>
@@ -37,6 +39,12 @@ export default function MorePage() {
                             <Button variant="ghost" className="w-full justify-start gap-3">
                                 <User className="h-5 w-5 text-muted-foreground" />
                                 <span>الملف الشخصي</span>
+                            </Button>
+                        </li>
+                        <li>
+                            <Button variant="ghost" className="w-full justify-start gap-3" onClick={() => router.push('/guide')}>
+                                <LifeBuoy className="h-5 w-5 text-muted-foreground" />
+                                <span>الدليل</span>
                             </Button>
                         </li>
                          <li>
