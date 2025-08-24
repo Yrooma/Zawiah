@@ -1,0 +1,78 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isSpaceMember(spaceId) {
+      return get(/databases/$(database)/documents/spaces/$(spaceId)).data.memberIds.hasAny([request.auth.uid]);
+    }
+    
+    function isSpaceOwner(spaceId) {
+      return get(/databases/$(database)/documents/spaces/$(spaceId)).data.team[0].id == request.auth.uid;
+    }
+    
+    // USERS collection
+    match /users/{userId} {
+      // Users can read their own profile
+      allow get: if isAuthenticated() && isUser(userId);
+      // Users can create their own profile during signup
+      allow create: if isAuthenticated() && isUser(userId);
+      // Users can update their own profile
+      allow update: if isAuthenticated() && isUser(userId);
+      allow delete: if false; // Nobody can delete a user profile document
+    }
+
+    // SPACES collection
+    match /spaces/{spaceId} {
+      // Allow read/get if user is a member of the space
+      allow get, list: if isAuthenticated() && isSpaceMember(spaceId);
+      
+      // Allow creation if the user is authenticated and is listed as the owner.
+      // And validate the data structure.
+      allow create: if isAuthenticated() 
+                    && isUser(request.resource.data.team[0].id)
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.memberIds[0] == request.auth.uid;
+
+      // Allow update if the user is a member (e.g., joining, leaving)
+      allow update: if isAuthenticated() && isSpaceMember(spaceId);
+      
+      // Only the owner can delete the space
+      allow delete: if isAuthenticated() && isSpaceOwner(spaceId);
+
+      // Subcollections for Posts and Ideas
+      match /posts/{postId} {
+        // Allow CRUD if user is a member of the parent space
+        allow read, write: if isAuthenticated() && isSpaceMember(spaceId);
+      }
+      
+      match /ideas/{ideaId} {
+         // Allow CRUD if user is a member of the parent space
+        allow read, write: if isAuthenticated() && isSpaceMember(spaceId);
+      }
+    }
+    
+    // NOTIFICATIONS collection
+    match /notifications/{notificationId} {
+      // Users can only read their own notifications
+      allow get, list: if isAuthenticated() && get(/databases/$(database)/documents/notifications/$(notificationId)).data.userId == request.auth.uid;
+      // Notifications can only be created for members of a space (this is handled in backend logic, but we can restrict write access)
+      allow create: if isAuthenticated();
+      // Users can only update their own notifications (e.g., mark as read)
+      allow update: if isAuthenticated() && get(/databases/$(database)/documents/notifications/$(notificationId)).data.userId == request.auth.uid;
+      // Nobody can delete notifications directly
+      allow delete: if false;
+    }
+  }
+}

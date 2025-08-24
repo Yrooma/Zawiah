@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       uid: firebaseUser.uid,
       email: firebaseUser.email,
       name,
-      avatarUrl: `https://placehold.co/100x100/EFEFEFF/333333?text=${name.charAt(0)}`
+      avatarUrl: `https://placehold.co/100x100/EFEFEFF/333333?text=${encodeURIComponent(name.charAt(0))}`
     };
 
     await setDoc(doc(db, "users", firebaseUser.uid), {
