@@ -233,7 +233,7 @@ export default function SpacePage() {
                 onConvertToPost={handleOpenCreatePostDialog}
                 onAddIdea={handleAddIdea}
                 onDeleteIdea={handleDeleteIdea}
-                onUpdateIdea={onUpdateIdea}
+                onUpdateIdea={handleUpdateIdea}
               />
             </TabsContent>
           </Tabs>
