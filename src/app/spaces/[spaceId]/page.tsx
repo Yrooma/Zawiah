@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, use } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { notFound, useRouter, useParams } from 'next/navigation';
 import { getSpaceById, addPost, updatePost, addIdea, deleteIdea, updateIdea } from '@/lib/services';
 import type { Space, Post, Platform, PostStatus, Idea, User } from '@/lib/types';
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
 import { CalendarTab } from '@/components/space/CalendarTab';
 import { IdeasTab } from '@/components/space/IdeasTab';
+import { PostsTab } from '@/components/space/PostsTab';
 import { CreatePostDialog } from '@/components/space/CreatePostDialog';
 import React from 'react';
 import { Loader2 } from 'lucide-react';
@@ -215,12 +216,16 @@ export default function SpacePage() {
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <Tabs defaultValue="calendar" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
+            <TabsList className="grid w-full grid-cols-3 md:w-[400px]">
               <TabsTrigger value="calendar">التقويم</TabsTrigger>
+              <TabsTrigger value="posts">المنشورات</TabsTrigger>
               <TabsTrigger value="ideas">الأفكار</TabsTrigger>
             </TabsList>
             <TabsContent value="calendar" className="mt-6">
               <CalendarTab posts={space.posts} onUpdatePostStatus={handleUpdatePostStatus} onEditPost={handleOpenEditPostDialog} />
+            </TabsContent>
+            <TabsContent value="posts" className="mt-6">
+              <PostsTab posts={space.posts} onEditPost={handleOpenEditPostDialog} />
             </TabsContent>
             <TabsContent value="ideas" className="mt-6">
               <IdeasTab 
