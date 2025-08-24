@@ -20,9 +20,13 @@ import { Loader2 } from 'lucide-react';
 import { FirebaseError } from 'firebase/app';
 import { cn } from '@/lib/utils';
 
+const BANNED_AVATAR_CHARS = ['ز', 'ب', 'ف', 'ك', 'س', 'ط', 'ق', 'ح', 'ر', 'زب', 'فك', 'كس', 'طز', 'زق', 'قح', 'رب'];
+
 const profileFormSchema = z.object({
   name: z.string().min(2, { message: "يجب أن يكون الاسم حرفين على الأقل." }),
-  avatarText: z.string().refine(val => Array.from(val).length === 1, { message: 'يجب أن يكون حرفًا واحدًا أو رمزًا تعبيريًا.' }),
+  avatarText: z.string()
+    .refine(val => Array.from(val).length === 1, { message: 'يجب أن يكون حرفًا واحدًا أو رمزًا تعبيريًا.' })
+    .refine(val => !BANNED_AVATAR_CHARS.includes(val.trim().toLowerCase()), { message: 'هذا الحرف غير مسموح به. يرجى اختيار حرف آخر.' }),
   avatarColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, { message: 'لون غير صالح.' })
 });
 
