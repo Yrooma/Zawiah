@@ -60,6 +60,16 @@ export type Space = {
   ideas: Idea[];
 };
 
+export type Invite = {
+    id: string;
+    spaceId: string;
+    spaceName: string;
+    fromUser: User;
+    toEmail: string;
+    status: 'pending' | 'accepted' | 'declined';
+    createdAt: Timestamp;
+}
+
 export type Notification = {
   id: string;
   userId: string; // The user who should receive the notification

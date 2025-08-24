@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type ReactNode, useEffect } from 'react';
-import { LogOut, Trash2, Loader2 } from 'lucide-react';
+import { LogOut, Trash2, Loader2, Send } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,17 +22,16 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
-import type { Space } from '@/lib/types';
+import type { Space, User } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-import { leaveSpace, deleteSpace, updateSpace } from '@/lib/services';
+import { leaveSpace, deleteSpace, updateSpace, createInvite } from '@/lib/services';
 import { Textarea } from '../ui/textarea';
 
 
@@ -49,6 +48,8 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
   const [editedName, setEditedName] = useState(initialSpace.name);
   const [editedDescription, setEditedDescription] = useState(initialSpace.description);
   const [isSaving, setIsSaving] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [isInviting, setIsInviting] = useState(false);
 
   const { toast } = useToast();
   const { user } = useAuth();
@@ -63,10 +64,12 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
       setEditedName(space.name);
       setEditedDescription(space.description);
       setIsEditing(false);
+      setInviteEmail("");
     }
   }, [open, space]);
 
   const isCurrentUserOwner = user?.uid === space.team[0]?.id;
+  const isTeamFull = space.team.length >= 3;
 
   const handleLeaveSpace = async () => {
     if (!user) return;
@@ -107,6 +110,33 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
         setIsSaving(false);
     }
   }
+  
+  const handleInviteUser = async () => {
+    if (!inviteEmail.trim() || !user) return;
+    
+    // Simple email validation
+    if (!/^\S+@\S+\.\S+$/.test(inviteEmail)) {
+        toast({ variant: 'destructive', title: "بريد إلكتروني غير صالح", description: "الرجاء إدخال عنوان بريد إلكتروني صالح." });
+        return;
+    }
+
+    if (inviteEmail === user.email) {
+      toast({ variant: 'destructive', title: "لا يمكنك دعوة نفسك." });
+      return;
+    }
+
+    setIsInviting(true);
+    try {
+        const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl, avatarColor: user.avatarColor, avatarText: user.avatarText };
+        await createInvite(space, currentUser, inviteEmail);
+        toast({ title: "تم إرسال الدعوة بنجاح!", description: `تم إرسال دعوة إلى ${inviteEmail} للانضمام إلى مساحتك.`});
+        setInviteEmail("");
+    } catch(error: any) {
+        toast({ variant: 'destructive', title: "فشل إرسال الدعوة", description: error.message });
+    } finally {
+        setIsInviting(false);
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -115,7 +145,7 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
         <DialogHeader>
           <DialogTitle className="font-headline text-start">إدارة الفريق</DialogTitle>
           <DialogDescription className="text-start">
-            {isCurrentUserOwner ? "عدّل تفاصيل المساحة أو قم بإدارة عضويتك." : "قم بإدارة عضويتك في هذه المساحة."}
+            {isCurrentUserOwner ? "عدّل تفاصيل المساحة، قم بدعوة أعضاء جدد، أو قم بإدارة عضويتك." : "قم بإدارة عضويتك في هذه المساحة."}
           </DialogDescription>
         </DialogHeader>
 
@@ -172,6 +202,31 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
             ))}
             </div>
         </div>
+
+        {isCurrentUserOwner && (
+            <>
+            <Separator />
+            <div className="py-2 text-start">
+                <h3 className="text-sm font-medium mb-2">دعوة عضو جديد</h3>
+                {isTeamFull ? (
+                    <p className="text-sm text-muted-foreground">مساحة العمل ممتلئة. لا يمكنك إضافة المزيد من الأعضاء.</p>
+                ) : (
+                    <div className="flex gap-2">
+                        <Input 
+                            type="email" 
+                            placeholder="أدخل البريد الإلكتروني للعضو"
+                            value={inviteEmail}
+                            onChange={(e) => setInviteEmail(e.target.value)}
+                            disabled={isInviting}
+                        />
+                        <Button onClick={handleInviteUser} disabled={isInviting || !inviteEmail}>
+                            {isInviting ? <Loader2 className="animate-spin" /> : <Send />}
+                        </Button>
+                    </div>
+                )}
+            </div>
+            </>
+        )}
         
         <Separator />
 

@@ -1,7 +1,7 @@
 
 import { db, auth } from './firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp, query, where, writeBatch } from "firebase/firestore";
-import type { Space, Post, Idea, User, AppUser, Notification } from './types';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp, query, where, writeBatch, runTransaction } from "firebase/firestore";
+import type { Space, Post, Idea, User, AppUser, Notification, Invite } from './types';
 import { updateProfile as firebaseUpdateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
 
 // Helper to convert Firestore timestamp to Date
@@ -280,4 +280,107 @@ export const markNotificationsAsRead = async (notificationIds: string[]): Promis
         batch.update(notifRef, { read: true });
     });
     await batch.commit();
+};
+
+// --- Invitation System ---
+
+// Create an invitation
+export const createInvite = async (space: Space, fromUser: User, toEmail: string): Promise<void> => {
+  // 1. Check if user is already a member
+  const userQuery = query(collection(db, "users"), where("email", "==", toEmail));
+  const userSnapshot = await getDocs(userQuery);
+  if (!userSnapshot.empty) {
+    const existingUserId = userSnapshot.docs[0].id;
+    if (space.memberIds.includes(existingUserId)) {
+      throw new Error("This user is already a member of the space.");
+    }
+  }
+
+  // 2. Check for an existing pending invite
+  const invitesRef = collection(db, 'invites');
+  const existingInviteQuery = query(invitesRef, 
+    where('spaceId', '==', space.id), 
+    where('toEmail', '==', toEmail),
+    where('status', '==', 'pending')
+  );
+  const existingInviteSnapshot = await getDocs(existingInviteQuery);
+  if (!existingInviteSnapshot.empty) {
+    throw new Error("An invitation has already been sent to this email address.");
+  }
+  
+  // 3. Create the invite
+  await addDoc(invitesRef, {
+    spaceId: space.id,
+    spaceName: space.name,
+    fromUser,
+    toEmail,
+    status: 'pending',
+    createdAt: serverTimestamp(),
+  });
+};
+
+// Get all pending invites for a user by email
+export const getInvitesForUser = async (email: string): Promise<Invite[]> => {
+  const invitesRef = collection(db, 'invites');
+  const q = query(invitesRef, where('toEmail', '==', email), where('status', '==', 'pending'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(d => convertTimestamp({ id: d.id, ...d.data() }) as Invite);
+};
+
+// Accept an invitation
+export const acceptInvite = async (inviteId: string, user: AppUser): Promise<void> => {
+  await runTransaction(db, async (transaction) => {
+    const inviteRef = doc(db, "invites", inviteId);
+    const inviteDoc = await transaction.get(inviteRef);
+
+    if (!inviteDoc.exists() || inviteDoc.data().toEmail !== user.email) {
+      throw new Error("Invitation not found or invalid.");
+    }
+    
+    const invite = inviteDoc.data() as Invite;
+    const spaceRef = doc(db, "spaces", invite.spaceId);
+    const spaceDoc = await transaction.get(spaceRef);
+    
+    if (!spaceDoc.exists()) {
+        throw new Error("The invited space no longer exists.");
+    }
+
+    const space = spaceDoc.data() as Space;
+
+    if (space.team.length >= 3) {
+      throw new Error("This space is full.");
+    }
+
+    const newUser: User = {
+        id: user.uid,
+        name: user.name,
+        avatarUrl: user.avatarUrl,
+        avatarText: user.avatarText,
+        avatarColor: user.avatarColor,
+    };
+    
+    // Update space and invite in a transaction
+    transaction.update(spaceRef, {
+        memberIds: [...space.memberIds, user.uid],
+        team: [...space.team, newUser]
+    });
+    transaction.update(inviteRef, { status: 'accepted' });
+
+    // Create a notification for the inviter
+    const notificationsCol = collection(db, 'notifications');
+    const newNotifRef = doc(notificationsCol);
+    transaction.set(newNotifRef, {
+        userId: invite.fromUser.id,
+        message: `${user.name} accepted your invitation to join "${invite.spaceName}"`,
+        link: `/spaces/${invite.spaceId}`,
+        read: false,
+        createdAt: serverTimestamp(),
+    });
+  });
+};
+
+// Decline an invitation
+export const declineInvite = async (inviteId: string): Promise<void> => {
+  const inviteRef = doc(db, 'invites', inviteId);
+  await updateDoc(inviteRef, { status: 'declined' });
 };
