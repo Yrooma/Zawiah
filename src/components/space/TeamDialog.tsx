@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type ReactNode, useEffect } from 'react';
-import { LogOut, Trash2, Loader2, Send } from 'lucide-react';
+import { LogOut, Trash2, Loader2, Copy, Check, RefreshCw } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,7 +32,7 @@ import { Separator } from '../ui/separator';
 import type { Space, User } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-import { leaveSpace, deleteSpace, updateSpace, createInvite } from '@/lib/services';
+import { leaveSpace, deleteSpace, updateSpace, generateSpaceInviteToken, revokeInviteToken } from '@/lib/services';
 import { Textarea } from '../ui/textarea';
 
 
@@ -49,8 +49,8 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
   const [editedName, setEditedName] = useState(initialSpace.name);
   const [editedDescription, setEditedDescription] = useState(initialSpace.description);
   const [isSaving, setIsSaving] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [isInviting, setIsInviting] = useState(false);
+  const [isGeneratingToken, setIsGeneratingToken] = useState(false);
+  const [hasCopied, setHasCopied] = useState(false);
 
   const { toast } = useToast();
   const { user } = useAuth();
@@ -65,7 +65,7 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
       setEditedName(space.name);
       setEditedDescription(space.description);
       setIsEditing(false);
-      setInviteEmail("");
+      setHasCopied(false);
     }
   }, [open, space]);
 
@@ -112,30 +112,40 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
     }
   }
   
-  const handleInviteUser = async () => {
-    if (!inviteEmail.trim() || !user) return;
+  const handleGenerateToken = async () => {
+    if (!user) return;
     
-    // Simple email validation
-    if (!/^\S+@\S+\.\S+$/.test(inviteEmail)) {
-        toast({ variant: 'destructive', title: "بريد إلكتروني غير صالح", description: "الرجاء إدخال عنوان بريد إلكتروني صالح." });
-        return;
-    }
-
-    if (inviteEmail === user.email) {
-      toast({ variant: 'destructive', title: "لا يمكنك دعوة نفسك." });
-      return;
-    }
-
-    setIsInviting(true);
+    setIsGeneratingToken(true);
     try {
-        const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl, avatarColor: user.avatarColor, avatarText: user.avatarText };
-        await createInvite(space, currentUser, inviteEmail);
-        toast({ title: "تم إرسال الدعوة بنجاح!", description: `تم إرسال دعوة إلى ${inviteEmail} للانضمام إلى مساحتك.`});
-        setInviteEmail("");
+        const token = await generateSpaceInviteToken(space.id, user.uid);
+        setSpace(prev => ({...prev, inviteToken: token }));
+        // Don't call onSpaceUpdate() to prevent dialog from closing
+        toast({ title: "تم إنشاء رمز الدعوة!", description: "يمكن للأعضاء الجدد استخدام هذا الرمز للانضمام إلى مساحتك." });
     } catch(error: any) {
-        toast({ variant: 'destructive', title: "فشل إرسال الدعوة", description: error.message });
+        toast({ variant: 'destructive', title: "فشل إنشاء رمز الدعوة", description: error.message });
     } finally {
-        setIsInviting(false);
+        setIsGeneratingToken(false);
+    }
+  }
+
+  const handleCopyToken = () => {
+    if (!space.inviteToken) return;
+    navigator.clipboard.writeText(space.inviteToken);
+    setHasCopied(true);
+    toast({ title: "تم نسخ الرمز!", description: "يمكنك الآن مشاركة رمز الدعوة مع الأعضاء الجدد." });
+    setTimeout(() => setHasCopied(false), 2000);
+  }
+
+  const handleRevokeToken = async () => {
+    if (!user) return;
+    
+    try {
+        await revokeInviteToken(space.id, user.uid);
+        setSpace(prev => ({...prev, inviteToken: undefined }));
+        // Don't call onSpaceUpdate() to prevent dialog from closing
+        toast({ title: "تم إلغاء رمز الدعوة", description: "لم يعد بإمكان استخدام الرمز السابق للانضمام." });
+    } catch(error: any) {
+        toast({ variant: 'destructive', title: "فشل إلغاء رمز الدعوة", description: error.message });
     }
   }
 
@@ -208,21 +218,43 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
             <>
             <Separator />
             <div className="py-2 text-start">
-                <h3 className="text-sm font-medium mb-2">دعوة عضو جديد</h3>
+                <h3 className="text-sm font-medium mb-2">رمز دعوة الأعضاء</h3>
                 {isTeamFull ? (
                     <p className="text-sm text-muted-foreground">مساحة العمل ممتلئة. لا يمكنك إضافة المزيد من الأعضاء.</p>
+                ) : space.inviteToken ? (
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                            <Input 
+                                value={space.inviteToken}
+                                readOnly
+                                className="font-mono text-center tracking-widest"
+                            />
+                            <Button size="icon" onClick={handleCopyToken}>
+                                {hasCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            </Button>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button variant="outline" size="sm" onClick={handleGenerateToken} disabled={isGeneratingToken}>
+                                {isGeneratingToken ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                                إنشاء رمز جديد
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={handleRevokeToken}>
+                                إلغاء الرمز
+                            </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            شارك هذا الرمز مع الأعضاء الجدد للانضمام إلى مساحتك. الرمز صالح لمدة 7 أيام.
+                        </p>
+                    </div>
                 ) : (
-                    <div className="flex gap-2">
-                        <Input 
-                            type="email" 
-                            placeholder="أدخل البريد الإلكتروني للعضو"
-                            value={inviteEmail}
-                            onChange={(e) => setInviteEmail(e.target.value)}
-                            disabled={isInviting}
-                        />
-                        <Button onClick={handleInviteUser} disabled={isInviting || !inviteEmail}>
-                            {isInviting ? <Loader2 className="animate-spin" /> : <Send />}
+                    <div className="space-y-2">
+                        <Button onClick={handleGenerateToken} disabled={isGeneratingToken} className="w-full">
+                            {isGeneratingToken ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                            إنشاء رمز دعوة
                         </Button>
+                        <p className="text-xs text-muted-foreground">
+                            أنشئ رمزًا مكونًا من 8 أحرف لدعوة أعضاء جدد إلى مساحتك.
+                        </p>
                     </div>
                 )}
             </div>

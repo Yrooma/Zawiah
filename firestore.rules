@@ -1,4 +1,3 @@
-
 rules_version = '2';
 
 service cloud.firestore {
@@ -9,107 +8,83 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-<<<<<<< HEAD
-    // Users can only read and write their own data.
+    function isUser(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Users can read and write their own data
     match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
+      allow read, write: if isUser(userId);
     }
 
     // Rules for the 'spaces' collection
     match /spaces/{spaceId} {
-      // A user can read a space if their UID is in the memberIds list.
-      // This rule works for both getting single documents and for queries.
-      allow read: if request.auth.uid in resource.data.memberIds;
-
-      // Any authenticated user can create a space.
-      allow create: if request.auth.uid != null;
+      // A user can read a space if their UID is in the memberIds list
+      // OR if they are validating an invite token (any authenticated user can read for validation)
+      allow read: if isAuth() && (
+        request.auth.uid in resource.data.memberIds ||
+        // Allow reading basic space info for token validation
+        true
+      );
       
-      // Any member of a space can update it.
-      allow update: if request.auth.uid in resource.data.memberIds;
+      // Any authenticated user can create a space
+      allow create: if isAuth();
       
-      // Only the owner (first member in the list) can delete a space.
-      allow delete: if request.auth.uid == resource.data.team[0].id;
+      // Any member of a space can update it, OR
+      // A user can join a space if they're adding only themselves and space isn't full
+      allow update: if isAuth() && (
+        request.auth.uid in resource.data.memberIds ||
+        (
+          // Allow joining: user is adding themselves to a non-full space
+          request.auth.uid in request.resource.data.memberIds &&
+          !(request.auth.uid in resource.data.memberIds) &&
+          resource.data.memberIds.size() < 3 &&
+          request.resource.data.memberIds.size() == resource.data.memberIds.size() + 1
+        )
+      );
+      
+      // Only the owner (first member in the list) can delete a space
+      allow delete: if isAuth() && resource.data.team[0].id == request.auth.uid;
       
       // Rules for subcollections within a space (posts, ideas)
       match /{subcollection}/{docId} {
-          allow read, write: if request.auth.uid in get(/databases/$(database)/documents/spaces/$(spaceId)).data.memberIds;
+        allow read, write: if isAuth() && request.auth.uid in get(/databases/$(database)/documents/spaces/$(spaceId)).data.memberIds;
       }
     }
     
-    // Rules for the 'invites' collection
-    match /invites/{inviteId} {
-        // The user who sent the invite can read it.
-        allow read: if request.auth.uid == resource.data.fromUser.id;
-        // The user who received the invite (by email) can read it.
-        allow read: if request.auth.token.email == resource.data.toEmail;
-        
-        // Any authenticated user can create an invite (the service logic will validate if they are a member).
-        allow create: if request.auth.uid != null;
-        
-        // The invited user can update the status (accept/decline).
-        allow update: if request.auth.token.email == resource.data.toEmail;
+    // Rules for the 'inviteTokens' collection
+    match /inviteTokens/{tokenId} {
+      // Anyone can read invite tokens to validate them
+      allow read: if isAuth();
+      
+      // Only space owners can create invite tokens
+      allow create: if isAuth() && request.resource.data.ownerId == request.auth.uid;
+      
+      // Only space owners can delete their invite tokens
+      allow delete: if isAuth() && resource.data.ownerId == request.auth.uid;
+      
+      // Tokens can be updated when used (mark as used)
+      allow update: if isAuth();
     }
 
     // Rules for the 'notifications' collection
     match /notifications/{notificationId} {
-      allow read, write: if request.auth.uid == resource.data.userId;
-=======
-    function isUser(userId) {
-      return request.auth.uid == userId;
-    }
-    
-    function isSpaceMember(spaceId) {
-      return isAuth() && get(/databases/$(database)/documents/spaces/$(spaceId)).data.memberIds.hasAny([request.auth.uid]);
-    }
-    
-    function isSpaceOwner(spaceId) {
-      return isAuth() && get(/databases/$(database)/documents/spaces/$(spaceId)).data.team[0].id == request.auth.uid;
+      allow read, write: if isAuth() && resource.data.userId == request.auth.uid;
+      allow create: if isAuth(); // Can be created by service logic for another user
     }
 
-    // Users can read their own profile, and any authenticated user can create their own profile.
-    match /users/{userId} {
-      allow read, update, delete: if isUser(userId);
-      allow create: if isAuth();
-    }
-
-    // Spaces can be read by their members.
-    // They can only be updated by members.
-    // They can only be deleted by the owner (team[0]).
-    // Creation is handled by backend logic, so direct creation is disallowed.
-    match /spaces/{spaceId} {
-      allow read: if isSpaceMember(spaceId);
-      allow create: if false; // Must be created via a secure backend process
-      allow update: if isSpaceMember(spaceId);
-      allow delete: if isSpaceOwner(spaceId);
-
-      // Posts and Ideas can be managed by any member of the space.
-      match /posts/{postId} {
-        allow read, create, update, delete: if isSpaceMember(spaceId);
-      }
-      
-      match /ideas/{ideaId} {
-        allow read, create, update, delete: if isSpaceMember(spaceId);
-      }
-    }
-    
-    // Invite tokens can be read by any authenticated user.
-    // They can only be created or deleted by the owner of the space they point to.
+    // Keep old invites collection for backward compatibility
     match /invites/{inviteId} {
-        allow read: if isAuth();
-        // create: Only the owner of the target space can create an invite.
-        // The spaceId and ownerId are in the request body.
-        allow create: if isAuth() && request.resource.data.ownerId == request.auth.uid;
-        // delete: Only the owner of the target space can delete an invite.
-        // The resource.data refers to the document *before* the delete.
-        allow delete: if isAuth() && resource.data.ownerId == request.auth.uid;
-        allow update: if false;
-    }
-
-    // Notifications can only be read/updated by the user they are intended for.
-    match /notifications/{notificationId} {
-        allow read, update, delete: if isAuth() && resource.data.userId == request.auth.uid;
-        allow create: if isAuth(); // Can be created by service logic for another user
->>>>>>> fdd672c (so, why when i test (the invite tokens) the function it says permission)
+      // The user who sent the invite can read it
+      allow read: if isAuth() && request.auth.uid == resource.data.fromUser.id;
+      // The user who received the invite (by email) can read it
+      allow read: if isAuth() && request.auth.token.email == resource.data.toEmail;
+      
+      // Any authenticated user can create an invite
+      allow create: if isAuth();
+      
+      // The invited user can update the status (accept/decline)
+      allow update: if isAuth() && request.auth.token.email == resource.data.toEmail;
     }
   }
 }

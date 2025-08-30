@@ -2,11 +2,12 @@
 "use client";
 
 import Link from 'next/link';
-import { PlusCircle, Loader2, Mail, Check, X } from 'lucide-react';
+import { PlusCircle, Loader2, Mail, Check, X, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { SpaceCard } from '@/components/dashboard/SpaceCard';
 import { CreateSpaceDialog } from '@/components/dashboard/CreateSpaceDialog';
+import { JoinSpaceDialog } from '@/components/dashboard/JoinSpaceDialog';
 import { getSpaces, getInvitesForUser, acceptInvite, declineInvite } from '@/lib/services';
 import type { Space, Invite } from '@/lib/types';
 import { useState, useEffect } from 'react';
@@ -116,9 +117,15 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <h1 className="text-3xl font-headline font-bold text-foreground">
-            مساحات العمل الخاصة بك
+            مساحاتك
           </h1>
           <div className='flex items-center gap-2'>
+            <JoinSpaceDialog onSpaceJoined={handleSpaceCreated}>
+              <Button variant="outline">
+                <UserPlus />
+                <span className="hidden sm:inline-block">انضمام</span>
+              </Button>
+            </JoinSpaceDialog>
             <CreateSpaceDialog onSpaceCreated={handleSpaceCreated}>
               <Button>
                 <PlusCircle />

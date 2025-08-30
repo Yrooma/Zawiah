@@ -58,8 +58,24 @@ export type Space = {
   memberIds: string[];
   posts: Post[];
   ideas: Idea[];
+  inviteToken?: string; // Current active invite token (8-digit code)
 };
 
+export type InviteToken = {
+    id: string;
+    token: string; // 8-character alphanumeric code
+    spaceId: string;
+    spaceName: string;
+    ownerId: string;
+    ownerName: string;
+    used: boolean;
+    usedBy?: string; // userId who used the token
+    usedAt?: Timestamp;
+    expiresAt: Timestamp;
+    createdAt: Timestamp;
+}
+
+// Keep old Invite type for backward compatibility during migration
 export type Invite = {
     id: string;
     spaceId: string;
