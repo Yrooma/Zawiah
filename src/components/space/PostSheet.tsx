@@ -69,7 +69,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
           </div>
           <div className="flex justify-between items-center text-sm pt-2">
             <Badge className={statusClasses[post.status]}>{statusMessages[post.status]}</Badge>
-            <div className="text-muted-foreground">{format(post.scheduledAt, 'PPP', { locale: ar })}</div>
+            <div className="text-muted-foreground">{format(post.scheduledAt as Date, 'PPP', { locale: ar })}</div>
           </div>
         </SheetHeader>
         <div className="flex-grow overflow-y-auto p-6 pt-2 space-y-6 text-start">
@@ -94,6 +94,16 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
                     <span className="font-semibold capitalize">{post.platform}</span>
                 </div>
             </div>
+
+            {post.pillar && (
+              <div>
+                <h3 className="font-semibold mb-2">محور المحتوى</h3>
+                <div className="p-3 rounded-lg bg-secondary flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full" style={{ backgroundColor: post.pillar.color }} />
+                    <span className="font-semibold">{post.pillar.name}</span>
+                </div>
+              </div>
+            )}
 
             {post.imageUrl && (
                 <div>

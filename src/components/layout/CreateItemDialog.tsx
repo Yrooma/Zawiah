@@ -56,36 +56,53 @@ export function CreateItemDialog({ open, onOpenChange }: CreateItemDialogProps) 
         setStep(3);
     };
     
-    const handleAddPost = async (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }) => {
+    const handleAddPost = async (postDetails: Omit<Post, 'id' | 'spaceId' | 'spaceName' | 'status' | 'createdBy' | 'lastModifiedBy' | 'activityLog'>) => {
         if (!selectedSpace || !user) return;
-        const newPostData = { ...postDetails, status: 'draft', createdBy: {id: user.uid, name: user.name, avatarUrl: user.avatarUrl}, lastModifiedBy: {id: user.uid, name: user.name, avatarUrl: user.avatarUrl}, activityLog: [{ user: {id: user.uid, name: user.name, avatarUrl: user.avatarUrl}, action: 'إنشاء', date: 'الآن' }] };
+        const currentUser = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl, avatarColor: user.avatarColor, avatarText: user.avatarText };
+        const newPostData: Omit<Post, 'id' | 'spaceId' | 'spaceName'> = { 
+            ...postDetails, 
+            status: 'draft', 
+            createdBy: currentUser, 
+            lastModifiedBy: currentUser, 
+            activityLog: [{ user: currentUser, action: 'إنشاء', date: 'الآن' }] 
+        };
         await addPost(selectedSpace, newPostData);
         onOpenChange(false);
         router.push(`/spaces/${selectedSpace}`);
     }
 
-    const handleAddIdea = async (content: string) => {
+    const handleAddIdea = async (ideaData: Omit<Idea, 'id' | 'createdBy' | 'createdAt'>) => {
         if (!selectedSpace || !user) return;
-        const newIdeaData = { content, createdBy: {id: user.uid, name: user.name, avatarUrl: user.avatarUrl}, createdAt: new Date().toISOString() };
+        const currentUser = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl, avatarColor: user.avatarColor, avatarText: user.avatarText };
+        const newIdeaData: Omit<Idea, 'id'> = { 
+            ...ideaData, 
+            createdBy: currentUser, 
+            createdAt: new Date().toISOString() 
+        };
         await addIdea(selectedSpace, newIdeaData);
         onOpenChange(false);
         router.push(`/spaces/${selectedSpace}`);
     }
+    
+    const spaceForDialog = spaces.find(s => s.id === selectedSpace);
 
-    if (step === 3 && itemType === 'post' && selectedSpace) {
+    if (step === 3 && itemType === 'post' && spaceForDialog) {
         return <CreatePostDialog 
             open={true}
             onOpenChange={(isOpen) => !isOpen && onOpenChange(false)}
-            spaceId={selectedSpace}
+            spaceId={spaceForDialog.id}
             onSavePost={handleAddPost}
+            pillars={spaceForDialog.compass?.pillars || []}
+            compass={spaceForDialog.compass}
         />
     }
 
-    if (step === 3 && itemType === 'idea' && selectedSpace) {
+    if (step === 3 && itemType === 'idea' && spaceForDialog) {
         return <CreateIdeaDialog 
             open={true}
             onOpenChange={(isOpen) => !isOpen && onOpenChange(false)}
-            onAddIdea={(content) => handleAddIdea(content)}
+            onAddIdea={handleAddIdea}
+            pillars={spaceForDialog.compass?.pillars || []}
         />
     }
 

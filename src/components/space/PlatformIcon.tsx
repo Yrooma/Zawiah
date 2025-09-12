@@ -41,11 +41,18 @@ export const PLATFORM_DETAILS = {
 interface PlatformIconProps {
     platform: Platform;
     className?: string;
+    color?: string;
 }
 
-export function PlatformIcon({ platform, className }: PlatformIconProps) {
+export function PlatformIcon({ platform, className, color: colorOverride }: PlatformIconProps) {
     const details = PLATFORM_DETAILS[platform];
     if (!details) return null;
-    const { Icon, color } = details;
-    return <Icon className={cn(color, className)} />;
+    const { Icon, color: defaultColor } = details;
+    
+    if (colorOverride) {
+        const IconComponent = Icon as any;
+        return <IconComponent className={cn("fill-current", className)} style={{ color: colorOverride }} />;
+    }
+    
+    return <Icon className={cn(defaultColor, className)} />;
 }

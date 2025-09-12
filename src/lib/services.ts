@@ -1,7 +1,7 @@
 
 import { db, auth } from './firebase';
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, serverTimestamp, Timestamp, query, where, writeBatch, runTransaction } from "firebase/firestore";
-import type { Space, Post, Idea, User, AppUser, Notification, Invite, InviteToken } from './types';
+import type { Space, Post, Idea, User, AppUser, Notification, Invite, InviteToken, Compass } from './types';
 import { updateProfile as firebaseUpdateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
 
 // Helper to convert Firestore timestamp to Date
@@ -151,13 +151,10 @@ export const addSpace = async (spaceData: { name: string; description: string; t
         ...spaceData,
         createdAt: serverTimestamp(),
     });
-    
-    const newSpaceDoc = await getDoc(spaceDocRef);
-    const newSpaceData = newSpaceDoc.data();
 
     return {
         id: spaceDocRef.id,
-        ...newSpaceData,
+        ...spaceData,
         posts: [],
         ideas: [],
     } as Space;
@@ -167,6 +164,12 @@ export const addSpace = async (spaceData: { name: string; description: string; t
 export const updateSpace = async (spaceId: string, name: string, description: string): Promise<void> => {
     const spaceRef = doc(db, 'spaces', spaceId);
     await updateDoc(spaceRef, { name, description });
+};
+
+// Update space compass
+export const updateSpaceCompass = async (spaceId: string, compassData: Compass): Promise<void> => {
+    const spaceRef = doc(db, 'spaces', spaceId);
+    await updateDoc(spaceRef, { compass: compassData });
 };
 
 // Add a new Post to a space
@@ -499,7 +502,7 @@ export const joinSpaceWithToken = async (token: string, user: AppUser): Promise<
 
   // Check if token is expired
   const now = new Date();
-  const expiresAt = tokenData.expiresAt as Date;
+  const expiresAt = tokenData.expiresAt as any as Date;
   if (now > expiresAt) {
     throw new Error("This invite code has expired.");
   }
@@ -595,7 +598,7 @@ export const validateInviteToken = async (token: string): Promise<{ valid: boole
     }
 
     const now = new Date();
-    const expiresAt = tokenData.expiresAt as Date;
+    const expiresAt = tokenData.expiresAt as any as Date;
     if (now > expiresAt) {
       return { valid: false, error: "This invite code has expired." };
     }

@@ -47,6 +47,7 @@ export function PostsListView({ posts, onEditPost }: PostsListViewProps) {
           <TableHeader>
             <TableRow>
               <TableHead className="text-right">العنوان</TableHead>
+              <TableHead className="text-right">محور المحتوى</TableHead>
               <TableHead className="text-right">المنصة</TableHead>
               <TableHead className="text-right">الحالة</TableHead>
               <TableHead className="text-right">تاريخ النشر</TableHead>
@@ -56,6 +57,16 @@ export function PostsListView({ posts, onEditPost }: PostsListViewProps) {
             {posts.length > 0 ? posts.map(post => (
               <TableRow key={post.id} onClick={() => setSelectedPost(post)} className="cursor-pointer">
                 <TableCell className="font-medium">{post.title}</TableCell>
+                <TableCell>
+                  {post.pillar ? (
+                    <div className="flex items-center justify-end gap-2">
+                      <span>{post.pillar.name}</span>
+                      <div className="h-2 w-2 rounded-full" style={{ backgroundColor: post.pillar.color }} />
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-end gap-2">
                     <span className="capitalize">{post.platform}</span>
@@ -67,11 +78,11 @@ export function PostsListView({ posts, onEditPost }: PostsListViewProps) {
                     {statusMessages[post.status]}
                   </Badge>
                 </TableCell>
-                <TableCell>{format(post.scheduledAt, 'd MMMM yyyy', { locale: ar })}</TableCell>
+                <TableCell>{format(post.scheduledAt as Date, 'd MMMM yyyy', { locale: ar })}</TableCell>
               </TableRow>
             )) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-center h-24">
+                <TableCell colSpan={5} className="text-center h-24">
                   لا توجد منشورات حتى الآن.
                 </TableCell>
               </TableRow>

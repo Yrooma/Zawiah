@@ -1,8 +1,9 @@
 
 "use client";
 
-import { useState } from 'react';
-import type { Post, PostStatus } from '@/lib/types';
+import { useState, useMemo } from 'react';
+import type { Post, PostStatus, ContentPillar, ContentType } from '@/lib/types';
+import { contentTypes } from '@/lib/data';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, addMonths, subMonths, isSameDay } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -10,18 +11,33 @@ import { Button } from '@/components/ui/button';
 import { PostPill } from './PostPill';
 import { cn } from '@/lib/utils';
 import { PostSheet } from './PostSheet';
+import { Badge } from '../ui/badge';
 
 const WEEKDAYS = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
 
 interface CalendarTabProps {
   posts: Post[];
-  onUpdatePostStatus: (postId: string, newStatus: PostStatus, spaceId: string) => void;
+  pillars: ContentPillar[];
+  onUpdatePostStatus: (postId: string, newStatus: PostStatus) => void;
   onEditPost: (post: Post) => void;
 }
 
-export function CalendarTab({ posts, onUpdatePostStatus, onEditPost }: CalendarTabProps) {
+export function CalendarTab({ posts, pillars, onUpdatePostStatus, onEditPost }: CalendarTabProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [activePillarId, setActivePillarId] = useState<string | null>(null);
+  const [activeContentType, setActiveContentType] = useState<ContentType | null>(null);
+
+  const filteredPosts = useMemo(() => {
+    let filtered = posts;
+    if (activePillarId) {
+      filtered = filtered.filter(post => post.pillar?.id === activePillarId);
+    }
+    if (activeContentType) {
+      filtered = filtered.filter(post => post.contentType === activeContentType);
+    }
+    return filtered;
+  }, [posts, activePillarId, activeContentType]);
 
   const firstDayOfMonth = startOfMonth(currentDate);
   const lastDayOfMonth = endOfMonth(currentDate);
@@ -60,6 +76,56 @@ export function CalendarTab({ posts, onUpdatePostStatus, onEditPost }: CalendarT
           </Button>
         </div>
       </div>
+      <div className="space-y-4 mb-4">
+        {pillars && pillars.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-medium">فلترة حسب المحور:</span>
+            <Button
+              variant={!activePillarId ? 'secondary' : 'ghost'} 
+              size="sm" 
+              onClick={() => setActivePillarId(null)}
+              className="rounded-full"
+            >
+              الكل
+            </Button>
+            {pillars.map(pillar => (
+              <Button 
+                key={pillar.id}
+                variant={activePillarId === pillar.id ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setActivePillarId(pillar.id)}
+                className="rounded-full"
+              >
+                <span className="h-2 w-2 rounded-full me-2" style={{ backgroundColor: pillar.color }} />
+                {pillar.name}
+              </Button>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm font-medium">فلترة حسب النوع:</span>
+          <Button 
+            variant={!activeContentType ? 'secondary' : 'ghost'} 
+            size="sm" 
+            onClick={() => setActiveContentType(null)}
+            className="rounded-full"
+          >
+            الكل
+          </Button>
+          {contentTypes.map(type => (
+            <Button 
+              key={type.value}
+              variant={activeContentType === type.value ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveContentType(type.value)}
+              className="rounded-full"
+            >
+              {type.icon}
+              <span className="me-1">{type.label}</span>
+            </Button>
+          ))}
+        </div>
+      </div>
       <div className="grid grid-cols-7 border-t border-e rounded-t-lg">
         {WEEKDAYS.map((day) => (
           <div key={day} className="text-center font-medium text-muted-foreground p-2 border-s border-b bg-muted/50 text-xs sm:text-sm">
@@ -70,7 +136,7 @@ export function CalendarTab({ posts, onUpdatePostStatus, onEditPost }: CalendarT
           <div key={`empty-${i}`} className="border-s border-b" />
         ))}
         {daysInMonth.map((day) => {
-          const postsForDay = posts.filter(post => isSameDay(post.scheduledAt, day));
+          const postsForDay = filteredPosts.filter(post => isSameDay(post.scheduledAt as Date, day));
           return (
             <div
               key={day.toString()}

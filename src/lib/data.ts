@@ -1,10 +1,39 @@
-import type { User } from './types';
+import { ContentType } from './types';
 
-// This file now only contains mock user data.
-// Spaces, Posts, and Ideas are now fetched from Firestore.
-
-export const users: User[] = [
-  { id: 'user-1', name: 'Alex Doe', avatarUrl: 'https://placehold.co/100x100/EFEFEFF/333333?text=AD' },
-  { id: 'user-2', name: 'Sarah Khan', avatarUrl: 'https://placehold.co/100x100/EFEFEFF/333333?text=SK' },
-  { id: 'user-3', name: 'Chris Lee', avatarUrl: 'https://placehold.co/100x100/EFEFEFF/333333?text=CL' },
+export const contentTypes: {
+  value: ContentType;
+  label: string;
+  icon: string;
+  color: string;
+}[] = [
+  {
+    value: 'educational',
+    label: 'تعليمي',
+    icon: '🎓',
+    color: 'text-blue-500',
+  },
+  {
+    value: 'entertainment',
+    label: 'ترفيهي',
+    icon: '🎉',
+    color: 'text-pink-500',
+  },
+  {
+    value: 'inspirational',
+    label: 'ملهم',
+    icon: '✨',
+    color: 'text-yellow-500',
+  },
+  {
+    value: 'interactive',
+    label: 'تفاعلي',
+    icon: '💬',
+    color: 'text-green-500',
+  },
+  {
+    value: 'promotional',
+    label: 'ترويجي',
+    icon: '💰',
+    color: 'text-purple-500',
+  },
 ];

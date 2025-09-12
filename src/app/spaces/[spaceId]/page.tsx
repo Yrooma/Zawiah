@@ -3,13 +3,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { notFound, useRouter, useParams } from 'next/navigation';
-import { getSpaceById, addPost, updatePost, addIdea, deleteIdea, updateIdea } from '@/lib/services';
-import type { Space, Post, Platform, PostStatus, Idea, User } from '@/lib/types';
+import { getSpaceById, addPost, updatePost, addIdea, deleteIdea, updateIdea, updateSpaceCompass } from '@/lib/services';
+import type { Space, Post, Platform, PostStatus, Idea, User, Compass, ContentType } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
 import { CalendarTab } from '@/components/space/CalendarTab';
 import { IdeasTab } from '@/components/space/IdeasTab';
 import { PostsTab } from '@/components/space/PostsTab';
+import { CompassTab } from '@/components/space/CompassTab';
 import { CreatePostDialog } from '@/components/space/CreatePostDialog';
 import React from 'react';
 import { Loader2 } from 'lucide-react';
@@ -29,6 +30,8 @@ export default function SpacePage() {
 
   const [isCreatePostOpen, setCreatePostOpen] = useState(false);
   const [initialPostContent, setInitialPostContent] = useState<string | undefined>(undefined);
+  const [initialPostPillar, setInitialPostPillar] = useState<Idea['pillar'] | undefined>(undefined);
+  const [initialPostContentType, setInitialPostContentType] = useState<ContentType | undefined>(undefined);
   const [postToEdit, setPostToEdit] = useState<Post | undefined>(undefined);
   const { toast } = useToast();
 
@@ -63,8 +66,16 @@ export default function SpacePage() {
     }
   }, [fetchSpace, spaceId, user]);
 
-  const handleOpenCreatePostDialog = (content?: string) => {
-    setInitialPostContent(content);
+  const handleOpenCreatePostDialog = (idea?: Idea) => {
+    if (idea) {
+      setInitialPostContent(idea.content);
+      setInitialPostPillar(idea.pillar);
+      setInitialPostContentType(idea.contentType);
+    } else {
+      setInitialPostContent(undefined);
+      setInitialPostPillar(undefined);
+      setInitialPostContentType(undefined);
+    }
     setPostToEdit(undefined);
     setCreatePostOpen(true);
   };
@@ -75,7 +86,7 @@ export default function SpacePage() {
     setCreatePostOpen(true);
   }
   
-  const handleAddOrUpdatePost = async (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date }, id?: string) => {
+  const handleAddOrUpdatePost = async (postDetails: { title: string; content: string; platform: Platform; scheduledAt: Date; pillar?: Idea['pillar']; contentType: ContentType }, id?: string) => {
     if (!space || !user) return;
     
     const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl, avatarColor: user.avatarColor, avatarText: user.avatarText };
@@ -141,12 +152,12 @@ export default function SpacePage() {
     }
   };
   
-  const handleAddIdea = async (content: string) => {
+  const handleAddIdea = async (ideaData: Omit<Idea, 'id' | 'createdBy' | 'createdAt'>) => {
     if (!space || !user) return;
     try {
       const currentUser: User = { id: user.uid, name: user.name, avatarUrl: user.avatarUrl, avatarColor: user.avatarColor, avatarText: user.avatarText };
       const newIdeaData: Omit<Idea, 'id'> = {
-        content,
+        ...ideaData,
         createdBy: currentUser,
         createdAt: new Date().toISOString(),
       };
@@ -185,6 +196,18 @@ export default function SpacePage() {
     }
   };
 
+  const handleUpdateCompass = async (updatedCompass: Compass) => {
+    if (!space) return;
+    try {
+      await updateSpaceCompass(space.id, updatedCompass);
+      setSpace({ ...space, compass: updatedCompass });
+      toast({ title: "تم تحديث البوصلة بنجاح" });
+    } catch (e) {
+      console.error("Failed to update compass", e);
+      toast({ title: "خطأ في تحديث البوصلة", variant: "destructive" });
+    }
+  };
+
 
   if (isLoading || authLoading || !user) {
     return (
@@ -215,26 +238,30 @@ export default function SpacePage() {
       />
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <Tabs defaultValue="posts" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 md:w-[400px]">
-              <TabsTrigger value="calendar">التقويم</TabsTrigger>
-              <TabsTrigger value="posts">المنشورات</TabsTrigger>
+          <Tabs defaultValue="compass" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 md:w-[500px]">
+              <TabsTrigger value="compass">🧭 البوصلة</TabsTrigger>
               <TabsTrigger value="ideas">الأفكار</TabsTrigger>
+              <TabsTrigger value="posts">المنشورات</TabsTrigger>
+              <TabsTrigger value="calendar">التقويم</TabsTrigger>
             </TabsList>
-            <TabsContent value="calendar" className="mt-6">
-              <CalendarTab posts={space.posts} onUpdatePostStatus={handleUpdatePostStatus} onEditPost={handleOpenEditPostDialog} />
-            </TabsContent>
-            <TabsContent value="posts" className="mt-6">
-              <PostsTab posts={space.posts} onEditPost={handleOpenEditPostDialog} />
+            <TabsContent value="compass" className="mt-6">
+              <CompassTab space={space} onUpdate={handleUpdateCompass} />
             </TabsContent>
             <TabsContent value="ideas" className="mt-6">
-              <IdeasTab 
-                space={space} 
+              <IdeasTab
+                space={space}
                 onConvertToPost={handleOpenCreatePostDialog}
                 onAddIdea={handleAddIdea}
                 onDeleteIdea={handleDeleteIdea}
                 onUpdateIdea={handleUpdateIdea}
               />
+            </TabsContent>
+            <TabsContent value="posts" className="mt-6">
+              <PostsTab posts={space.posts} onEditPost={handleOpenEditPostDialog} />
+            </TabsContent>
+            <TabsContent value="calendar" className="mt-6">
+              <CalendarTab posts={space.posts} pillars={space.compass?.pillars || []} onUpdatePostStatus={handleUpdatePostStatus} onEditPost={handleOpenEditPostDialog} />
             </TabsContent>
           </Tabs>
         </div>
@@ -244,6 +271,10 @@ export default function SpacePage() {
         open={isCreatePostOpen}
         onOpenChange={setCreatePostOpen}
         initialContent={initialPostContent}
+        initialPillar={initialPostPillar}
+        initialContentType={initialPostContentType}
+        pillars={space.compass?.pillars || []}
+        compass={space.compass}
         postToEdit={postToEdit}
         onSavePost={handleAddOrUpdatePost}
       />

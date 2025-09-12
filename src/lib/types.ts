@@ -22,11 +22,27 @@ export type Platform = 'instagram' | 'x' | 'facebook' | 'linkedin' | 'threads' |
 
 export type PostStatus = 'draft' | 'ready' | 'published';
 
+export type ContentType = 'educational' | 'entertainment' | 'inspirational' | 'interactive' | 'promotional';
+
+export type TargetMix = {
+  educational: number;
+  entertainment: number;
+  inspirational: number;
+  interactive: number;
+  promotional: number;
+};
+
 export type Idea = {
   id: string;
   content: string;
   createdBy: User;
   createdAt: string; // Keep as ISO string for simplicity, or use Firestore Timestamp
+  pillar?: {
+    id: string;
+    name: string;
+    color: string;
+  };
+  contentType: ContentType;
 };
 
 export type ActivityLog = {
@@ -48,6 +64,12 @@ export type Post = {
   activityLog: ActivityLog[];
   spaceId?: string;
   spaceName?: string;
+  pillar?: {
+    id: string;
+    name: string;
+    color: string;
+  };
+  contentType: ContentType;
 };
 
 export type Space = {
@@ -59,6 +81,50 @@ export type Space = {
   posts: Post[];
   ideas: Idea[];
   inviteToken?: string; // Current active invite token (8-digit code)
+  compass?: Compass;
+};
+
+export type KPI = {
+  id: string;
+  metric: string;
+  target: string;
+};
+
+export type Goal = {
+  objective: string;
+  kpis: KPI[];
+};
+
+export type Persona = {
+  id: string;
+  name: string;
+  avatar?: string;
+  age: number;
+  jobTitle: string;
+  goals: string;
+  challenges: string;
+  preferredPlatforms: string;
+};
+
+export type ContentPillar = {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+};
+
+export type ToneOfVoice = {
+  description: string;
+  dos: string[];
+  donts: string[];
+};
+
+export type Compass = {
+  goals: Goal;
+  personas: Persona[];
+  pillars: ContentPillar[];
+  tone: ToneOfVoice;
+  targetMix?: TargetMix;
 };
 
 export type InviteToken = {

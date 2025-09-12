@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import type { Idea, Space } from '@/lib/types';
+import { contentTypes } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Lightbulb, PlusCircle, Trash2, Pencil } from 'lucide-react';
@@ -14,8 +15,8 @@ import { EditIdeaDialog } from './EditIdeaDialog';
 
 interface IdeasTabProps {
   space: Space;
-  onConvertToPost: (content: string) => void;
-  onAddIdea: (content: string) => Promise<void>;
+  onConvertToPost: (idea: Idea) => void;
+  onAddIdea: (ideaData: Omit<Idea, 'id' | 'createdBy' | 'createdAt'>) => Promise<void>;
   onDeleteIdea: (ideaId: string) => Promise<void>;
   onUpdateIdea: (ideaId: string, content: string) => Promise<void>;
 }
@@ -30,8 +31,8 @@ export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea, onUp
         setIdeas(space.ideas);
     }, [space.ideas]);
 
-    const handleConvertToPost = (ideaContent: string) => {
-        onConvertToPost(ideaContent);
+    const handleConvertToPost = (idea: Idea) => {
+        onConvertToPost(idea);
         toast({
             title: "الفكرة جاهزة للجدولة!",
             description: `تم نقل المحتوى إلى شاشة إنشاء المنشور.`,
@@ -56,7 +57,7 @@ export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea, onUp
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-headline font-bold">أفكار المحتوى</h2>
-        <CreateIdeaDialog onAddIdea={onAddIdea}>
+        <CreateIdeaDialog pillars={space.compass?.pillars || []} onAddIdea={onAddIdea}>
           <Button>
             <PlusCircle />
             أضف فكرة
@@ -64,10 +65,26 @@ export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea, onUp
         </CreateIdeaDialog>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {ideas.map((idea) => (
+        {ideas.map((idea) => {
+          const contentTypeDetails = contentTypes.find(ct => ct.value === idea.contentType);
+          return (
           <Card key={idea.id} className="flex flex-col">
-            <CardContent className="p-6 flex-grow">
-              <p className="text-foreground whitespace-pre-wrap">{idea.content}</p>
+            <CardContent className="p-6 flex-grow space-y-2">
+              <div className="flex items-center gap-4 text-xs font-semibold">
+                {idea.pillar && (
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: idea.pillar.color }} />
+                    <span>{idea.pillar.name}</span>
+                  </div>
+                )}
+                {contentTypeDetails && (
+                  <div className="flex items-center gap-1">
+                    <span>{contentTypeDetails.icon}</span>
+                    <span>{contentTypeDetails.label}</span>
+                  </div>
+                )}
+              </div>
+              <p className="text-foreground whitespace-pre-wrap pt-2">{idea.content}</p>
             </CardContent>
             <CardFooter className="p-4 bg-muted/50 flex justify-between items-center">
               <div className='flex items-center gap-2'>
@@ -78,7 +95,7 @@ export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea, onUp
                 <span className='text-xs text-muted-foreground'>بواسطة {idea.createdBy.name}</span>
               </div>
               <div className='flex gap-1'>
-                <Button size="sm" variant="outline" onClick={() => handleConvertToPost(idea.content)}>
+                <Button size="sm" variant="outline" onClick={() => handleConvertToPost(idea)}>
                   تحويل
                 </Button>
                 <Button size="icon" variant="ghost" className='h-8 w-8' onClick={() => handleOpenEditDialog(idea)}>
@@ -90,7 +107,7 @@ export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea, onUp
               </div>
             </CardFooter>
           </Card>
-        ))}
+        )})}
         {ideas.length === 0 && (
             <div className="md:col-span-2 lg:col-span-3 text-center py-16 border-2 border-dashed rounded-lg">
                 <Lightbulb className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -98,7 +115,7 @@ export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea, onUp
                 <p className="mt-1 text-sm text-muted-foreground">
                     هذه هي مساحتك لتبادل الأفكار. أضف فكرتك الأولى!
                 </p>
-                <CreateIdeaDialog onAddIdea={onAddIdea}>
+                <CreateIdeaDialog pillars={space.compass?.pillars || []} onAddIdea={onAddIdea}>
                     <Button className="mt-4">
                         <PlusCircle />
                         أضف فكرتك الأولى
