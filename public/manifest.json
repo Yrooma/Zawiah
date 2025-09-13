@@ -48,5 +48,19 @@
       "sizes": "180x180",
       "type": "image/png"
     }
+  ],
+  "screenshots": [
+    {
+      "src": "/og.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/logo1080.png",
+      "sizes": "1080x1080",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
   ]
 }
