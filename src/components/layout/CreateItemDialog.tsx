@@ -122,7 +122,7 @@ export function CreateItemDialog({ open, onOpenChange }: CreateItemDialogProps) 
                     </ResponsiveDialogDescription>
                 </ResponsiveDialogHeader>
                 
-                <div className="p-4 overflow-y-auto">
+                <div className="p-4 overflow-y-auto flex-grow">
                     {isLoading ? (
                         <div className="flex justify-center items-center h-24">
                             <Loader2 className="animate-spin text-primary" />

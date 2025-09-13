@@ -35,7 +35,7 @@ const ResponsiveDialogContent = ({ children, className, ...props }: React.Compon
 
   if (isMobile) {
     return (
-      <SheetContent side="bottom" className={cn("max-h-[90vh] flex flex-col", className)} {...props}>
+      <SheetContent side="bottom" className={cn("h-full flex flex-col", className)} {...props}>
         {children}
       </SheetContent>
     )

@@ -178,7 +178,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
             {isLoading ? 'جارٍ الحفظ...' : (isEditing ? 'حفظ التغييرات' : 'إنشاء مسودة')}
           </Button>
         </ResponsiveDialogHeader>
-        <div className={cn("grid overflow-y-auto", isMobile ? "grid-cols-1" : "grid-cols-3 gap-8")}>
+        <div className={cn("grid overflow-y-auto flex-grow", isMobile ? "grid-cols-1" : "grid-cols-3 gap-8")}>
           <div className="col-span-2 h-full flex flex-col p-4">
             <div className="grid gap-4 text-start flex-grow pe-4">
             <div className="grid grid-cols-4 items-center gap-4">

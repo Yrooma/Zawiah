@@ -88,7 +88,7 @@ export function CreateIdeaDialog({ children, pillars, onAddIdea, open: controlle
             {isLoading ? 'جارٍ الحفظ...' : 'حفظ الفكرة'}
           </Button>
         </ResponsiveDialogHeader>
-        <div className="grid gap-4 p-4 overflow-y-auto">
+        <div className="grid gap-4 p-4 overflow-y-auto flex-grow">
           <div className="grid w-full gap-1.5">
             <Label htmlFor="idea-content">فكرتك</Label>
             <Textarea

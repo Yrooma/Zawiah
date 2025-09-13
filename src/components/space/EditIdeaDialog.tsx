@@ -4,13 +4,12 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -59,15 +58,12 @@ export function EditIdeaDialog({ idea, open, onOpenChange, onUpdateIdea }: EditI
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="font-headline text-start">تعديل الفكرة</DialogTitle>
-          <DialogDescription className="text-start">
-            قم بإجراء تغييرات على فكرتك أدناه.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="sm:max-w-[425px] p-0">
+        <ResponsiveDialogHeader className="p-4 border-b flex-shrink-0">
+          <ResponsiveDialogTitle className="font-headline text-start">تعديل الفكرة</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
+        <div className="grid gap-4 p-4 overflow-y-auto flex-grow">
           <div className="grid w-full gap-1.5">
             <Label htmlFor="idea-content">محتوى الفكرة</Label>
             <Textarea
@@ -80,14 +76,14 @@ export function EditIdeaDialog({ idea, open, onOpenChange, onUpdateIdea }: EditI
             />
           </div>
         </div>
-        <DialogFooter>
+        <div className="flex justify-end gap-2 p-4 border-t flex-shrink-0">
            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>إلغاء</Button>
           <Button type="submit" onClick={handleUpdate} disabled={!ideaContent.trim() || isLoading}>
             {isLoading && <Loader2 className="animate-spin" />}
             {isLoading ? 'جارٍ الحفظ...' : 'حفظ التغييرات'}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }
