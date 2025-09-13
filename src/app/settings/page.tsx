@@ -36,24 +36,22 @@ function PushNotificationManager() {
   const [message, setMessage] = useState('')
  
   useEffect(() => {
-    const checkSubscription = async () => {
-      if ('serviceWorker' in navigator && 'PushManager' in window) {
-        setIsSupported(true);
-        const registration = await navigator.serviceWorker.getRegistration();
-        if (registration) {
-          const sub = await registration.pushManager.getSubscription();
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      setIsSupported(true);
+      // Register the service worker and check for existing subscription
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .then(registration => registration.pushManager.getSubscription())
+        .then(sub => {
           if (sub) {
             setSubscription(sub);
           }
-        }
-      }
-    };
-    checkSubscription();
-  }, [])
- 
+        })
+        .catch(err => console.error('Service Worker registration failed:', err));
+    }
+  }, []);
+
   async function subscribeToPush() {
     try {
-      await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       const registration = await navigator.serviceWorker.ready;
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
@@ -62,18 +60,21 @@ function PushNotificationManager() {
         ),
       });
       setSubscription(sub);
-      const serializedSub = JSON.parse(JSON.stringify(sub));
-      await subscribeUser(serializedSub);
+      await subscribeUser(JSON.parse(JSON.stringify(sub)));
     } catch (error) {
       console.error('Failed to subscribe to push notifications:', error);
-      // Here you could show a toast notification to the user explaining the error.
+      if (Notification.permission === 'denied') {
+        // Optionally, show a toast to the user explaining that they have blocked notifications
+      }
     }
   }
- 
+
   async function unsubscribeFromPush() {
-    await subscription?.unsubscribe()
-    setSubscription(null)
-    await unsubscribeUser()
+    if (subscription) {
+      await subscription.unsubscribe();
+      setSubscription(null);
+      await unsubscribeUser();
+    }
   }
  
   async function sendTestNotification() {
