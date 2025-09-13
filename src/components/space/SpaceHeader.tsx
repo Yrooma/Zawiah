@@ -19,7 +19,7 @@ export function SpaceHeader({ spaceName, onNewPostClick, space, onSpaceUpdate }:
             <div className="flex items-center gap-2 md:gap-4">
                 <Link href="/dashboard" passHref>
                     <Button variant="outline" size="icon" className="h-8 w-8">
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                     <span className="sr-only">العودة إلى لوحة التحكم</span>
                     </Button>
                 </Link>

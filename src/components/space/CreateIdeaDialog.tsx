@@ -6,14 +6,13 @@ import type { ContentPillar, Idea, ContentType } from '@/lib/types';
 import { contentTypes } from '@/lib/data';
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
+import { DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -79,16 +78,17 @@ export function CreateIdeaDialog({ children, pillars, onAddIdea, open: controlle
   const DialogTriggerComponent = children ? <DialogTrigger asChild>{children}</DialogTrigger> : null;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
       {DialogTriggerComponent}
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="font-headline text-start">إضافة فكرة جديدة</DialogTitle>
-          <DialogDescription className="text-start">
-            اكتب فكرة المحتوى الخاصة بك. يمكن للفريق رؤيتها والبناء عليها.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
+      <ResponsiveDialogContent className="sm:max-w-[425px] p-0">
+        <ResponsiveDialogHeader className="flex flex-row items-center justify-between border-b p-4">
+          <ResponsiveDialogTitle className="font-headline text-start">فكرة جديدة</ResponsiveDialogTitle>
+          <Button type="submit" onClick={handleCreateIdea} disabled={!ideaContent.trim() || !selectedContentType || isLoading} size="sm">
+            {isLoading && <Loader2 className="animate-spin" />}
+            {isLoading ? 'جارٍ الحفظ...' : 'حفظ الفكرة'}
+          </Button>
+        </ResponsiveDialogHeader>
+        <div className="grid gap-4 p-4 max-h-[80vh] overflow-y-auto">
           <div className="grid w-full gap-1.5">
             <Label htmlFor="idea-content">فكرتك</Label>
             <Textarea
@@ -138,14 +138,7 @@ export function CreateIdeaDialog({ children, pillars, onAddIdea, open: controlle
             </div>
           )}
         </div>
-        <DialogFooter>
-           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>إلغاء</Button>
-          <Button type="submit" onClick={handleCreateIdea} disabled={!ideaContent.trim() || !selectedContentType || isLoading}>
-            {isLoading && <Loader2 className="animate-spin" />}
-            {isLoading ? 'جارٍ الإضافة...' : 'إضافة فكرة'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

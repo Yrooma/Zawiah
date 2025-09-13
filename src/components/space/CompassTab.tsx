@@ -11,6 +11,9 @@ import { ToneCard } from "./compass/ToneCard";
 import { TargetMixCard } from "./compass/TargetMixCard";
 import { EditTargetMixDialog } from "./compass/EditTargetMixDialog";
 import { MixAnalysisChart } from "./compass/MixAnalysisChart";
+import { ChannelStrategyCard } from "./compass/ChannelStrategyCard";
+import { EditChannelStrategyDialog } from "./compass/EditChannelStrategyDialog";
+import { Platform } from "@/lib/types";
 
 interface CompassTabProps {
   space: Space;
@@ -33,6 +36,7 @@ const defaultCompass: Compass = {
 
 export function CompassTab({ space, onUpdate }: CompassTabProps) {
   const [isEditMixOpen, setEditMixOpen] = useState(false);
+  const [editingChannel, setEditingChannel] = useState<Platform | null>(null);
   const compassData = space.compass;
 
   const handleSetupCompass = () => {
@@ -91,6 +95,14 @@ export function CompassTab({ space, onUpdate }: CompassTabProps) {
     onUpdate(updatedCompass);
   };
 
+  const handleChannelStrategyUpdate = (updatedStrategy: Compass['channelStrategies']) => {
+    const updatedCompass: Compass = {
+      ...compassData,
+      channelStrategies: updatedStrategy,
+    };
+    onUpdate(updatedCompass);
+  };
+
   return (
     <>
       <div className="space-y-8">
@@ -114,6 +126,21 @@ export function CompassTab({ space, onUpdate }: CompassTabProps) {
               <MixAnalysisChart posts={space.posts} targetMix={compassData.targetMix} />
            </div>
         </div>
+
+        <div className="mt-8 pt-8 border-t">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">استراتيجية القنوات</h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* This will be replaced with a list of supported platforms */}
+            {(['linkedin', 'x', 'facebook', 'instagram', 'threads', 'tiktok', 'snapchat', 'email'] as Platform[]).map((platform) => (
+              <ChannelStrategyCard
+                key={platform}
+                platform={platform}
+                strategy={compassData.channelStrategies?.find(s => s.platform === platform)}
+                onClick={() => setEditingChannel(platform)}
+              />
+            ))}
+          </div>
+        </div>
       </div>
       <EditTargetMixDialog
         open={isEditMixOpen}
@@ -121,6 +148,15 @@ export function CompassTab({ space, onUpdate }: CompassTabProps) {
         targetMix={compassData.targetMix}
         onSave={handleTargetMixUpdate}
       />
+      {editingChannel && (
+        <EditChannelStrategyDialog
+          open={!!editingChannel}
+          onOpenChange={(isOpen) => !isOpen && setEditingChannel(null)}
+          platform={editingChannel}
+          strategies={compassData.channelStrategies || []}
+          onSave={handleChannelStrategyUpdate}
+        />
+      )}
     </>
   );
 }

@@ -1,8 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { deleteUserAccount } from '@/lib/services';
 import { useToast } from '@/hooks/use-toast';
@@ -10,25 +9,18 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
-import { Loader2, Moon, Sun, Trash2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
+import { ThemeSwitcher } from '@/components/ui/ThemeSwitcher';
 
 export default function SettingsPage() {
-    const { theme, setTheme } = useTheme();
-    const [isMounted, setIsMounted] = useState(false);
     const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [confirmationText, setConfirmationText] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
     const { user } = useAuth();
     const { toast } = useToast();
     const router = useRouter();
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
 
     const handleDeleteAccount = async () => {
         if (!user || confirmationText !== user.email) {
@@ -57,12 +49,8 @@ export default function SettingsPage() {
         }
     };
     
-    if (!isMounted) {
-        return null; // or a loading skeleton
-    }
-
     return (
-        <main className="flex-1 p-4 md:p-8 max-w-3xl mx-auto">
+        <main  dir="rtl" className="flex-1 p-4 md:p-8 max-w-3xl mx-auto">
             <h1 className="text-3xl font-headline font-bold text-foreground mb-6 text-start">
                 الإعدادات
             </h1>
@@ -74,15 +62,10 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="flex items-center justify-between">
-                        <Label htmlFor="dark-mode" className="flex items-center gap-2">
-                           {theme === 'dark' ? <Moon /> : <Sun />}
+                        <div className="flex items-center gap-2">
                            <span>الوضع الداكن</span>
-                        </Label>
-                        <Switch
-                            id="dark-mode"
-                            checked={theme === 'dark'}
-                            onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-                        />
+                        </div>
+                        <ThemeSwitcher />
                     </div>
                 </CardContent>
             </Card>

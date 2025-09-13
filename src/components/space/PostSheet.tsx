@@ -4,7 +4,12 @@
 import type { Post, Platform, PostStatus } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Instagram, Facebook, Copy, CheckCircle, Pencil, Mail, MessageSquare, ExternalLink } from 'lucide-react';
@@ -12,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { format } from "date-fns";
 import { ar } from 'date-fns/locale';
+import { platformPostTypes } from "@/lib/data";
 import { PlatformIcon } from "./PlatformIcon";
 
 interface PostSheetProps {
@@ -26,6 +32,10 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
   const { toast } = useToast();
 
   if (!post) return null;
+
+  const postTypeDetails = post.platform && post.postType 
+    ? platformPostTypes[post.platform]?.find(pt => pt.id === post.postType) 
+    : null;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(post.content);
@@ -57,11 +67,11 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg p-0 flex flex-col">
-        <SheetHeader className="p-6 pb-4 text-start">
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="w-full sm:max-w-lg p-0 flex flex-col">
+        <ResponsiveDialogHeader className="p-6 pb-4 text-start">
           <div className="flex justify-between items-start">
-            <SheetTitle className="font-headline text-2xl">{post.title}</SheetTitle>
+            <ResponsiveDialogTitle className="font-headline text-2xl">{post.title}</ResponsiveDialogTitle>
             <Button variant="outline" size="icon" onClick={() => onEdit(post)}>
               <Pencil />
               <span className="sr-only">تعديل المنشور</span>
@@ -71,7 +81,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
             <Badge className={statusClasses[post.status]}>{statusMessages[post.status]}</Badge>
             <div className="text-muted-foreground">{format(post.scheduledAt as Date, 'PPP', { locale: ar })}</div>
           </div>
-        </SheetHeader>
+        </ResponsiveDialogHeader>
         <div className="flex-grow overflow-y-auto p-6 pt-2 space-y-6 text-start">
             { post.spaceName && (
               <div>
@@ -94,6 +104,28 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
                     <span className="font-semibold capitalize">{post.platform}</span>
                 </div>
             </div>
+
+            {postTypeDetails && (
+              <div>
+                <h3 className="font-semibold mb-2">نوع المنشور</h3>
+                <div className="p-3 rounded-lg bg-secondary">
+                    <p className="font-semibold">{postTypeDetails.name}</p>
+                    {post.fields && Object.keys(post.fields).length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-muted/50 space-y-1">
+                        {Object.entries(post.fields).map(([fieldId, value]) => {
+                          const fieldDef = postTypeDetails.fields.find(f => f.id === fieldId);
+                          return (
+                            <div key={fieldId} className="text-sm">
+                              <span className="font-medium text-muted-foreground">{fieldDef?.name || fieldId}: </span>
+                              <span>{value}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                </div>
+              </div>
+            )}
 
             {post.pillar && (
               <div>
@@ -148,14 +180,14 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
 
         </div>
         {post.status !== 'published' && (
-             <SheetFooter className="p-6 bg-background border-t">
+             <div className="p-6 bg-background border-t">
                 <Button size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleMarkAsPublished}>
                     تحديث الحالة إلى: تم النشر
                     <CheckCircle />
                 </Button>
-            </SheetFooter>
+            </div>
         )}
-      </SheetContent>
-    </Sheet>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

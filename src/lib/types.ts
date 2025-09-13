@@ -56,6 +56,7 @@ export type Post = {
   title: string;
   content: string;
   platform: Platform;
+  postType?: string; // e.g., 'text', 'image', 'poll'
   status: PostStatus;
   scheduledAt: Date | Timestamp; // Allow both for client and server
   createdBy: User;
@@ -70,6 +71,7 @@ export type Post = {
     color: string;
   };
   contentType: ContentType;
+  fields?: { [key: string]: any }; // For dynamic fields like poll options
 };
 
 export type Space = {
@@ -119,12 +121,35 @@ export type ToneOfVoice = {
   donts: string[];
 };
 
+export type PostType = {
+  id: string; // e.g., 'linkedin-document'
+  name: string; // e.g., 'Document Post'
+  description: string;
+  fields: {
+    id: string; // e.g., 'documentTitle'
+    name: string; // e.g., 'Document Title'
+    type: 'text' | 'textarea' | 'options';
+    placeholder?: string;
+  }[];
+  strategicNote?: string;
+  systemReminder?: string;
+};
+
+export type ChannelStrategy = {
+  platform: Platform;
+  strategicGoal: string;
+  // Array of PostType IDs, ordered by preference
+  preferredPostTypes: string[];
+  publishingChecklist: { id: string; task: string; completed: boolean }[];
+};
+
 export type Compass = {
   goals: Goal;
   personas: Persona[];
   pillars: ContentPillar[];
   tone: ToneOfVoice;
   targetMix?: TargetMix;
+  channelStrategies?: ChannelStrategy[];
 };
 
 export type InviteToken = {

@@ -2,7 +2,13 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogDescription,
+} from "@/components/ui/responsive-dialog";
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -107,49 +113,51 @@ export function CreateItemDialog({ open, onOpenChange }: CreateItemDialogProps) 
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle className="font-headline text-center">إنشاء جديد</DialogTitle>
-                    <DialogDescription className="text-center">
+        <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+            <ResponsiveDialogContent className="p-0">
+                <ResponsiveDialogHeader className="p-4 border-b">
+                    <ResponsiveDialogTitle className="font-headline text-center">إنشاء جديد</ResponsiveDialogTitle>
+                    <ResponsiveDialogDescription className="text-center">
                         {step === 1 ? 'ماذا تريد أن تنشئ؟' : 'في أي مساحة عمل؟'}
-                    </DialogDescription>
-                </DialogHeader>
+                    </ResponsiveDialogDescription>
+                </ResponsiveDialogHeader>
                 
-                {isLoading ? (
-                    <div className="flex justify-center items-center h-24">
-                        <Loader2 className="animate-spin text-primary" />
-                    </div>
-                ) : step === 1 ? (
-                    <div className="grid grid-cols-2 gap-4 py-4">
-                        <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => handleItemTypeSelect('post')}>
-                            <FileText className="h-8 w-8" />
-                            <span>منشور</span>
-                        </Button>
-                        <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => handleItemTypeSelect('idea')}>
-                            <Lightbulb className="h-8 w-8" />
-                            <span>فكرة</span>
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="py-4 space-y-4">
-                        <div>
-                            <Label htmlFor="workspace">اختر مساحة العمل</Label>
-                            <Select onValueChange={handleSpaceSelect} disabled={spaces.length === 0}>
-                                <SelectTrigger id="workspace">
-                                    <SelectValue placeholder={spaces.length > 0 ? "اختر..." : "ليس لديك مساحات عمل"} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {spaces.map(space => (
-                                        <SelectItem key={space.id} value={space.id}>{space.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                <div className="p-4">
+                    {isLoading ? (
+                        <div className="flex justify-center items-center h-24">
+                            <Loader2 className="animate-spin text-primary" />
                         </div>
-                        <Button variant="link" onClick={() => setStep(1)}>العودة</Button>
-                    </div>
-                )}
-            </DialogContent>
-        </Dialog>
+                    ) : step === 1 ? (
+                        <div className="grid grid-cols-2 gap-4 py-4">
+                            <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => handleItemTypeSelect('post')}>
+                                <FileText className="h-8 w-8" />
+                                <span>منشور</span>
+                            </Button>
+                            <Button variant="outline" className="h-24 flex-col gap-2" onClick={() => handleItemTypeSelect('idea')}>
+                                <Lightbulb className="h-8 w-8" />
+                                <span>فكرة</span>
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="py-4 space-y-4">
+                            <div>
+                                <Label htmlFor="workspace">اختر مساحة العمل</Label>
+                                <Select onValueChange={handleSpaceSelect} disabled={spaces.length === 0}>
+                                    <SelectTrigger id="workspace">
+                                        <SelectValue placeholder={spaces.length > 0 ? "اختر..." : "ليس لديك مساحات عمل"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {spaces.map(space => (
+                                            <SelectItem key={space.id} value={space.id}>{space.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <Button variant="link" onClick={() => setStep(1)}>العودة</Button>
+                        </div>
+                    )}
+                </div>
+            </ResponsiveDialogContent>
+        </ResponsiveDialog>
     );
 }
