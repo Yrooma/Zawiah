@@ -6,13 +6,12 @@ import * as z from "zod";
 import type { ContentPillar } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
 import {
   Form,
   FormControl,
@@ -57,16 +56,13 @@ export function EditPillarDialog({ pillar, open, onOpenChange, onSave }: EditPil
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{pillar ? "تعديل محور" : "إضافة محور جديد"}</DialogTitle>
-          <DialogDescription>
-            عرّف أحد المواضيع الرئيسية التي يدور حولها المحتوى الخاص بك.
-          </DialogDescription>
-        </DialogHeader>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="sm:max-w-[425px] p-0">
+        <ResponsiveDialogHeader className="p-4 border-b flex-shrink-0">
+          <ResponsiveDialogTitle>{pillar ? "تعديل محور" : "إضافة محور جديد"}</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4 overflow-y-auto">
             <FormField
               control={form.control}
               name="name"
@@ -115,13 +111,13 @@ export function EditPillarDialog({ pillar, open, onOpenChange, onSave }: EditPil
                 </FormItem>
               )}
             />
-            <DialogFooter>
+            <div className="flex justify-end gap-2 pt-4 p-4 border-t flex-shrink-0">
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>إلغاء</Button>
               <Button type="submit">حفظ</Button>
-            </DialogFooter>
+            </div>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

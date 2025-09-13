@@ -4,6 +4,7 @@ import * as React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { cn } from "@/lib/utils"
 
 interface ResponsiveDialogProps {
   children: React.ReactNode
@@ -29,19 +30,19 @@ const ResponsiveDialog = ({ children, open, onOpenChange }: ResponsiveDialogProp
   )
 }
 
-const ResponsiveDialogContent = ({ children, ...props }: React.ComponentProps<typeof DialogContent | typeof SheetContent>) => {
+const ResponsiveDialogContent = ({ children, className, ...props }: React.ComponentProps<typeof DialogContent | typeof SheetContent>) => {
   const isMobile = useIsMobile()
 
   if (isMobile) {
     return (
-      <SheetContent side="bottom" {...props}>
+      <SheetContent side="bottom" className={cn("max-h-[90vh] flex flex-col", className)} {...props}>
         {children}
       </SheetContent>
     )
   }
 
   return (
-    <DialogContent {...props}>
+    <DialogContent className={cn("max-h-[90vh] flex flex-col", className)} {...props}>
       {children}
     </DialogContent>
   )

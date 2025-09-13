@@ -93,14 +93,14 @@ export function EditChannelStrategyDialog({ open, onOpenChange, platform, strate
   return (
     <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
       <ResponsiveDialogContent className="sm:max-w-[425px] md:max-w-[600px] p-0">
-        <ResponsiveDialogHeader className="flex flex-row items-center justify-between border-b p-4">
+        <ResponsiveDialogHeader className="flex flex-row items-center justify-between border-b p-4 flex-shrink-0">
           <ResponsiveDialogTitle className="flex items-center gap-2">
             <PlatformIcon platform={platform} />
             <span className="capitalize">استراتيجية {platform}</span>
           </ResponsiveDialogTitle>
           <Button onClick={handleSave} size="sm">حفظ</Button>
         </ResponsiveDialogHeader>
-        <div className="grid gap-6 p-4 max-h-[80vh] overflow-y-auto">
+        <div className="grid gap-6 p-4 overflow-y-auto">
           <div className="space-y-2">
             <Label htmlFor="strategic-goal">الهدف الاستراتيجي</Label>
             <Textarea

@@ -171,16 +171,16 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
     <ResponsiveDialog open={open} onOpenChange={handleOpenChange}>
       {children}
       <ResponsiveDialogContent className="sm:max-w-[800px] p-0">
-        <ResponsiveDialogHeader className="flex flex-row items-center justify-between border-b p-4">
+        <ResponsiveDialogHeader className="flex flex-row items-center justify-between border-b p-4 flex-shrink-0">
           <ResponsiveDialogTitle className="font-headline text-start">{isEditing ? 'تعديل المنشور' : 'منشور جديد'}</ResponsiveDialogTitle>
           <Button type="submit" onClick={handleSave} disabled={isLoading}>
              {isLoading && <Loader2 className="animate-spin" />}
             {isLoading ? 'جارٍ الحفظ...' : (isEditing ? 'حفظ التغييرات' : 'إنشاء مسودة')}
           </Button>
         </ResponsiveDialogHeader>
-        <div className={cn("grid max-h-[80vh]", isMobile ? "grid-cols-1" : "grid-cols-3 gap-8")}>
+        <div className={cn("grid overflow-y-auto", isMobile ? "grid-cols-1" : "grid-cols-3 gap-8")}>
           <div className="col-span-2 h-full flex flex-col p-4">
-            <div className="grid gap-4 text-start flex-grow overflow-y-auto pe-4">
+            <div className="grid gap-4 text-start flex-grow pe-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="title" className="text-start">
               العنوان

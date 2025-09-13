@@ -4,14 +4,13 @@
 import { useState, type ReactNode } from 'react';
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
+import { DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -76,16 +75,13 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="font-headline text-start">إنشاء مساحة جديدة</DialogTitle>
-          <DialogDescription className="text-start">
-            أعط مساحة التعاون الجديدة اسمًا ووصفًا. يمكنك دعوة أعضاء الفريق لاحقًا.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
+      <ResponsiveDialogContent className="sm:max-w-[425px] p-0">
+        <ResponsiveDialogHeader className="p-4 border-b flex-shrink-0">
+          <ResponsiveDialogTitle className="font-headline text-start">مساحة جديدة</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
+        <div className="grid gap-4 p-4 overflow-y-auto">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-start">
               الاسم
@@ -113,14 +109,14 @@ export function CreateSpaceDialog({ children, onSpaceCreated }: CreateSpaceDialo
             />
           </div>
         </div>
-        <DialogFooter>
+        <div className="flex justify-end gap-2 p-4 border-t flex-shrink-0">
            <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>إلغاء</Button>
           <Button type="submit" onClick={handleCreateSpace} disabled={!spaceName.trim() || isLoading}>
             {isLoading && <Loader2 className="animate-spin" />}
             {isLoading ? 'جارٍ الإنشاء...' : 'إنشاء مساحة'}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

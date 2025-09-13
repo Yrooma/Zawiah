@@ -6,13 +6,12 @@ import * as z from "zod";
 import type { Goal } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
 import {
   Form,
   FormControl,
@@ -63,16 +62,13 @@ export function EditGoalDialog({ goal, open, onOpenChange, onSave }: EditGoalDia
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>تعديل الأهداف الرئيسية</DialogTitle>
-          <DialogDescription>
-            حدد الهدف الاستراتيجي العام وأضف مؤشرات الأداء الرئيسية لتتبعه.
-          </DialogDescription>
-        </DialogHeader>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="sm:max-w-[600px] p-0">
+        <ResponsiveDialogHeader className="p-4 border-b flex-shrink-0">
+          <ResponsiveDialogTitle>تعديل الأهداف الرئيسية</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-4 overflow-y-auto">
             <FormField
               control={form.control}
               name="objective"
@@ -138,13 +134,13 @@ export function EditGoalDialog({ goal, open, onOpenChange, onSave }: EditGoalDia
               </Button>
             </div>
             
-            <DialogFooter>
+            <div className="flex justify-end gap-2 pt-4 p-4 border-t flex-shrink-0">
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>إلغاء</Button>
               <Button type="submit">حفظ التغييرات</Button>
-            </DialogFooter>
+            </div>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

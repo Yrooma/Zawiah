@@ -2,7 +2,14 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
+import { DialogTrigger } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, UserPlus, Check, AlertCircle } from 'lucide-react';
@@ -88,22 +95,19 @@ export function JoinSpaceDialog({ children, onSpaceJoined }: JoinSpaceDialogProp
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+      <ResponsiveDialogContent className="sm:max-w-md p-0">
+        <ResponsiveDialogHeader className="p-4 border-b flex-shrink-0">
+          <ResponsiveDialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
             الانضمام إلى مساحة عمل
-          </DialogTitle>
-          <DialogDescription>
-            أدخل رمز الدعوة المكون من 8 أحرف للانضمام إلى مساحة عمل موجودة.
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 p-4 overflow-y-auto">
           <div className="space-y-2">
             <Label htmlFor="token">رمز الدعوة</Label>
             <div className="flex gap-2">
@@ -143,7 +147,7 @@ export function JoinSpaceDialog({ children, onSpaceJoined }: JoinSpaceDialogProp
           )}
         </div>
 
-        <DialogFooter className="flex gap-2">
+        <div className="flex justify-end gap-2 p-4 border-t flex-shrink-0">
           <Button variant="outline" onClick={handleClose}>
             إلغاء
           </Button>
@@ -153,14 +157,14 @@ export function JoinSpaceDialog({ children, onSpaceJoined }: JoinSpaceDialogProp
             className="bg-green-600 hover:bg-green-700"
           >
             {isJoining ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <Loader2 className="h-4 w-4 animate-spin me-2" />
             ) : (
-              <Check className="h-4 w-4 mr-2" />
+              <Check className="h-4 w-4 me-2" />
             )}
             انضمام
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

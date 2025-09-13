@@ -4,13 +4,12 @@ import { useState, useEffect } from 'react';
 import type { TargetMix } from '@/lib/types';
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { contentTypes } from '@/lib/data';
@@ -58,15 +57,12 @@ export function EditTargetMixDialog({ open, onOpenChange, targetMix, onSave }: E
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="font-headline">تعديل المزيج المستهدف</DialogTitle>
-          <DialogDescription>
-            استخدم المنزلقات لتحديد النسبة المئوية لكل نوع محتوى. يجب أن يكون المجموع 100%.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="py-4 space-y-6">
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="p-0">
+        <ResponsiveDialogHeader className="p-4 border-b flex-shrink-0">
+          <ResponsiveDialogTitle className="font-headline">تعديل المزيج المستهدف</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
+        <div className="p-4 space-y-6 overflow-y-auto">
           {contentTypes.map(type => (
             <div key={type.value} className="grid grid-cols-4 items-center gap-4">
               <Label className="col-span-1 flex items-center gap-2">
@@ -83,11 +79,11 @@ export function EditTargetMixDialog({ open, onOpenChange, targetMix, onSave }: E
             </div>
           ))}
         </div>
-        <DialogFooter>
+        <div className="flex justify-end gap-2 p-4 border-t flex-shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
           <Button onClick={handleSave}>حفظ التغييرات</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

@@ -5,14 +5,13 @@ import { useState, type ReactNode, useEffect } from 'react';
 import { LogOut, Trash2, Loader2, Copy, Check, RefreshCw } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
+import { DialogTrigger } from "@/components/ui/dialog";
 import { 
     AlertDialog,
     AlertDialogAction,
@@ -150,17 +149,15 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="font-headline text-start">إدارة الفريق</DialogTitle>
-          <DialogDescription className="text-start">
-            {isCurrentUserOwner ? "عدّل تفاصيل المساحة، قم بدعوة أعضاء جدد، أو قم بإدارة عضويتك." : "قم بإدارة عضويتك في هذه المساحة."}
-          </DialogDescription>
-        </DialogHeader>
+      <ResponsiveDialogContent className="sm:max-w-md p-0">
+        <ResponsiveDialogHeader className="p-4 border-b flex-shrink-0">
+          <ResponsiveDialogTitle className="font-headline text-start">إدارة الفريق</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
 
-        {isCurrentUserOwner && (
+        <div className="p-4 overflow-y-auto">
+          {isCurrentUserOwner && (
             <>
                 <div className="py-2 text-start">
                     <Label className='font-medium'>تفاصيل المساحة</Label>
@@ -260,14 +257,13 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
             </div>
             </>
         )}
+        </div>
         
-        <Separator />
-
-        <DialogFooter className="sm:flex-col sm:items-stretch sm:gap-2 pt-4">
+        <div className="p-4 border-t flex-shrink-0">
             <AlertDialog>
                 <AlertDialogTrigger asChild>
-                    <Button variant="outline" className='text-destructive hover:text-destructive'>
-                        {isCurrentUserOwner ? <Trash2/> : <LogOut/>}
+                    <Button variant="outline" className='text-destructive hover:text-destructive w-full justify-center'>
+                        {isCurrentUserOwner ? <Trash2 className="me-2" /> : <LogOut className="me-2" />}
                         {isCurrentUserOwner ? 'حذف مساحة العمل' : 'مغادرة مساحة العمل'}
                     </Button>
                 </AlertDialogTrigger>
@@ -289,8 +285,8 @@ export function TeamDialog({ children, space: initialSpace, onSpaceUpdate }: Tea
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

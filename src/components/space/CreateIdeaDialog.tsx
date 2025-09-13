@@ -81,14 +81,14 @@ export function CreateIdeaDialog({ children, pillars, onAddIdea, open: controlle
     <ResponsiveDialog open={open} onOpenChange={setOpen}>
       {DialogTriggerComponent}
       <ResponsiveDialogContent className="sm:max-w-[425px] p-0">
-        <ResponsiveDialogHeader className="flex flex-row items-center justify-between border-b p-4">
+        <ResponsiveDialogHeader className="flex flex-row items-center justify-between border-b p-4 flex-shrink-0">
           <ResponsiveDialogTitle className="font-headline text-start">فكرة جديدة</ResponsiveDialogTitle>
           <Button type="submit" onClick={handleCreateIdea} disabled={!ideaContent.trim() || !selectedContentType || isLoading} size="sm">
             {isLoading && <Loader2 className="animate-spin" />}
             {isLoading ? 'جارٍ الحفظ...' : 'حفظ الفكرة'}
           </Button>
         </ResponsiveDialogHeader>
-        <div className="grid gap-4 p-4 max-h-[80vh] overflow-y-auto">
+        <div className="grid gap-4 p-4 overflow-y-auto">
           <div className="grid w-full gap-1.5">
             <Label htmlFor="idea-content">فكرتك</Label>
             <Textarea

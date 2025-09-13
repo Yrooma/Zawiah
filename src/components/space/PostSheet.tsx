@@ -69,7 +69,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
   return (
     <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
       <ResponsiveDialogContent className="w-full sm:max-w-lg p-0 flex flex-col">
-        <ResponsiveDialogHeader className="p-6 pb-4 text-start">
+        <ResponsiveDialogHeader className="p-6 pb-4 text-start flex-shrink-0">
           <div className="flex justify-between items-start">
             <ResponsiveDialogTitle className="font-headline text-2xl">{post.title}</ResponsiveDialogTitle>
             <Button variant="outline" size="icon" onClick={() => onEdit(post)}>
@@ -180,7 +180,7 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
 
         </div>
         {post.status !== 'published' && (
-             <div className="p-6 bg-background border-t">
+             <div className="p-6 bg-background border-t flex-shrink-0">
                 <Button size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleMarkAsPublished}>
                     تحديث الحالة إلى: تم النشر
                     <CheckCircle />

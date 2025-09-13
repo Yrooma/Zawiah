@@ -115,14 +115,14 @@ export function CreateItemDialog({ open, onOpenChange }: CreateItemDialogProps) 
     return (
         <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
             <ResponsiveDialogContent className="p-0">
-                <ResponsiveDialogHeader className="p-4 border-b">
+                <ResponsiveDialogHeader className="p-4 border-b flex-shrink-0">
                     <ResponsiveDialogTitle className="font-headline text-center">إنشاء جديد</ResponsiveDialogTitle>
                     <ResponsiveDialogDescription className="text-center">
                         {step === 1 ? 'ماذا تريد أن تنشئ؟' : 'في أي مساحة عمل؟'}
                     </ResponsiveDialogDescription>
                 </ResponsiveDialogHeader>
                 
-                <div className="p-4">
+                <div className="p-4 overflow-y-auto">
                     {isLoading ? (
                         <div className="flex justify-center items-center h-24">
                             <Loader2 className="animate-spin text-primary" />
