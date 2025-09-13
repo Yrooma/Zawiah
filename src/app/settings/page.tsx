@@ -36,32 +36,38 @@ function PushNotificationManager() {
   const [message, setMessage] = useState('')
  
   useEffect(() => {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      setIsSupported(true)
-      registerServiceWorker()
-    }
+    const checkSubscription = async () => {
+      if ('serviceWorker' in navigator && 'PushManager' in window) {
+        setIsSupported(true);
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (registration) {
+          const sub = await registration.pushManager.getSubscription();
+          if (sub) {
+            setSubscription(sub);
+          }
+        }
+      }
+    };
+    checkSubscription();
   }, [])
  
-  async function registerServiceWorker() {
-    const registration = await navigator.serviceWorker.register('/sw.js', {
-      scope: '/',
-      updateViaCache: 'none',
-    })
-    const sub = await registration.pushManager.getSubscription()
-    setSubscription(sub)
-  }
- 
   async function subscribeToPush() {
-    const registration = await navigator.serviceWorker.ready
-    const sub = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(
-        process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-      ),
-    })
-    setSubscription(sub)
-    const serializedSub = JSON.parse(JSON.stringify(sub))
-    await subscribeUser(serializedSub)
+    try {
+      await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      const registration = await navigator.serviceWorker.ready;
+      const sub = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(
+          process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+        ),
+      });
+      setSubscription(sub);
+      const serializedSub = JSON.parse(JSON.stringify(sub));
+      await subscribeUser(serializedSub);
+    } catch (error) {
+      console.error('Failed to subscribe to push notifications:', error);
+      // Here you could show a toast notification to the user explaining the error.
+    }
   }
  
   async function unsubscribeFromPush() {
