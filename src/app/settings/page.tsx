@@ -33,6 +33,7 @@ function PushNotificationManager() {
   const [subscription, setSubscription] = useState<PushSubscription | null>(
     null
   )
+  const [message, setMessage] = useState('')
  
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -69,6 +70,13 @@ function PushNotificationManager() {
     await unsubscribeUser()
   }
  
+  async function sendTestNotification() {
+    if (subscription) {
+      await sendNotification(message)
+      setMessage('')
+    }
+  }
+ 
   if (!isSupported) {
     return <p>Push notifications are not supported in this browser.</p>
   }
@@ -79,12 +87,23 @@ function PushNotificationManager() {
             <CardTitle>الإشعارات</CardTitle>
             <CardDescription>إدارة إعدادات الإشعارات.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
             {subscription ? (
-                <div className="flex items-center justify-between">
-                    <p>أنت مشترك في الإشعارات.</p>
-                    <Button onClick={unsubscribeFromPush} variant="outline">إلغاء الاشتراك</Button>
-                </div>
+                <>
+                    <div className="flex items-center justify-between">
+                        <p>أنت مشترك في الإشعارات.</p>
+                        <Button onClick={unsubscribeFromPush} variant="outline">إلغاء الاشتراك</Button>
+                    </div>
+                    <div className="space-y-2">
+                        <Input
+                            type="text"
+                            placeholder="اكتب رسالة اختبار"
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                        />
+                        <Button onClick={sendTestNotification} disabled={!message}>إرسال إشعار اختباري</Button>
+                    </div>
+                </>
             ) : (
                 <div className="flex items-center justify-between">
                     <p>أنت غير مشترك في الإشعارات.</p>
