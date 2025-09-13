@@ -11,6 +11,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { CreateIdeaDialog } from './CreateIdeaDialog';
 import { EditIdeaDialog } from './EditIdeaDialog';
+import { ResponsiveDialog, ResponsiveDialogContent, ResponsiveDialogHeader, ResponsiveDialogTitle } from '../ui/responsive-dialog';
+import { ScrollArea } from '../ui/scroll-area';
+import BiDiTextRenderer from '../ui/bidi-text-renderer';
 
 
 interface IdeasTabProps {
@@ -26,6 +29,7 @@ export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea, onUp
     const [ideas, setIdeas] = useState<Idea[]>(space.ideas);
     const [isEditIdeaOpen, setEditIdeaOpen] = useState(false);
     const [ideaToEdit, setIdeaToEdit] = useState<Idea | null>(null);
+    const [viewingIdea, setViewingIdea] = useState<Idea | null>(null);
 
     useEffect(() => {
         setIdeas(space.ideas);
@@ -69,7 +73,7 @@ export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea, onUp
           const contentTypeDetails = contentTypes.find(ct => ct.value === idea.contentType);
           return (
           <Card key={idea.id} className="flex flex-col">
-            <CardContent className="p-6 flex-grow space-y-2">
+            <CardContent className="p-6 flex-grow space-y-2 cursor-pointer" onClick={() => setViewingIdea(idea)}>
               <div className="flex items-center gap-4 text-xs font-semibold">
                 {idea.pillar && (
                   <div className="flex items-center gap-2">
@@ -84,7 +88,8 @@ export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea, onUp
                   </div>
                 )}
               </div>
-              <p className="text-foreground whitespace-pre-wrap pt-2">{idea.content}</p>
+              <p className="text-foreground whitespace-pre-wrap pt-2 line-clamp-3">{idea.content}</p>
+              <span className="text-sm text-primary font-semibold">اقرأ المزيد...</span>
             </CardContent>
             <CardFooter className="p-4 bg-muted/50 flex justify-between items-center">
               <div className='flex items-center gap-2'>
@@ -130,6 +135,16 @@ export function IdeasTab({ space, onConvertToPost, onAddIdea, onDeleteIdea, onUp
         onOpenChange={setEditIdeaOpen}
         onUpdateIdea={onUpdateIdea}
       />
+      <ResponsiveDialog open={!!viewingIdea} onOpenChange={() => setViewingIdea(null)}>
+        <ResponsiveDialogContent>
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle>تفاصيل الفكرة</ResponsiveDialogTitle>
+          </ResponsiveDialogHeader>
+          <ScrollArea className="max-h-[70vh] p-4">
+            <BiDiTextRenderer text={viewingIdea?.content || ''} />
+          </ScrollArea>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     </div>
   );
 }

@@ -175,7 +175,11 @@ export const updateSpaceCompass = async (spaceId: string, compassData: Compass):
 // Add a new Post to a space
 export const addPost = async (spaceId: string, postData: Omit<Post, 'id' | 'spaceId' | 'spaceName'>): Promise<Post> => {
     const postsCol = collection(db, 'spaces', spaceId, 'posts');
-    const docRef = await addDoc(postsCol, { ...postData, scheduledAt: Timestamp.fromDate(postData.scheduledAt as Date) });
+    const dataToSave = { ...postData, scheduledAt: Timestamp.fromDate(postData.scheduledAt as Date) };
+    if (postData.isAiPrompt) {
+        dataToSave.status = 'draft';
+    }
+    const docRef = await addDoc(postsCol, dataToSave);
     const newPostDoc = await getDoc(docRef);
     return convertTimestamp({ id: newPostDoc.id, ...newPostDoc.data() }) as Post;
 }
@@ -193,6 +197,12 @@ export const updatePost = async (spaceId: string, postId: string, postData: Part
 
     await updateDoc(postRef, dataToUpdate);
 }
+
+// Delete a post from a space
+export const deletePost = async (spaceId: string, postId: string): Promise<void> => {
+    const postRef = doc(db, 'spaces', spaceId, 'posts', postId);
+    await deleteDoc(postRef);
+};
 
 // Add a new Idea to a space
 export const addIdea = async (spaceId: string, ideaData: Omit<Idea, 'id'>): Promise<Idea> => {

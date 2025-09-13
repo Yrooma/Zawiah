@@ -10,9 +10,10 @@ import { AppView } from './AppView';
 interface PostsTabProps {
   posts: Post[];
   onEditPost: (post: Post) => void;
+  onDeletePost: (postId: string) => void;
 }
 
-export function PostsTab({ posts, onEditPost }: PostsTabProps) {
+export function PostsTab({ posts, onEditPost, onDeletePost }: PostsTabProps) {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   return (
@@ -24,7 +25,7 @@ export function PostsTab({ posts, onEditPost }: PostsTabProps) {
         </TabsList>
       </div>
       <TabsContent value="post-view" className="mt-4">
-        <PostsListView posts={posts} onEditPost={onEditPost} />
+        <PostsListView posts={posts} onEditPost={onEditPost} onDeletePost={onDeletePost} />
       </TabsContent>
       <TabsContent value="app-view" className="mt-4">
         <AppView posts={posts} />

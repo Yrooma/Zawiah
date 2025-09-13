@@ -4,17 +4,21 @@
 import type { Post, Platform, PostStatus } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
 } from "@/components/ui/responsive-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Instagram, Facebook, Copy, CheckCircle, Pencil, Mail, MessageSquare, ExternalLink } from 'lucide-react';
+import { Instagram, Facebook, Copy, CheckCircle, Pencil, Mail, MessageSquare, ExternalLink, Expand, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { ScrollArea } from "../ui/scroll-area";
+import BiDiTextRenderer from "../ui/bidi-text-renderer";
 import { format } from "date-fns";
 import { ar } from 'date-fns/locale';
 import { platformPostTypes } from "@/lib/data";
@@ -30,6 +34,7 @@ interface PostSheetProps {
 
 export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: PostSheetProps) {
   const { toast } = useToast();
+  const [isFocusMode, setFocusMode] = useState(false);
 
   if (!post) return null;
 
@@ -38,8 +43,30 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
     : null;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(post.content);
-    toast({ title: "تم نسخ محتوى المنشور!" });
+    if (!post) return;
+
+    let textToCopy = post.content;
+
+    if (post.fields && Object.keys(post.fields).length > 0 && post.platform && post.postType) {
+        const postTypeDetails = platformPostTypes[post.platform]?.find(pt => pt.id === post.postType);
+        if (postTypeDetails) {
+            const fieldsText = Object.entries(post.fields)
+                .map(([fieldId, value]) => {
+                    if (!value) return null;
+                    const fieldDef = postTypeDetails.fields.find(f => f.id === fieldId);
+                    return `${fieldDef?.name || fieldId}: ${value}`;
+                })
+                .filter(Boolean)
+                .join('\n');
+            
+            if (fieldsText) {
+                textToCopy += '\n\n---\n\n' + fieldsText;
+            }
+        }
+    }
+
+    navigator.clipboard.writeText(textToCopy);
+    toast({ title: "تم نسخ محتوى المنشور بالكامل!" });
   };
   
   const handleMarkAsPublished = () => {
@@ -149,15 +176,37 @@ export function PostSheet({ post, open, onOpenChange, onUpdateStatus, onEdit }: 
             <div>
                 <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold">المحتوى</h3>
-                    <Button variant="outline" size="sm" onClick={handleCopy}>
-                        نسخ النص
-                        <Copy />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setFocusMode(true)}>
+                            <Expand className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleCopy}>
+                            <Copy className="h-4 w-4" />
+                        </Button>
+                    </div>
                 </div>
-                <div className="border rounded-lg p-4 bg-muted/30 text-sm whitespace-pre-wrap">
-                    {post.content}
-                </div>
+                <ScrollArea className="h-auto max-h-[30vh] border rounded-lg bg-muted/30 p-4">
+                    <BiDiTextRenderer text={post.content} className="text-sm" />
+                </ScrollArea>
             </div>
+
+            <Dialog open={isFocusMode} onOpenChange={setFocusMode}>
+                <DialogContent className="w-full h-full max-w-full sm:max-w-full sm:h-full flex flex-col p-4">
+                    <DialogHeader className="flex flex-row items-center justify-between flex-shrink-0 border-b pb-2">
+                        <DialogTitle>وضع القراءة</DialogTitle>
+                        <DialogClose asChild>
+                            <Button variant="ghost" size="icon">
+                                <X />
+                            </Button>
+                        </DialogClose>
+                    </DialogHeader>
+                    <div className="relative flex-1 mt-4">
+                        <ScrollArea className="absolute inset-0 p-1">
+                           <BiDiTextRenderer text={post.content} className="text-base" />
+                        </ScrollArea>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             <div>
                 <h3 className="font-semibold mb-3">سجل النشاط</h3>

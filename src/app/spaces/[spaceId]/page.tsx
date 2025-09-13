@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { notFound, useRouter, useParams } from 'next/navigation';
-import { getSpaceById, addPost, updatePost, addIdea, deleteIdea, updateIdea, updateSpaceCompass } from '@/lib/services';
+import { getSpaceById, addPost, updatePost, deletePost, addIdea, deleteIdea, updateIdea, updateSpaceCompass } from '@/lib/services';
 import type { Space, Post, Platform, PostStatus, Idea, User, Compass, ContentType } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpaceHeader } from '@/components/space/SpaceHeader';
@@ -196,6 +196,19 @@ export default function SpacePage() {
     }
   };
 
+  const handleDeletePost = async (postId: string) => {
+    if (!space) return;
+    try {
+      await deletePost(space.id, postId);
+      const updatedPosts = space.posts.filter(post => post.id !== postId);
+      setSpace({ ...space, posts: updatedPosts });
+      toast({ title: "تم حذف المنشور بنجاح" });
+    } catch (e) {
+      console.error("Failed to delete post", e);
+      toast({ title: "خطأ في حذف المنشور", variant: "destructive" });
+    }
+  };
+
   const handleUpdateCompass = async (updatedCompass: Compass) => {
     if (!space) return;
     try {
@@ -258,7 +271,7 @@ export default function SpacePage() {
               />
             </TabsContent>
             <TabsContent value="posts" className="mt-6">
-              <PostsTab posts={space.posts} onEditPost={handleOpenEditPostDialog} />
+              <PostsTab posts={space.posts} onEditPost={handleOpenEditPostDialog} onDeletePost={handleDeletePost} />
             </TabsContent>
             <TabsContent value="calendar" className="mt-6">
               <CalendarTab posts={space.posts} pillars={space.compass?.pillars || []} onUpdatePostStatus={handleUpdatePostStatus} onEditPost={handleOpenEditPostDialog} />

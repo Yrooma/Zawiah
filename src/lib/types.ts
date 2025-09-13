@@ -72,6 +72,7 @@ export type Post = {
   };
   contentType: ContentType;
   fields?: { [key: string]: any }; // For dynamic fields like poll options
+  isAiPrompt?: boolean;
 };
 
 export type Space = {

@@ -3,6 +3,9 @@
 
 import { useState, type ReactNode, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
+import { Wand2 } from "lucide-react";
+import { AiPromptSheet } from "./AiPromptSheet";
+import { generateDynamicPrompt } from "@/lib/prompt-generator";
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
@@ -10,18 +13,21 @@ import {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
 } from "@/components/ui/responsive-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from '../ui/textarea';
+import { Textarea } from "@/components/ui/textarea";
+import TextareaAutosize from 'react-textarea-autosize';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useToast } from "@/hooks/use-toast";
 import type { Platform, Post, Idea, ContentPillar, Compass, ContentType, PostType } from '@/lib/types';
 import { contentTypes, platformPostTypes } from '@/lib/data';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { CalendarIcon, Loader2, Users, Mic2, Info } from 'lucide-react';
+import { CalendarIcon, Loader2, Users, Mic2, Info, Expand, X } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -40,6 +46,7 @@ interface CreatePostDialogProps {
     contentType: ContentType,
     postType?: string;
     fields?: { [key: string]: any };
+    isAiPrompt?: boolean;
   }, id?: string) => Promise<void>;
   spaceId: string;
   initialContent?: string;
@@ -65,6 +72,10 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
   const [selectedPostTypeId, setSelectedPostTypeId] = useState<string | undefined>();
   const [postFields, setPostFields] = useState<{ [key: string]: any }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isFocusMode, setFocusMode] = useState(false);
+  const [focusContent, setFocusContent] = useState("");
+  const [isAiPromptSheetOpen, setAiPromptSheetOpen] = useState(false);
+  const [generatedPrompt, setGeneratedPrompt] = useState("");
   
   const isEditing = !!postToEdit;
   
@@ -103,11 +114,11 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
     }
   }, [postToEdit, initialContent, initialPillar, initialContentType, open]);
 
-  useEffect(() => {
-    // Reset post type and fields when platform changes
+  const handlePlatformChange = (newPlatform: Platform) => {
+    setPlatform(newPlatform);
     setSelectedPostTypeId(undefined);
     setPostFields({});
-  }, [platform]);
+  };
 
   const handleFieldChange = (fieldId: string, value: any) => {
     setPostFields(prev => ({ ...prev, [fieldId]: value }));
@@ -159,6 +170,59 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
       setIsLoading(false);
     }
   };
+
+  const handleGenerateAiPrompt = async () => {
+    if (!platform || !selectedContentType || !selectedPillarId) {
+      toast({
+        variant: "destructive",
+        title: "الرجاء تحديد الخيارات الاستراتيجية أولاً",
+        description: "يجب تحديد المنصة، نوع المحتوى، والمحور لتوليد الأمر.",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    const selectedPillar = pillars.find(p => p.id === selectedPillarId);
+    const postDetails = {
+      title,
+      content,
+      platform,
+      scheduledAt: scheduledAt || new Date(),
+      pillar: selectedPillar ? { id: selectedPillar.id, name: selectedPillar.name, color: selectedPillar.color } : undefined,
+      contentType: selectedContentType,
+      postType: selectedPostTypeId,
+      fields: postFields,
+      isAiPrompt: true,
+    };
+
+    try {
+      await onSavePost(postDetails, postToEdit?.id);
+      generatePrompt();
+      setAiPromptSheetOpen(true);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "تعذر حفظ المسودة أو توليد الأمر. يرجى المحاولة مرة أخرى.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const generatePrompt = () => {
+    const selectedPillar = pillars.find(p => p.id === selectedPillarId);
+    const prompt = generateDynamicPrompt(
+      content,
+      selectedContentType,
+      selectedPillar,
+      platform,
+      selectedPostTypeId,
+      postFields,
+      compass
+    );
+    setGeneratedPrompt(prompt);
+  };
   
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
@@ -167,16 +231,37 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
     onOpenChange(isOpen);
   }
 
+  const openFocusMode = () => {
+    setFocusContent(content);
+    setFocusMode(true);
+  };
+
+  const handleSaveFocus = () => {
+    setContent(focusContent);
+    setFocusMode(false);
+  };
+
   return (
     <ResponsiveDialog open={open} onOpenChange={handleOpenChange}>
       {children}
+      <AiPromptSheet 
+        open={isAiPromptSheetOpen} 
+        onOpenChange={setAiPromptSheetOpen} 
+        prompt={generatedPrompt} 
+      />
       <ResponsiveDialogContent className="sm:max-w-[800px] p-0">
         <ResponsiveDialogHeader className="flex flex-row items-center justify-between border-b p-4 flex-shrink-0">
           <ResponsiveDialogTitle className="font-headline text-start">{isEditing ? 'تعديل المنشور' : 'منشور جديد'}</ResponsiveDialogTitle>
-          <Button type="submit" onClick={handleSave} disabled={isLoading}>
-             {isLoading && <Loader2 className="animate-spin" />}
-            {isLoading ? 'جارٍ الحفظ...' : (isEditing ? 'حفظ التغييرات' : 'إنشاء مسودة')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleGenerateAiPrompt} disabled={isLoading}>
+              <Wand2 className="ms-2 h-4 w-4" />
+              أمر AI
+            </Button>
+            <Button type="submit" onClick={handleSave} disabled={isLoading}>
+              {isLoading && <Loader2 className="animate-spin" />}
+              {isLoading ? 'جارٍ الحفظ...' : (isEditing ? 'حفظ التغييرات' : 'إنشاء مسودة')}
+            </Button>
+          </div>
         </ResponsiveDialogHeader>
         <div className={cn("grid overflow-y-auto flex-grow", isMobile ? "grid-cols-1" : "grid-cols-3 gap-8")}>
           <div className="col-span-2 h-full flex flex-col p-4">
@@ -195,15 +280,20 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
             />
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="content" className="text-start pt-2">
-              المحتوى
-            </Label>
-            <Textarea
+            <div className="flex items-center justify-between text-start pt-2">
+                <Label htmlFor="content">المحتوى</Label>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={openFocusMode}>
+                    <Expand className="h-4 w-4" />
+                </Button>
+            </div>
+            <TextareaAutosize
               id="content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="اكتب محتوى منشورك هنا..."
-              className="col-span-3 min-h-[120px]"
+              className="col-span-3 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px] resize-none"
+              minRows={5}
+              maxRows={15}
               disabled={isLoading}
             />
           </div>
@@ -232,7 +322,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
             <Label htmlFor="platform" className="text-start">
               المنصة
             </Label>
-            <Select value={platform} onValueChange={(value: Platform) => setPlatform(value)} disabled={isLoading}>
+            <Select value={platform} onValueChange={handlePlatformChange} disabled={isLoading}>
                 <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="اختر منصة" />
                 </SelectTrigger>
@@ -274,7 +364,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
                     <Textarea
                       id={field.id}
                       value={postFields[field.id] || ''}
-                      onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleFieldChange(field.id, e.target.value)}
                       placeholder={field.placeholder}
                       className="col-span-3 min-h-[80px]"
                       disabled={isLoading}
@@ -283,7 +373,7 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
                     <Input
                       id={field.id}
                       value={postFields[field.id] || ''}
-                      onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange(field.id, e.target.value)}
                       placeholder={field.placeholder}
                       className="col-span-3"
                       disabled={isLoading}
@@ -412,6 +502,28 @@ export function CreatePostDialog({ open, onOpenChange, onSavePost, initialConten
             </div>
           )}
         </div>
+        <Dialog open={isFocusMode} onOpenChange={setFocusMode}>
+            <DialogContent className="w-full h-full max-w-full sm:max-w-full sm:h-full flex flex-col p-0">
+                <DialogHeader className="flex flex-row items-center justify-between flex-shrink-0 border-b p-4">
+                    <DialogTitle>وضع الكتابة المركزة</DialogTitle>
+                    <div className="flex items-center gap-2">
+                        <Button onClick={handleSaveFocus}>تم</Button>
+                        <DialogClose asChild>
+                            <Button variant="ghost">إلغاء</Button>
+                        </DialogClose>
+                    </div>
+                </DialogHeader>
+                <div className="flex-grow p-4 overflow-hidden">
+                    <TextareaAutosize
+                        value={focusContent}
+                        onChange={(e) => setFocusContent(e.target.value)}
+                        placeholder="اكتب محتوى منشورك هنا..."
+                        className="w-full h-full rounded-md border-none bg-transparent px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 resize-none overflow-y-auto"
+                        autoFocus
+                    />
+                </div>
+            </DialogContent>
+        </Dialog>
       </ResponsiveDialogContent>
     </ResponsiveDialog>
   );

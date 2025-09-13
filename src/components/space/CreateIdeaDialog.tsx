@@ -12,14 +12,15 @@ import {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
 } from "@/components/ui/responsive-dialog";
-import { DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogTrigger } from "@/components/ui/dialog";
+import TextareaAutosize from 'react-textarea-autosize';
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from 'lucide-react';
+import { Loader2, Expand, X } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface CreateIdeaDialogProps {
   pillars: ContentPillar[];
@@ -35,12 +36,23 @@ export function CreateIdeaDialog({ children, pillars, onAddIdea, open: controlle
   const [selectedPillarId, setSelectedPillarId] = useState<string | undefined>(undefined);
   const [selectedContentType, setSelectedContentType] = useState<ContentType | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFocusMode, setFocusMode] = useState(false);
+  const [focusContent, setFocusContent] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
   
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = controlledOnOpenChange !== undefined ? controlledOnOpenChange : setInternalOpen;
 
+  const openFocusMode = () => {
+    setFocusContent(ideaContent);
+    setFocusMode(true);
+  };
+
+  const handleSaveFocus = () => {
+    setIdeaContent(focusContent);
+    setFocusMode(false);
+  };
 
   const handleCreateIdea = async () => {
     if (ideaContent.trim() && selectedContentType && user) {
@@ -90,13 +102,20 @@ export function CreateIdeaDialog({ children, pillars, onAddIdea, open: controlle
         </ResponsiveDialogHeader>
         <div className="grid gap-4 p-4 overflow-y-auto flex-grow">
           <div className="grid w-full gap-1.5">
-            <Label htmlFor="idea-content">فكرتك</Label>
-            <Textarea
+            <div className="flex items-center justify-between">
+                <Label htmlFor="idea-content">فكرتك</Label>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={openFocusMode}>
+                    <Expand className="h-4 w-4" />
+                </Button>
+            </div>
+            <TextareaAutosize
               id="idea-content"
               value={ideaContent}
               onChange={(e) => setIdeaContent(e.target.value)}
               placeholder="مثال: 'إجراء مسابقة على انستغرام الأسبوع المقبل...'"
-              className="min-h-[100px]"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[100px] resize-none"
+              minRows={4}
+              maxRows={10}
               disabled={isLoading}
             />
           </div>
@@ -139,6 +158,28 @@ export function CreateIdeaDialog({ children, pillars, onAddIdea, open: controlle
           )}
         </div>
       </ResponsiveDialogContent>
+      <Dialog open={isFocusMode} onOpenChange={setFocusMode}>
+        <DialogContent className="w-full h-full max-w-full sm:max-w-full sm:h-full flex flex-col p-0">
+            <DialogHeader className="flex flex-row items-center justify-between flex-shrink-0 border-b p-4">
+                <DialogTitle>وضع الكتابة المركزة</DialogTitle>
+                <div className="flex items-center gap-2">
+                    <Button onClick={handleSaveFocus}>تم</Button>
+                    <DialogClose asChild>
+                        <Button variant="ghost">إلغاء</Button>
+                    </DialogClose>
+                </div>
+            </DialogHeader>
+            <div className="flex-grow p-4 overflow-hidden">
+                <TextareaAutosize
+                    value={focusContent}
+                    onChange={(e) => setFocusContent(e.target.value)}
+                    placeholder="اكتب فكرتك هنا..."
+                    className="w-full h-full rounded-md border-none bg-transparent px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 resize-none overflow-y-auto"
+                    autoFocus
+                />
+            </div>
+        </DialogContent>
+      </Dialog>
     </ResponsiveDialog>
   );
 }

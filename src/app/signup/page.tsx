@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LayoutGrid } from 'lucide-react';
+import { Loader2, LayoutGrid, CheckCircle2, XCircle } from 'lucide-react';
 import { FirebaseError } from 'firebase/app';
 
 export default function SignupPage() {
@@ -22,8 +22,35 @@ export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
 
+  const passwordRequirements = useMemo(() => {
+    return [
+      { regex: /.{8,}/, text: "8 أحرف على الأقل" },
+      { regex: /[a-z]/, text: "حرف صغير واحد على الأقل" },
+      { regex: /[A-Z]/, text: "حرف كبير واحد على الأقل" },
+      { regex: /[0-9]/, text: "رقم واحد على الأقل" },
+      { regex: /[^A-Za-z0-9]/, text: "رمز خاص واحد على الأقل" },
+    ];
+  }, []);
+
+  const passwordValidation = useMemo(() => {
+    return passwordRequirements.map(req => ({
+      ...req,
+      isValid: req.regex.test(password)
+    }));
+  }, [password, passwordRequirements]);
+
+  const isPasswordValid = useMemo(() => passwordValidation.every(req => req.isValid), [passwordValidation]);
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordValid) {
+      toast({
+        variant: "destructive",
+        title: "كلمة المرور غير صالحة",
+        description: "يرجى التأكد من أن كلمة المرور تستوفي جميع المتطلبات.",
+      });
+      return;
+    }
     setIsLoading(true);
     try {
       await signUp(email, password, name);
@@ -38,7 +65,7 @@ export default function SignupPage() {
          toast({
             variant: "destructive",
             title: "كلمة المرور ضعيفة",
-            description: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+            description: "كلمة المرور التي أدخلتها ضعيفة جدًا.",
           });
        } else if (error instanceof FirebaseError && error.code === 'auth/email-already-in-use') {
          toast({
@@ -100,11 +127,17 @@ export default function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
-                  minLength={6}
                 />
-                <p className="text-xs text-muted-foreground">يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.</p>
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <div className="grid gap-2 mt-2">
+                {passwordValidation.map((req, index) => (
+                  <div key={index} className={`flex items-center text-xs ${req.isValid ? 'text-green-500' : 'text-muted-foreground'}`}>
+                    {req.isValid ? <CheckCircle2 className="h-4 w-4 ml-2" /> : <XCircle className="h-4 w-4 ml-2" />}
+                    <span>{req.text}</span>
+                  </div>
+                ))}
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading || !isPasswordValid}>
                 {isLoading ? <Loader2 className="animate-spin" /> : 'إنشاء حساب'}
               </Button>
             </div>
