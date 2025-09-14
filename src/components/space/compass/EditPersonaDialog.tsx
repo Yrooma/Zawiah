@@ -76,7 +76,7 @@ export function EditPersonaDialog({ persona, open, onOpenChange, onSave }: EditP
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>الاسم</FormLabel>
-                    <FormControl><Input placeholder="مثال: سارة" {...field} /></FormControl>
+                    <FormControl><Input placeholder="مثال: مدير الموارد البشرية" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -99,7 +99,7 @@ export function EditPersonaDialog({ persona, open, onOpenChange, onSave }: EditP
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>الوظيفة</FormLabel>
-                  <FormControl><Input placeholder="مثال: مديرة تسويق" {...field} /></FormControl>
+                  <FormControl><Input placeholder="مثال: مدير موارد بشرية" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -110,7 +110,7 @@ export function EditPersonaDialog({ persona, open, onOpenChange, onSave }: EditP
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>أهدافها</FormLabel>
-                  <FormControl><Textarea placeholder="ماذا تريد أن تحقق؟" {...field} /></FormControl>
+                  <FormControl><Textarea placeholder="ماذا تريد أن يحقق؟" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -121,7 +121,7 @@ export function EditPersonaDialog({ persona, open, onOpenChange, onSave }: EditP
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>تحدياتها</FormLabel>
-                  <FormControl><Textarea placeholder="ما هي الصعوبات التي تواجهها؟" {...field} /></FormControl>
+                  <FormControl><Textarea placeholder="ما هي الصعوبات التي يواجهها؟" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
