@@ -42,7 +42,7 @@ const ResponsiveDialogContent = ({ children, className, ...props }: React.Compon
   }
 
   return (
-    <DialogContent className={cn("max-h-[90vh] flex flex-col", className)} {...props}>
+    <DialogContent className={cn("max-h-[70vh] flex flex-col", className)} {...props}>
       {children}
     </DialogContent>
   )
